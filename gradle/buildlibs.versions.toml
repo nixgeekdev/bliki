@@ -1,0 +1,54 @@
+[versions]
+# Language Versions
+java-language = "21"
+kotlin-language = "2.3.0"
+
+build-dependency-analysis = "3.5.1"
+build-detekt = "2.0.0-alpha.2"
+build-figure-semver = "2.0.4"
+build-github-release = "2.5.2"
+build-kover = "0.9.6"
+build-owasp-dependencycheck = "12.2.0"
+build-spotless = "8.2.1"
+build-swiftzer-semver = "2.1.0"
+build-tasktree = "4.0.1"
+build-testlogger = "4.0.0"
+build-versions = "0.53.0"
+
+[libraries]
+# https://github.com/autonomousapps/dependency-analysis-gradle-plugin
+build-dependency-analysis = { module = "com.autonomousapps:dependency-analysis-gradle-plugin", version.ref = "build-dependency-analysis" }
+
+# https://detekt.dev/
+build-detekt = { module = "dev.detekt:detekt-gradle-plugin", version.ref = "build-detekt" }
+
+# https://github.com/figuretechnologies/gradle-semver-plugin
+build-figure-semver = { module = "com.figure.gradle.semver:gradle-semver-plugin", version.ref = "build-figure-semver" }
+
+# https://github.com/BreadMoirai/github-release-gradle-plugin
+build-github-release = { module = "com.github.breadmoirai:github-release", version.ref = "build-github-release" }
+
+# https://kotlinlang.org/
+build-kotlin-api = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin-api", version.ref = "kotlin-language" }
+build-kotlin-jvm = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin-language" }
+
+# https://github.com/Kotlin/kotlinx-kover
+build-kover = { module = "org.jetbrains.kotlinx:kover-gradle-plugin", version.ref = "build-kover" }
+
+# https://jeremylong.github.io/DependencyCheck/
+build-owasp-dependencycheck = { module = "org.owasp:dependency-check-gradle", version.ref = "build-owasp-dependencycheck" }
+
+# https://github.com/diffplug/spotless
+build-spotless = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "build-spotless" }
+
+# https://github.com/swiftzer/semver
+build-swiftzer-semver = { module = "net.swiftzer.semver:semver", version.ref = "build-swiftzer-semver" }
+
+# https://github.com/dorongold/gradle-task-tree
+build-tasktree = { module = "com.dorongold.plugins:task-tree", version.ref = "build-tasktree" }
+
+# https://github.com/radarsh/gradle-test-logger-plugin
+build-testlogger = { module = "com.adarshr:gradle-test-logger-plugin", version.ref = "build-testlogger" }
+
+# https://github.com/ben-manes/gradle-versions-plugin
+build-versions = { module = "com.github.ben-manes:gradle-versions-plugin", version.ref = "build-versions" }
