@@ -75,3 +75,30 @@ google-osdetector = { id = "com.google.osdetector", version = "1.7.3" }
 kotest = { id = "io.kotest", version.ref = "kotest-version" }
 spring-boot-gradle = { id = "org.springframework.boot", version.ref = "springboot-version" }
 spring-dependency-management = { id = "io.spring.dependency-management", version = "1.1.7" }
+
+[bundles]
+kotlin = ["kotlin-stdlib-core", "kotlin-stdlib-jdk8", "kotlin-reflect"]
+coroutines = ["kotlinx-coroutines-core", "kotlinx-coroutines-jdk8", "kotlinx-coroutines-reactor"]
+database = [
+    "exposed-core", "exposed-r2dbc", "exposed-crypt", "exposed-time", "exposed-json",
+    "exposed-migration-core", "exposed-migration-r2dbc", "postgresql-r2dbc",
+    "r2dbc-pool", "r2dbc-spi",
+]
+jackson = ["jackson-core", "jackson-databind", "jackson-module-kotlin"]
+logging = ["logback-classic", "kotlin-logging"]
+spring-boot-starters = [
+    "spring-boot-starter-actuator", "spring-boot-starter-r2dbc", "spring-boot-starter-security",
+    "spring-boot-starter-validation", "spring-boot-starter-webflux",
+]
+kotest = [
+    "kotest-assertions", "kotest-core", "kotest-extension-spring", "kotest-extension-testcontainers",
+    "kotest-property", "kotest-runner",
+]
+test = [
+    "test-containers-postgresql", "test-kotlinx-coroutines", "test-mockk", "test-mockk-dsl",
+    "test-containers-r2dbc", "test-reactor",
+]
+test-spring-boot = [
+    "test-spring-boot-containers", "test-spring-boot-starter", "test-spring-boot-starter-actuator",
+    "test-spring-boot-starter-r2dbc", "test-spring-boot-starter-security", "test-spring-boot-starter-webflux",
+]
