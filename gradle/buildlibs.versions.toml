@@ -3,11 +3,11 @@
 java-language = "21"
 kotlin-language = "2.3.0"
 
-build-dependency-analysis = "3.5.1"
+build-dependency-analysis = "3.6.1"
 build-detekt = "2.0.0-alpha.2"
 build-figure-semver = "2.0.4"
 build-github-release = "2.5.2"
-build-kover = "0.9.6"
+build-kover = "0.9.7"
 build-owasp-dependencycheck = "12.2.0"
 build-spotless = "8.2.1"
 build-swiftzer-semver = "2.1.0"
