@@ -1,0 +1,16 @@
+[
+  {
+    "name": "John Doe",
+    "email": "johndoe@figure.com",
+    "id": 1,
+    "active": true,
+    "hire_date": "2021-01-01"
+  },
+  {
+    "name": "Jane Doe",
+    "email": "janedoe@figure.com",
+    "id": 2,
+    "active": true,
+    "hire_date": "2020-01-01"
+  }
+]
