@@ -70,6 +70,50 @@ fun ByteArray.asJsonNode(): JsonNode =
     NixGeekMapper.mapper.readTree(asUtf8String())
         ?: NixGeekMapper.mapper.createObjectNode()
 
+// GENERIC ////////////////////////////////////////////////////////////////////
+
+/**
+ * Converts an object to a JSON string
+ */
+inline fun <reified T> T.asJson(): String =
+    NixGeekMapper.mapper
+        .writeValueAsString(this)
+
+/**
+ * Converts an object to a pretty JSON string
+ */
+inline fun <reified T> T.asPrettyJson(): String =
+    NixGeekMapper.mapper
+        .writerWithDefaultPrettyPrinter()
+        .writeValueAsString(this)
+
+/**
+ * Converts an object to a JSON byte array
+ */
+inline fun <reified T> T.asJsonBytes(): ByteArray =
+    NixGeekMapper.mapper
+        .writeValueAsBytes(this)
+
+/**
+ * Converts an object to a JSON node
+ */
+inline fun <reified T> T.asJsonNode(): JsonNode =
+    NixGeekMapper.mapper
+        .valueToTree(this)
+
+/**
+ * Converts a JSON node to an object of type T
+ */
+inline fun <reified T> JsonNode.asType(): T =
+    NixGeekMapper.mapper
+        .treeToValue(this, T::class.java)
+
+/**
+ * Converts a JSON string to an object of type T
+ */
+inline fun <reified T> String.asType(): T =
+    NixGeekMapper.mapper
+        .readValue(this, T::class.java)
 
 // SUPPORT FUNCTIONS //////////////////////////////////////////////////////////
 
