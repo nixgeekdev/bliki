@@ -10,6 +10,6 @@ object NixGeekMapper {
     val mapper: JsonMapper =
         JsonMapper
             .builder()
-            // .configureNixGeek()
+            .configureNixGeek()
             .build()
 }
