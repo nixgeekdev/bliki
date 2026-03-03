@@ -115,6 +115,31 @@ inline fun <reified T> String.asType(): T =
     NixGeekMapper.mapper
         .readValue(this, T::class.java)
 
+// JSON NODE //////////////////////////////////////////////////////////////////
+
+/**
+ * Returns the value of a node if it exists, otherwise returns null
+ */
+fun JsonNode.getOrNull(path: String): JsonNode? = if (has(path)) get(path) else null
+
+/**
+ * Returns the value of a node if it exists, otherwise returns a default node
+ */
+fun JsonNode.getOrDefault(path: String, default: JsonNode): JsonNode = if (has(path)) get(path) else default
+
+/**
+ * Returns the value of a node if it exists, otherwise builds a default node
+ */
+fun JsonNode.getOrDefault(path: String, default: String = EMPTY): JsonNode =
+    if (has(path)) {
+        get(path)
+    } else {
+        NixGeekMapper.mapper
+            .createObjectNode()
+            .put(path, default)
+            .get(path)
+    }
+
 // SUPPORT FUNCTIONS //////////////////////////////////////////////////////////
 
 /**
