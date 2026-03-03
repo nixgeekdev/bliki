@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -e
+
+# bliki
+psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" <<- EOSQL
+    create database bliki;
+    create role bliki_app with encrypted password 'FbZ)D_MG5Xfkk%Sl' noinherit;
+    create role bliki_admin with encrypted password 'Z[u;&Im(^w^RGluX' noinherit;
+    grant connect on database bliki to bliki_app;
+    grant all privileges on database bliki to bliki_admin;
+    grant all privileges on database bliki to $POSTGRES_USER;
+
+    \connect "bliki";
+    create schema if not exists bliki;
+    grant select, insert, update on all tables in schema public to bliki_app;
+    grant all privileges on schema bliki to bliki_admin;
+    grant all privileges on schema bliki to $POSTGRES_USER;
+    alter database bliki set search_path to public,bliki;
+EOSQL
