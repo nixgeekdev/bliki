@@ -1,0 +1,24 @@
+config:
+  validation: true
+  warningsAsErrors: false
+
+console-reports:
+  active: true
+  exclude:
+    - 'ProjectStatisticsReport'
+    - 'ComplexityReport'
+    - 'NotificationReport'
+    - 'FindingsReport'
+    - 'FileBasedFindingsReport'
+
+complexity:
+  TooManyFunctions:
+    active: true
+    excludes: ['**/test/**', '**/testFixtures/**']
+    allowedFunctionsPerFile: 32
+    allowedFunctionsPerClass: 24
+    allowedFunctionsPerInterface: 16
+    allowedFunctionsPerObject: 24
+    allowedFunctionsPerEnum: 16
+    ignorePrivate: true
+    ignoreOverridden: true
