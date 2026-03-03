@@ -6,4 +6,8 @@ fun json(format: String, vararg args: Any): String =
     String.format(format, *args).replace('\'', '"')
 
 fun loadResourceData(path: String): String? =
-    {}.javaClass.getResource(path)?.toURI()?.loadResource()
+    {}
+        .javaClass
+        .getResource(path)
+        ?.toURI()
+        ?.loadResource()

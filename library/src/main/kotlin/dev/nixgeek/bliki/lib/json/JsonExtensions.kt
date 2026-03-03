@@ -42,7 +42,8 @@ fun JsonMapper.Builder.configureNixGeek(): JsonMapper.Builder =
 fun String.loadAsJsonNode(): JsonNode? =
     NixGeekMapper.mapper
         .readTree(
-            {}.javaClass
+            {}
+                .javaClass
                 .getResource(this)
                 ?.toURI()
                 ?.loadResource(),
@@ -61,7 +62,6 @@ fun String.asJsonNode(): JsonNode =
  * Converts a byte array to a UTF-8 string
  */
 fun ByteArray.asUtf8String(): String = toString(Charsets.UTF_8)
-
 
 /**
  * Converts a byte array to a JSON node
