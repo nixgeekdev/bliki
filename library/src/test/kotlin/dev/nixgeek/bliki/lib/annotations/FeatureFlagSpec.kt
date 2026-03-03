@@ -12,17 +12,19 @@ import kotlin.reflect.full.findAnnotation
 
 class FeatureFlagSpec : FunSpec({
     test("should find feature flag annotation on class") {
-        val featureFlagAnnotation = FeatureFlagAnnotatedClass::class
-            .annotations
-            .filterIsInstance<FeatureFlag>()
-            .first()
+        val featureFlagAnnotation =
+            FeatureFlagAnnotatedClass::class
+                .annotations
+                .filterIsInstance<FeatureFlag>()
+                .first()
 
         featureFlagAnnotation.shouldNotBeNull()
     }
 
     test("should read feature flag annotation values correctly on class") {
-        val featureFlagAnnotation = FeatureFlagAnnotatedClass::class
-            .findAnnotation<FeatureFlag>()
+        val featureFlagAnnotation =
+            FeatureFlagAnnotatedClass::class
+                .findAnnotation<FeatureFlag>()
 
         featureFlagAnnotation.shouldNotBeNull()
         featureFlagAnnotation.name shouldBe "TestOnClass"
@@ -30,21 +32,23 @@ class FeatureFlagSpec : FunSpec({
     }
 
     test("should find feature flag annotation on function") {
-        val featureFlagAnnotation = FeatureFlagAnnotatedFunction::class
-            .members
-            .first { it.name == "annotatedBar" }
-            .annotations
-            .filterIsInstance<FeatureFlag>()
-            .first()
+        val featureFlagAnnotation =
+            FeatureFlagAnnotatedFunction::class
+                .members
+                .first { it.name == "annotatedBar" }
+                .annotations
+                .filterIsInstance<FeatureFlag>()
+                .first()
 
         featureFlagAnnotation.shouldNotBeNull()
     }
 
     test("should read feature flag annotation values correctly on function") {
-        val featureFlagAnnotation = FeatureFlagAnnotatedFunction::class
-            .members
-            .first { it.name == "annotatedBar" }
-            .findAnnotation<FeatureFlag>()
+        val featureFlagAnnotation =
+            FeatureFlagAnnotatedFunction::class
+                .members
+                .first { it.name == "annotatedBar" }
+                .findAnnotation<FeatureFlag>()
 
         featureFlagAnnotation.shouldNotBeNull()
         featureFlagAnnotation.name shouldBe "TestOnFunction"
@@ -52,17 +56,19 @@ class FeatureFlagSpec : FunSpec({
     }
 
     test("should not find feature flag annotation on class") {
-        val featureFlagAnnotation = NotATestContainerBeanAnnotatedClass::class
-            .findAnnotation<FeatureFlag>()
+        val featureFlagAnnotation =
+            NotATestContainerBeanAnnotatedClass::class
+                .findAnnotation<FeatureFlag>()
 
         featureFlagAnnotation.shouldBeNull()
     }
 
     test("should not find feature flag annotation on function") {
-        val featureFlagAnnotation = NotATestContainerBeanAnnotatedFunction::class
-            .members
-            .first { it.name == "annotatedFoo" }
-            .findAnnotation<FeatureFlag>()
+        val featureFlagAnnotation =
+            NotATestContainerBeanAnnotatedFunction::class
+                .members
+                .first { it.name == "annotatedFoo" }
+                .findAnnotation<FeatureFlag>()
 
         featureFlagAnnotation.shouldBeNull()
     }
