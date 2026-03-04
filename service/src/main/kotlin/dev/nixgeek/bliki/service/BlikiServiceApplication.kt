@@ -1,16 +1,21 @@
 package dev.nixgeek.bliki.service
 
-import org.springframework.boot.autoconfigure.ImportAutoConfiguration
 import org.springframework.boot.autoconfigure.SpringBootApplication
-import org.springframework.boot.r2dbc.autoconfigure.R2dbcAutoConfiguration
+import org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration
 import org.springframework.boot.runApplication
 import org.springframework.web.reactive.config.EnableWebFlux
+import java.util.TimeZone
 
-@SpringBootApplication(scanBasePackages = ["dev.nixgeek.bliki.service"])
-@ImportAutoConfiguration(value = [R2dbcAutoConfiguration::class])
+internal val defaultTimeZone: TimeZone = TimeZone.getTimeZone("UTC")!!
+
+@SpringBootApplication(
+    scanBasePackages = ["dev.nixgeek.bliki.service"],
+    exclude = [DataSourceAutoConfiguration::class],
+)
 @EnableWebFlux
 class BlikiServiceApplication
 
 fun main(args: Array<String>) {
+    TimeZone.setDefault(defaultTimeZone)
     runApplication<BlikiServiceApplication>(*args)
 }
