@@ -36,6 +36,7 @@ tasks.withType<Test>().configureEach {
         events("passed", "skipped", "failed", "standardOut", "standardError")
     }
     jvmArgs("-javaagent:${configurations.testRuntimeClasspath.get().find { it.name.contains("byte-buddy-agent") }}")
+    // jvmArgs("-XX:+EnableDynamicAgentLoading")
 }
 
 kover {

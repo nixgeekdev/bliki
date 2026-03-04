@@ -3,6 +3,7 @@ plugins {
 
     id("local.library-conventions")
     `java-test-fixtures`
+    idea
 
     alias(libs.plugins.kotest)
 }
@@ -20,6 +21,7 @@ dependencies {
         libs.bundles.jackson,
         libs.bundles.logging,
         libs.jakarta.validation.api,
+        libs.kotlin.ulid,
         libs.reactor.kotlin.extensions,
         libs.spring.boot.starter.webflux,
         libs.squareup.okhttp,

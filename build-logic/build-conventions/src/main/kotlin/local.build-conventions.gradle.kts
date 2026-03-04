@@ -73,6 +73,7 @@ tasks {
     // Create JARs in a reproducible build fashion.
     withType<AbstractArchiveTask> {
         configureEach {
+            duplicatesStrategy = DuplicatesStrategy.EXCLUDE
             isPreserveFileTimestamps = false
             isReproducibleFileOrder = true
         }

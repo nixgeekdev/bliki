@@ -3,5 +3,6 @@ plugins {
     id("local.code-analysis")
     id("local.dependency-analysis")
     id("local.testing")
+    java
     application
 }
