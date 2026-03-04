@@ -83,7 +83,7 @@ kotlin = ["kotlin-stdlib-core", "kotlin-stdlib-jdk8", "kotlin-reflect"]
 coroutines = ["kotlinx-coroutines-core", "kotlinx-coroutines-jdk8", "kotlinx-coroutines-reactor"]
 database = [
     "exposed-core", "exposed-jdbc", "exposed-crypt", "exposed-time", "exposed-json", "exposed-dao",
-    "flyway-core", "flyway-database-postgresql", "hikari-cp", "postgresql-driver",
+    "hikari-cp", "postgresql-driver",
 ]
 jackson = ["jackson-core", "jackson-databind", "jackson-module-kotlin", "redisson"]
 logging = ["logback-classic", "kotlin-logging"]
