@@ -18,7 +18,7 @@ private val spotlessKotlinGradleTarget = "**/*.gradle.kts"
 private val spotlessKotlinTarget = "**/*.kt"
 private val spotlessKotlinTargetExcludeBuild = "**/build/**"
 private val spotlessKotlinTargetExcludeGenerated = "**/generated/**"
-private val spotlessRuleDisables = "disabled"
+private val spotlessRuleDisabled = "disabled"
 
 plugins {
     id("dev.detekt")
@@ -70,12 +70,12 @@ configurations.all {
 // Spotless
 spotless {
     val overriddenRules = mapOf(
-        "ktlint_standard_annotation" to spotlessRuleDisables,
-        "ktlint_standard_class-signature" to spotlessRuleDisables,
-        "ktlint_standard_filename" to spotlessRuleDisables,
-        "ktlint_standard_function-signature" to spotlessRuleDisables,
-        "ktlint_standard_value-argument-comment" to spotlessRuleDisables,
-        "ktlint_standard_value-parameter-comment" to spotlessRuleDisables,
+        "ktlint_standard_annotation" to spotlessRuleDisabled,
+        "ktlint_standard_class-signature" to spotlessRuleDisabled,
+        "ktlint_standard_filename" to spotlessRuleDisabled,
+        "ktlint_standard_function-signature" to spotlessRuleDisabled,
+        "ktlint_standard_value-argument-comment" to spotlessRuleDisabled,
+        "ktlint_standard_value-parameter-comment" to spotlessRuleDisabled,
     )
 
     lineEndings = LineEnding.PLATFORM_NATIVE

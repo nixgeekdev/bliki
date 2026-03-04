@@ -1,3 +1,16 @@
+// TODO find a way to inject these dependencies for
+//      flyway w/o using the buildscript block
+buildscript {
+    dependencies {
+        listOf(
+            libs.postgresql.driver,
+            libs.flyway.database.postgresql,
+        ).forEach {
+            classpath(it)
+        }
+    }
+}
+
 plugins {
     alias(libs.plugins.kotlin.jvm)
 
@@ -5,13 +18,12 @@ plugins {
     `java-test-fixtures`
     idea
 
-    alias(libs.plugins.kotlin.spring)
+    alias(libs.plugins.flyway.gradle)
     alias(libs.plugins.google.osdetector)
     alias(libs.plugins.kotest)
+    alias(libs.plugins.kotlin.spring)
     alias(libs.plugins.spring.boot.gradle)
     alias(libs.plugins.spring.dependency.management)
-
-    alias(libs.plugins.flyway.gradle)
 }
 
 group = "dev.nixgeek.bliki"
@@ -30,6 +42,8 @@ dependencies {
         libs.bundles.jackson,
         libs.bundles.logging,
         libs.bundles.spring.boot.starters,
+        libs.flyway.core,
+        libs.flyway.database.postgresql,
         libs.jakarta.validation.api,
         libs.kotlin.ulid,
         libs.reactor.kotlin.extensions,
@@ -69,22 +83,28 @@ springBoot {
     mainClass.set("dev.nixgeek.bliki.service.BlikiServiceApplicationKt")
 }
 
-val postgresHost = System.getenv("POSTGRES_HOST") ?: "127.0.0.1"
-val postgresPort = System.getenv("POSTGRES_PORT") ?: "5432"
-val postgresDb = System.getenv("POSTGRES_DB") ?: "bliki"
-val postgresSchema = System.getenv("POSTGRES_SCHEMA") ?: "bliki"
-val postgresUser = System.getenv("POSTGRES_USER") ?: "postgres"
-val postgresPwd = System.getenv("POSTGRES_PASSWORD") ?: "password!1"
+val env: Map<String, String> = System.getenv()
+
+fun envOrDefault(name: String, default: String) =
+    env[name] ?: default
 
 flyway {
-    url = "jdbc:postgresql://$postgresHost:$postgresPort/$postgresDb"
+    val dbHost = envOrDefault("POSTGRES_HOST", "127.0.0.1")
+    val dbPort = envOrDefault("POSTGRES_PORT", "5432")
+    val dbName = envOrDefault("POSTGRES_DB", "bliki")
+    val dbSchema = envOrDefault("POSTGRES_SCHEMA", "bliki")
+    val dbUser = envOrDefault("POSTGRES_USER", "postgres")
+    val dbPwd = envOrDefault("POSTGRES_PASSWORD", "password!1")
+
     driver = "org.postgresql.Driver"
-    user = postgresUser
-    password = postgresPwd
-    schemas = arrayOf(postgresSchema)
-    locations = arrayOf("filesystem:$projectDir/src/main/resources/db/migrations")
+    url = "jdbc:postgresql://$dbHost:$dbPort/$dbName"
+    user = dbUser
+    password = dbPwd
+    schemas = arrayOf(dbSchema)
+    locations = arrayOf("filesystem:src/main/resources/db/migrations")
     baselineOnMigrate = true
-    validateOnMigrate = false
-    outOfOrder = false
+    baselineVersion = "0"
     cleanDisabled = false
+    outOfOrder = false
+    validateOnMigrate = false
 }

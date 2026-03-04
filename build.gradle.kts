@@ -10,7 +10,7 @@ plugins {
     id("local.build-conventions")
 }
 
-group = "dev.nixgeek.klog"
+group = "dev.nixgeek.bliki"
 version = "0.0.1"
 
 logger.lifecycle("> Using JDK toolchain version: ${java.toolchain.languageVersion.get()}")
