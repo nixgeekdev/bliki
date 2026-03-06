@@ -14,7 +14,7 @@ import org.postgresql.util.PGobject
  */
 @Suppress("UNCHECKED_CAST")
 class ULIDColumnType<T : Comparable<T>>(
-    private val serializer: ULIDSerializer
+    private val serializer: ULIDSerializer,
 ) : ColumnType<T>() {
     companion object {
         private val ulidRegex = Regex("^[0-9A-HJKMNP-TV-Z]{26}$")
@@ -27,9 +27,11 @@ class ULIDColumnType<T : Comparable<T>>(
             currentDialect is PostgreSQLDialect && value is PGobject && value.type == "ulid" -> {
                 serializer.deserialize<T>(value.value!!)
             }
+
             value is String && value.matches(ulidRegex) -> {
                 serializer.deserialize(value)
             }
+
             else -> {
                 error("Unexpected value of type ULID: $value of ${value::class.qualifiedName}")
             }
@@ -40,13 +42,14 @@ class ULIDColumnType<T : Comparable<T>>(
             is PostgreSQLDialect -> {
                 PGobject().apply {
                     type = sqlType()
-                    this.value = serializer.serialize(value as T)
+                    this.value = serializer.serialize(value)
                 }
             }
+
             else -> {
                 error("Unsupported dialect: ${currentDialect.name}")
             }
         }
 
-    override fun nonNullValueToString(value: T): String = "'${serializer.serialize(value as T)}'"
+    override fun nonNullValueToString(value: T): String = "'${serializer.serialize(value)}'"
 }

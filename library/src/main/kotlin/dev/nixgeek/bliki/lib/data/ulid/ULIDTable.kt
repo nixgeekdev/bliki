@@ -20,7 +20,7 @@ open class ULIDTable<T : Comparable<T>>(
     name: String = "",
     columnName: String = "id",
     serializer: ULIDSerializer,
-    ulidGenerator: () -> T
+    ulidGenerator: () -> T,
 ) : IdTable<T>(name) {
     final override val id: Column<EntityID<T>> =
         ulid<T>(columnName, serializer).autoGenerate(ulidGenerator).entityId()

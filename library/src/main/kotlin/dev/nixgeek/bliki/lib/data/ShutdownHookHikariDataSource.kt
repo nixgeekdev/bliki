@@ -12,7 +12,7 @@ private val log = KotlinLogging.logger(ShutdownHookHikariDataSource::class.java.
  */
 class ShutdownHookHikariDataSource(
     private val shutdownHooks: List<Runnable>,
-    config: HikariConfig
+    config: HikariConfig,
 ) : HikariDataSource(config) {
     override fun close() {
         shutdownHooks.forEach(Runnable::run)

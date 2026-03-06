@@ -18,7 +18,8 @@ import kotlin.getValue
 
 private val container by lazy {
     PostgreSQLContainer(
-        DockerImageName.parse(Constants.TestContainers.DB_IMAGE_NAME)
+        DockerImageName
+            .parse(Constants.TestContainers.DB_IMAGE_NAME)
             .withTag(Constants.TestContainers.DB_IMAGE_TAG)
             .asCompatibleSubstituteFor(Constants.TestContainers.DB_CMD_APP),
     ).apply {
