@@ -40,7 +40,7 @@ services:
 
   postgres:
     container_name: bliki-postgres
-    image: postgres:17-alpine
+    build: postgres
     restart: on-failure
     env_file:
       - ./env/db/postgres.env
@@ -58,7 +58,7 @@ services:
         aliases:
           - postgres
     volumes:
-      - postgres-bliki:/var/lib/postgresql/data
+      - postgres-bliki:/var/lib/postgresql
       - ./env/db/local-dbinit.sh:/docker-entrypoint-initdb.d/local-dbinit.sh
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB} -h localhost -p ${POSTGRES_PORT}" ]

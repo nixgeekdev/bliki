@@ -18,6 +18,7 @@ dependencies {
     listOf(
         libs.bundles.kotlin,
         libs.bundles.coroutines,
+        libs.bundles.database,
         libs.bundles.jackson,
         libs.bundles.logging,
         libs.jakarta.validation.api,

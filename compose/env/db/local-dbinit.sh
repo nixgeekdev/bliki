@@ -11,9 +11,11 @@ psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" <<- EOSQL
     grant all privileges on database bliki to $POSTGRES_USER;
 
     \connect "bliki";
+
     create schema if not exists bliki;
-    grant select, insert, update on all tables in schema public to bliki_app;
+    alter database bliki set search_path to bliki;
+    grant select, insert, update on all tables in schema bliki to bliki_app;
     grant all privileges on schema bliki to bliki_admin;
     grant all privileges on schema bliki to $POSTGRES_USER;
-    alter database bliki set search_path to public,bliki;
+    create extension if not exists "pgx_ulid" schema bliki;
 EOSQL
