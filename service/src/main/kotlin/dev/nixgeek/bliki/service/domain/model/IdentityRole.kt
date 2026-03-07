@@ -6,4 +6,3 @@ enum class IdentityRole(description: String) {
     EDITOR("Editor"),
     CONTRIBUTOR("Contributor"),
 }
-

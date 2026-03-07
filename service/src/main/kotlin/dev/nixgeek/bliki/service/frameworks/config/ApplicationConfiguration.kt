@@ -32,4 +32,3 @@ class ApplicationConfiguration {
     @Bean("timestamp")
     fun timestamp(): Long = Clock.System.now().toEpochMilliseconds()
 }
-

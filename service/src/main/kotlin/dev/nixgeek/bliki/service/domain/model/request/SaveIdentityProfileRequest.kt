@@ -20,7 +20,7 @@ data class SaveIdentityProfileRequest(
 
     fun toIdentity(identity: ULID? = null): Identity =
         Identity(
-            id = identityId?.toULID(),
+            id = identityId?.toULID() ?: identity,
             email = email,
             passwordHash = passwordHash,
             createdAt = null,
