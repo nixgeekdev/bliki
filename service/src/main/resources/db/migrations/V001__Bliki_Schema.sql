@@ -2,8 +2,8 @@
 -- Goal: model the major Bliki elements closely: bliki, entry, tag, profile, identity, roles, revision,
 set lock_timeout = '5s';
 
-create extension if not exists "uuid-ossp";
-create extension if not exists pgcrypto;
+create extension if not exists "pgx_ulid" schema bliki;
+create extension if not exists pgcrypto schema bliki;
 
 do
 $$
@@ -49,7 +49,7 @@ $$;
 
 create table if not exists identity
 (
-    id            uuid primary key   default uuid_generate_v4(),
+    id            ulid primary key   default gen_monotonic_ulid(),
     email         text      not null,
     password_hash text      not null,
     created_at    timestamp not null default now(),
@@ -58,7 +58,7 @@ create table if not exists identity
 
 create table if not exists roles
 (
-    id         uuid primary key       default uuid_generate_v4(),
+    id         ulid primary key       default gen_monotonic_ulid(),
     role       identity_role not null,
     label      text          null,
     created_at timestamp     not null default now(),
@@ -67,8 +67,8 @@ create table if not exists roles
 
 create table if not exists profile
 (
-    id          uuid primary key   default uuid_generate_v4(),
-    identity_id uuid      not null references identity on delete restrict,
+    id          ulid primary key   default gen_monotonic_ulid(),
+    identity_id ulid      not null references identity on delete restrict,
     full_name   text      not null,
     affiliation text      null, -- company or institution
     created_at  timestamp not null default now(),
@@ -77,7 +77,7 @@ create table if not exists profile
 
 create table if not exists generator
 (
-    id         uuid primary key   default uuid_generate_v4(),
+    id         ulid primary key   default gen_monotonic_ulid(),
     name       text      not null,
     version    text      not null,
     uri        text      null,
@@ -87,7 +87,7 @@ create table if not exists generator
 
 create table if not exists bliki
 (
-    id           uuid primary key   default uuid_generate_v4(),
+    id           ulid primary key   default gen_monotonic_ulid(),
     title        text      not null,
     subtitle     text      null,
     rights       text      not null,
@@ -95,22 +95,22 @@ create table if not exists bliki
     icon_uri     text      null,
     logo_uri     text      null,
     lang         text      not null,
-    author_id    uuid      not null references profile on delete restrict,
-    generator_id uuid      not null references generator on delete restrict,
+    author_id    ulid      not null references profile on delete restrict,
+    generator_id ulid      not null references generator on delete restrict,
     updated_at   timestamp not null default now()
 );
 
 create table if not exists entry
 (
-    id           uuid primary key            default uuid_generate_v4(),
-    bliki_id     uuid               not null references bliki on delete restrict,
+    id           ulid primary key            default gen_monotonic_ulid(),
+    bliki_id     ulid               not null references bliki on delete restrict,
     title        text               not null,
     slug         text               not null unique,
     content      text               not null,
     summary      text               null,
     lang         text               not null,
     content_type entry_content_type not null,
-    author_id    uuid               not null references profile on delete restrict,
+    author_id    ulid               not null references profile on delete restrict,
     visibility   entry_visibility   not null default 'PRIVATE',
     status       entry_status       not null default 'DRAFT',
     published_at timestamp          null,
@@ -120,7 +120,8 @@ create table if not exists entry
 
 create table if not exists tag
 (
-    id         uuid primary key   default uuid_generate_v4(),
+    id         ulid primary key   default gen_monotonic_ulid(),
+    parent_id  ulid      null references tag on delete set null,
     term       text      not null,
     slug       text      not null unique,
     label      text      null,
@@ -131,9 +132,9 @@ create table if not exists tag
 
 create table if not exists revision
 (
-    id         uuid primary key     default uuid_generate_v4(),
-    entry_id   uuid        not null references entry on delete restrict,
-    author_id  uuid        not null references profile on delete restrict,
+    id         ulid primary key     default gen_monotonic_ulid(),
+    entry_id   ulid        not null references entry on delete restrict,
+    author_id  ulid        not null references profile on delete restrict,
     diff       text        not null,
     summary    text        null,
     event      entry_event not null default 'CREATED',
@@ -142,30 +143,30 @@ create table if not exists revision
 
 create table if not exists entry_relation
 (
-    from_entry_id uuid                not null references entry on delete restrict,
-    to_entry_id   uuid                not null references entry on delete restrict,
+    from_entry_id ulid                not null references entry on delete restrict,
+    to_entry_id   ulid                not null references entry on delete restrict,
     relation      entry_relation_type not null default 'RELATED',
     primary key (from_entry_id, to_entry_id)
 );
 
 create table if not exists entry_tag
 (
-    entry_id uuid not null references entry on delete restrict,
-    tag_id   uuid not null references tag on delete restrict,
+    entry_id ulid not null references entry on delete restrict,
+    tag_id   ulid not null references tag on delete restrict,
     primary key (entry_id, tag_id)
 );
 
 create table if not exists entry_contributor
 (
-    entry_id   uuid not null references entry on delete restrict,
-    profile_id uuid not null references profile on delete restrict,
+    entry_id   ulid not null references entry on delete restrict,
+    profile_id ulid not null references profile on delete restrict,
     primary key (entry_id, profile_id)
 );
 
 create table if not exists identity_roles
 (
-    identity_id uuid not null references identity on delete restrict,
-    role_id     uuid not null references roles on delete restrict,
+    identity_id ulid not null references identity on delete restrict,
+    role_id     ulid not null references roles on delete restrict,
     primary key (identity_id, role_id)
 );
 
@@ -197,7 +198,7 @@ grant all privileges on identity to bliki_admin;
 alter table identity
     enable row level security;
 -- Application-Level Identity Binding
-set app.current_user_id = 'uuid';
+set app.current_user_id = 'ulid';
 set app.current_user_role = 'AUTHOR';
 -- policies
 create policy identity_read_own_policy on identity
