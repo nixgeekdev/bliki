@@ -25,11 +25,10 @@ class ApplicationConfiguration {
     /**
      * StatefulMonotonic automatically handles statefulness and monotonic ULID generation
      */
-    @Bean("statefulMonotonicULIDFactory")
-    fun statefulMonotonicULIDFactory(): StatefulMonotonic =
-        ULID.StatefulMonotonic()
+    @Bean("ulidGenerator")
+    fun ulidGenerator(): ULID =
+        ULID.StatefulMonotonic().nextULID()
 
-    @Bean("timestampFactory")
-    fun timestampFactory(): Instant = Clock.System.now()
+    @Bean("timestamp")
+    fun timestamp(): Long = Clock.System.now().toEpochMilliseconds()
 }
-
