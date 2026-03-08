@@ -18,3 +18,45 @@ fun String.fromHex(): ByteArray =
         .map {
             it.toInt(HEX_RADIX).toByte()
         }.toByteArray()
+
+/**
+ * Checks if the string is balanced (i.e. has matching open and close brackets)
+ *
+ * | Character | Behaviour |
+ * | --- | --- |
+ * | (, [, {, < | Pushed onto the stack |
+ * | ), ], }, > | Must match the top of the stack, otherwise → false |
+ * | Pipe       | Toggles an open/close flag — odd count = unbalanced |
+ */
+fun String.isBalanced(): Boolean {
+    val stack = ArrayDeque<Char>()
+    val matchingClose =
+        mapOf(
+            ')' to '(',
+            ']' to '[',
+            '}' to '{',
+            '>' to '<',
+        )
+    val openers = setOf('(', '[', '{', '<')
+    var pipeOpen = false
+
+    forEach { char ->
+        when (char) {
+            '|' -> {
+                pipeOpen = !pipeOpen
+            }
+
+            in openers -> {
+                stack.addLast(char)
+            }
+
+            in matchingClose -> {
+                if (stack.isEmpty() || stack.removeLast() != matchingClose[char]) {
+                    return false
+                }
+            }
+        }
+    }
+
+    return stack.isEmpty() && !pipeOpen
+}
