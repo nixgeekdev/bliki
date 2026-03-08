@@ -6,6 +6,6 @@ data class SaveGeneratorRequest(
     val name: String,
     val version: String,
     val uri: String? = null,
-){
+) {
     val isUpdatable: Boolean = id != null
 }
