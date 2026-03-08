@@ -22,3 +22,8 @@ complexity:
     allowedFunctionsPerEnum: 16
     ignorePrivate: true
     ignoreOverridden: true
+
+style:
+  ReturnCount:
+    active: true
+    max: 8
