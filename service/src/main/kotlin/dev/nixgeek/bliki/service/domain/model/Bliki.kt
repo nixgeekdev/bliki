@@ -9,7 +9,7 @@ data class Bliki(
     val subtitle: String? = null,
     val rights: String,
     val baseUri: String,
-    val iconUri : String? = null,
+    val iconUri: String? = null,
     val logoUri: String? = null,
     val lang: String,
     val authorId: ULID,
