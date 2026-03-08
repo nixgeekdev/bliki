@@ -12,4 +12,3 @@ data class Generator(
     val createdAt: Instant?,
     val updatedAt: Instant?,
 )
-
