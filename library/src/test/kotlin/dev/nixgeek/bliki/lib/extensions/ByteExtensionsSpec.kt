@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUnsignedTypes::class)
+
 package dev.nixgeek.bliki.lib.extensions
 
 import dev.nixgeek.bliki.lib.test.fixtures.extensions.gif89aBytes
@@ -6,6 +8,7 @@ import dev.nixgeek.bliki.lib.test.fixtures.extensions.jpegBytes
 import dev.nixgeek.bliki.lib.test.fixtures.extensions.pdfBytes
 import dev.nixgeek.bliki.lib.test.fixtures.extensions.pngBytes
 import dev.nixgeek.bliki.lib.test.fixtures.extensions.webpBytes
+import dev.nixgeek.bliki.lib.test.fixtures.extensions.wrappers.BytesBase64Wrapper
 import dev.nixgeek.bliki.lib.test.fixtures.extensions.wrappers.BytesChunkedWrapper
 import dev.nixgeek.bliki.lib.test.fixtures.extensions.zipBytes
 import io.kotest.assertions.throwables.shouldThrow
@@ -20,6 +23,27 @@ class ByteExtensionsSpec : FunSpec({
         "hello".toByteArray().asUtf8String() shouldBe "hello"
         "Hello".toByteArray().asHexString() shouldBe "48656c6c6f"
         "hello".toByteArray().asBase64String() shouldBe "aGVsbG8="
+
+        withData(
+            BytesBase64Wrapper(byteArrayOf(), ""),
+            BytesBase64Wrapper("hello".toByteArray(), "aGVsbG8="),
+            BytesBase64Wrapper(byteArrayOf(0xfb.toByte(), 0xff.toByte()), "-_8="),
+            BytesBase64Wrapper(byteArrayOf(0xff.toByte(), 0xff.toByte(), 0xff.toByte()), "____"),
+        ) { (bytes, encoded) ->
+            bytes.asUrlSafeBase64() shouldBe encoded
+            encoded.fromUrlSafeBase64() shouldBe bytes
+        }
+
+        withData(
+            "%",
+            "%%%=",
+            "not-base64",
+            "SGVsbG8*",
+        ) { invalidBase64String ->
+            shouldThrow<IllegalArgumentException> {
+                invalidBase64String.fromUrlSafeBase64()
+            }
+        }
     }
 
     context("should chunk byte arrays correctly") {
@@ -42,7 +66,8 @@ class ByteExtensionsSpec : FunSpec({
         "abc".toByteArray().sha256Hex() shouldBe
             "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
 
-        "The quick brown fox jumps over the lazy dog".toByteArray()
+        "The quick brown fox jumps over the lazy dog"
+            .toByteArray()
             .hmacSha256Hex("key".toByteArray()) shouldBe
             "f7bc83f430538424b13298e6aa6fb143ef4d59a14946175997479dbc2d1a3cd8"
     }

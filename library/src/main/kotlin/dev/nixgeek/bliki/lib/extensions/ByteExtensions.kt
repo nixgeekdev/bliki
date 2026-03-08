@@ -1,4 +1,5 @@
 @file:OptIn(ExperimentalUnsignedTypes::class)
+@file:Suppress("MagicNumber")
 
 package dev.nixgeek.bliki.lib.extensions
 
@@ -7,15 +8,15 @@ import java.io.ByteArrayOutputStream
 import java.nio.charset.CharacterCodingException
 import java.nio.charset.CodingErrorAction
 import java.security.MessageDigest
+import java.util.zip.GZIPInputStream
+import java.util.zip.GZIPOutputStream
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 import kotlin.io.encoding.Base64
-import java.util.zip.GZIPInputStream
-import java.util.zip.GZIPOutputStream
 import kotlin.math.ln
 import kotlin.math.pow
 
-///////////////////////////////////////////////////////////////////////////////
+// /////////////////////////////////////////////////////////////////////////////
 // ENCODING
 
 /**
@@ -33,7 +34,10 @@ fun ByteArray.asHexString(): String = toHexString(HexFormat.Default)
  */
 fun ByteArray.asBase64String(): String = Base64.encode(this)
 
-fun ByteArray.asUrlSafeBase64(): String = ""
+/**
+ * Converts a byte array to a URL-safe Base64 string.
+ */
+fun ByteArray.asUrlSafeBase64(): String = Base64.UrlSafe.encode(this)
 
 /**
  * Splits this byte array into chunks of the given size.
@@ -55,14 +59,15 @@ fun ByteArray.chunked(chunkSize: Int): List<ByteArray> {
     return chunks
 }
 
-///////////////////////////////////////////////////////////////////////////////
+// /////////////////////////////////////////////////////////////////////////////
 // INTEGRITY / SECURITY
 
 /**
  * Returns the SHA-256 digest of this byte array as a hexadecimal string.
  */
 fun ByteArray.sha256Hex(): String =
-    MessageDigest.getInstance("SHA-256")
+    MessageDigest
+        .getInstance("SHA-256")
         .digest(this)
         .toHexString(HexFormat.Default)
 
@@ -91,7 +96,7 @@ fun ByteArray.constantTimeEquals(other: ByteArray): Boolean {
     return diff == 0
 }
 
-///////////////////////////////////////////////////////////////////////////////
+// /////////////////////////////////////////////////////////////////////////////
 // STORAGE / COMPRESSION
 
 /**
@@ -134,25 +139,26 @@ fun ByteArray.humanReadableSize(): String {
     return "%.1f %s".format(value, units[exponent - 1])
 }
 
-///////////////////////////////////////////////////////////////////////////////
+// /////////////////////////////////////////////////////////////////////////////
 // MIME TYPE
 
 /**
  * Detects a MIME type from well-known file signatures and safe text heuristics.
  */
-fun ByteArray.detectMimeType(): String? = when {
-    isPng() -> "image/png"
-    isJpeg() -> "image/jpeg"
-    isGif() -> "image/gif"
-    isWebP() -> "image/webp"
-    isPdf() -> "application/pdf"
-    isZip() -> "application/zip"
-    isGzip() -> "application/gzip"
-    isLikelyJson() -> "application/json"
-    looksLikeHtml() -> "text/html"
-    looksLikeText() -> "text/plain"
-    else -> null
-}
+fun ByteArray.detectMimeType(): String? =
+    when {
+        isPng() -> "image/png"
+        isJpeg() -> "image/jpeg"
+        isGif() -> "image/gif"
+        isWebP() -> "image/webp"
+        isPdf() -> "application/pdf"
+        isZip() -> "application/zip"
+        isGzip() -> "application/gzip"
+        isLikelyJson() -> "application/json"
+        looksLikeHtml() -> "text/html"
+        looksLikeText() -> "text/plain"
+        else -> null
+    }
 
 /**
  * Returns true if this byte array starts with the given signature bytes.
@@ -172,7 +178,14 @@ fun ByteArray.startsWithSignature(vararg signature: UByte): Boolean {
  */
 fun ByteArray.isPng(): Boolean =
     startsWithSignature(
-        0x89u, 0x50u, 0x4Eu, 0x47u, 0x0Du, 0x0Au, 0x1Au, 0x0Au
+        0x89u,
+        0x50u,
+        0x4Eu,
+        0x47u,
+        0x0Du,
+        0x0Au,
+        0x1Au,
+        0x0Au,
     )
 
 /**
@@ -216,7 +229,7 @@ fun ByteArray.isZip(): Boolean =
 fun ByteArray.isGzip(): Boolean =
     startsWithSignature(0x1Fu, 0x8Bu)
 
-///////////////////////////////////////////////////////////////////////////////
+// /////////////////////////////////////////////////////////////////////////////
 // INSPECTION
 
 /**
@@ -235,17 +248,18 @@ fun ByteArray.previewUtf8(maxLength: Int = 120): String {
     }
 
     val text = decodeUtf8StrictOrNull() ?: asUtf8String()
-    val sanitized = buildString(text.length) {
-        for (char in text) {
-            append(
-                when {
-                    char == '\n' || char == '\r' || char == '\t' -> char
-                    char.isISOControl() -> '�'
-                    else -> char
-                }
-            )
+    val sanitized =
+        buildString(text.length) {
+            for (char in text) {
+                append(
+                    when {
+                        char == '\n' || char == '\r' || char == '\t' -> char
+                        char.isISOControl() -> '�'
+                        else -> char
+                    },
+                )
+            }
         }
-    }
 
     return if (sanitized.length <= maxLength) sanitized else sanitized.take(maxLength) + "…"
 }
@@ -303,9 +317,10 @@ fun ByteArray.isLikelyJson(): Boolean {
 private fun ByteArray.looksLikeHtml(): Boolean {
     if (!looksLikeText()) return false
 
-    val text = (decodeUtf8StrictOrNull() ?: return false)
-        .trimStart()
-        .lowercase()
+    val text =
+        (decodeUtf8StrictOrNull() ?: return false)
+            .trimStart()
+            .lowercase()
 
     return text.startsWith("<!doctype html") ||
         text.startsWith("<html") ||
