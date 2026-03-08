@@ -25,6 +25,11 @@ private val WORD_REGEX = Regex("""\b[\p{L}\p{N}]+(?:['’-][\p{L}\p{N}]+)*\b""")
 fun String.fromBase64(): ByteArray = Base64.decode(this)
 
 /**
+ * Converts the URL-safe Base64-encoded string to a byte array.
+ */
+fun String.fromUrlSafeBase64(): ByteArray = Base64.UrlSafe.decode(this)
+
+/**
  * Converts the hexadecimal string to a byte array.
  */
 fun String.fromHex(): ByteArray =
