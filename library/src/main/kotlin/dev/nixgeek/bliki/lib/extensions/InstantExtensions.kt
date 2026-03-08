@@ -1,4 +1,4 @@
-package dev.nixgeek.bliki.lib.time
+package dev.nixgeek.bliki.lib.extensions
 
 import kotlin.time.Instant
 
