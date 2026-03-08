@@ -24,6 +24,12 @@ complexity:
     ignoreOverridden: true
 
 style:
+  MaxLineLength:
+    active: true
+    maxLineLength: 180
+    excludePackageStatements: true
+    excludeImportStatements: true
+    excludeCommentStatements: false
   ReturnCount:
     active: true
     max: 8
