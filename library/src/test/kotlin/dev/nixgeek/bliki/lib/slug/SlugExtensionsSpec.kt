@@ -20,6 +20,9 @@ class SlugExtensionsSpec : FunSpec({
             "already-a-slug" to "already-a-slug",
             "---hello---" to "hello",
             "Hello, World!" to "hello-world",
+            "ßtest √ß√√ tєsþ" to "sstest-ss-testh",
+            "!@#$%^&*(){}[]()<>`~'\"\\|-_=+;:,./?" to "",
+            "!@#$%^&*() asdfgasdfg qwerty .; ytrewq' zxcvbzxcvb+asdf_nmnm ()*&^%$#@!" to "asdfgasdfg-qwerty-ytrewq-zxcvbzxcvb-asdf-nmnm"
         ) { (value, expected) ->
             value.slugify() shouldBe expected
         }
