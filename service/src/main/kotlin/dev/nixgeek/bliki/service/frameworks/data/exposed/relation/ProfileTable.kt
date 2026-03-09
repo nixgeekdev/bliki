@@ -5,11 +5,12 @@ import org.jetbrains.exposed.v1.datetime.timestamp
 import kotlin.time.Clock
 
 object ProfileTable : AbstractULIDTable("profile") {
-    val identityId = reference(
-        name = "identity_id",
-        refColumn = IdentityTable.id,
-        onDelete = ReferenceOption.RESTRICT,
-    )
+    val identityId =
+        reference(
+            name = "identity_id",
+            refColumn = IdentityTable.id,
+            onDelete = ReferenceOption.RESTRICT,
+        )
     val fullName = text("full_name")
     val affiliation = text("affiliation").nullable()
     val createdAt = timestamp("created_at").default(Clock.System.now())

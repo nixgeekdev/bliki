@@ -18,33 +18,38 @@ object EntryTable : AbstractULIDTable("entry") {
     private const val SLUG_COL_LEN = 128
     private const val STATUS_COL_LEN = 10
 
-    val blikiId = reference(
-        name = "bliki_id",
-        refColumn = BlikiTable.id,
-        onDelete = ReferenceOption.RESTRICT,
-    )
+    val blikiId =
+        reference(
+            name = "bliki_id",
+            refColumn = BlikiTable.id,
+            onDelete = ReferenceOption.RESTRICT,
+        )
     val title = text("title")
     val slug = varchar("slug", SLUG_COL_LEN).uniqueIndex()
     val content = text("content")
     val summary = text("summary").nullable()
     val lang = text("lang")
-    val contentType = varchar("content_type", CONTENT_TYPE_COL_LEN)
-        .default(EntryContentType.MARKDOWN.mimeType)
-    val authorId = reference(
-        name = "author_id",
-        refColumn = ProfileTable.id,
-        onDelete = ReferenceOption.RESTRICT,
-    )
-    val visibility = enumerationByName(
-        name = "visibility",
-        length = VISIBILITY_COL_LEN,
-        klass = EntryVisibility::class,
-    ).default(EntryVisibility.PRIVATE)
-    val status = enumerationByName(
-        name = "status",
-        length = STATUS_COL_LEN,
-        klass = EntryStatus::class,
-    ).default(EntryStatus.DRAFT)
+    val contentType =
+        varchar("content_type", CONTENT_TYPE_COL_LEN)
+            .default(EntryContentType.MARKDOWN.mimeType)
+    val authorId =
+        reference(
+            name = "author_id",
+            refColumn = ProfileTable.id,
+            onDelete = ReferenceOption.RESTRICT,
+        )
+    val visibility =
+        enumerationByName(
+            name = "visibility",
+            length = VISIBILITY_COL_LEN,
+            klass = EntryVisibility::class,
+        ).default(EntryVisibility.PRIVATE)
+    val status =
+        enumerationByName(
+            name = "status",
+            length = STATUS_COL_LEN,
+            klass = EntryStatus::class,
+        ).default(EntryStatus.DRAFT)
     val publishedAt = timestamp("published_at").nullable()
     val createdAt = timestamp("created_at").default(Clock.System.now())
     val updatedAt = timestamp("updated_at").default(Clock.System.now())

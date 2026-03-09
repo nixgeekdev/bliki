@@ -14,19 +14,21 @@ object TagTable : AbstractULIDTable("tag") {
     private const val SCHEME_COL_LEN = 8
     private const val SLUG_COL_LEN = 32
 
-    val parentId = reference(
-        name = "parent_id",
-        refColumn = TagTable.id,
-        onDelete = ReferenceOption.SET_NULL,
-    ).nullable()
+    val parentId =
+        reference(
+            name = "parent_id",
+            refColumn = TagTable.id,
+            onDelete = ReferenceOption.SET_NULL,
+        ).nullable()
     val term = text("term")
     val slug = varchar("slug", SLUG_COL_LEN).uniqueIndex()
     val label = text("label")
-    val scheme = enumerationByName(
-        name = "scheme",
-        length = SCHEME_COL_LEN,
-        klass = TagScheme::class,
-    ).nullable()
+    val scheme =
+        enumerationByName(
+            name = "scheme",
+            length = SCHEME_COL_LEN,
+            klass = TagScheme::class,
+        ).nullable()
     val createdAt = timestamp("created_at").default(Clock.System.now())
     val updatedAt = timestamp("updated_at").default(Clock.System.now())
 
