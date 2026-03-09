@@ -21,13 +21,13 @@ RUN apt-get update && \
 
 WORKDIR /tmp
 
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path --profile minimal
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path --profile minimal --default-toolchain 1.90.0
 RUN rustup --version && rustc --version && cargo --version
 
 RUN cargo install --locked --version 0.17.0 cargo-pgrx
 RUN cargo pgrx init --pg${PG_MAJOR} $(which pg_config)
 
-RUN git clone https://github.com/pksunkara/pgx_ulid.git /tmp/pgx_ulid
+RUN git clone https://github.com/pksunkara/pgx_ulid.git
 
 WORKDIR /tmp/pgx_ulid
 
