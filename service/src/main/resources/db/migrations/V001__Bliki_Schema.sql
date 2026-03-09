@@ -47,7 +47,7 @@ $$
     end;
 $$;
 
-create table if not exists identity
+create table if not exists "identity"
 (
     id            ulid primary key   default gen_monotonic_ulid(),
     email         text      not null,
@@ -59,7 +59,7 @@ create table if not exists identity
 create table if not exists roles
 (
     id         ulid primary key       default gen_monotonic_ulid(),
-    role       identity_role not null,
+    "role"     identity_role not null,
     label      text          null,
     created_at timestamp     not null default now(),
     updated_at timestamp     not null default now()
@@ -105,7 +105,7 @@ create table if not exists entry
     id           ulid primary key            default gen_monotonic_ulid(),
     bliki_id     ulid               not null references bliki on delete restrict,
     title        text               not null,
-    slug         text               not null unique,
+    slug         varchar(128)       not null unique,
     content      text               not null,
     summary      text               null,
     lang         text               not null,
@@ -120,14 +120,14 @@ create table if not exists entry
 
 create table if not exists tag
 (
-    id         ulid primary key   default gen_monotonic_ulid(),
-    parent_id  ulid      null references tag on delete set null,
-    term       text      not null,
-    slug       text      not null unique,
-    label      text      null,
-    scheme     text      null,
-    created_at timestamp not null default now(),
-    updated_at timestamp not null default now()
+    id         ulid primary key    default gen_monotonic_ulid(),
+    parent_id  ulid        null     references tag on delete set null,
+    term       text        not null,
+    slug       varchar(32) not null unique,
+    label      text        null,
+    scheme     tag_scheme  null,
+    created_at timestamp   not null default now(),
+    updated_at timestamp   not null default now()
 );
 
 create table if not exists revision
@@ -172,42 +172,58 @@ create table if not exists identity_roles
 
 -- constraints
 alter table entry
-    add constraint chk_entry_slug_not_empty check (length(slug) > 0);
+    add constraint chk_entry_slug_not_empty
+        check (length(slug) > 0 and lenght(slug) <= 128);
 
 alter table tag
-    add constraint chk_tag_slug_not_empty check (length(slug) > 0);
+    add constraint chk_tag_slug_not_empty
+        check (length(slug) > 0 and lenght(slug) <= 32);
+
+alter table tag
+    add constraint chk_tag_no_self_reference
+        check (parent_id != id);
 
 alter table entry_relation
     add constraint chk_entry_relation_no_self_reference
         check (from_entry_id != to_entry_id);
 
-alter table identity
+alter table "identity"
     add constraint chk_identity_email_not_empty
         check (length(email) > 0);
 
-alter table identity
+alter table "identity"
     add constraint chk_identity_password_hash_format
         check (password_hash like '$argon2%');
 
 -- PostgreSQL Row-Level Security (RLS)
-revoke all on identity from public;
--- fix roles
-grant select, insert, update on identity to bliki_app;
-grant all privileges on identity to bliki_admin;
 -- Enable Row-Level Security
-alter table identity
-    enable row level security;
--- Application-Level Identity Binding
-set app.current_user_id = 'ulid';
-set app.current_user_role = 'AUTHOR';
+alter table "identity" enable row level security;
+
+create function app.current_identity_id()
+    returns ulid
+    language sql stable as
+$$
+    select current_setting('app.current_identity_id', true)::ulid
+$$;
+
+-- revoke all on function set_config(text, text, boolean) from bliki_app;
+create function app.set_identity_id(ulid)
+    returns void
+    language sql security definer as
+$$
+    select set_config('app.current_identity_id', $1::text, true)
+$$;
+
 -- policies
-create policy identity_read_own_policy on identity
-    for select using (id::text = current_setting('app.current_user_id', true));
-create policy identity_update_own_policy on identity
-    for update using (id::text = current_setting('app.current_user_id', true))
-    with check (id::text = current_setting('app.current_user_id', true));
-create policy identity_admin_all_access_policy on identity -- admin override
-    for all using (current_setting('app.current_user_role', true) = 'ADMIN');
+create policy identity_user_policy on "identity"
+    for select, update, delete to bliki_app
+        using (id = app.current_identity_id())
+        with check (id = app.current_identity_id());
+
+-- admin can see all rows and add any rows
+create policy identity_admin_policy on "identity"
+    for all to bliki_admin
+       using (true) with check (true);
 
 -- Full-Text Search
 alter table entry
@@ -216,9 +232,9 @@ alter table entry
 create index if not exists idx_entry_search_vector on entry using gin (search_vector);
 -- Usage:
 -- select * from entry
---   where published_at is not null
---   and search_vector @@ plainto_tsquery('english', 'jvm memory')
--- order by published_at desc;
+--   where search_vector @@ plainto_tsquery('english', 'jvm memory')
+-- order by published_at desc
+-- limit 100;
 
 -- indices
 create index if not exists idx_bliki_updated on bliki (updated_at);
