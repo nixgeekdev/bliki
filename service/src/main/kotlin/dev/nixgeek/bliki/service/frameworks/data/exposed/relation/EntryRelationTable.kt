@@ -9,11 +9,12 @@ object EntryRelationTable : CompositeIdTable("entry_relation") {
 
     val fromEntryId = reference("from_entry_id", EntryTable.id).entityId()
     val toEntryId = reference("to_entry_id", EntryTable.id).entityId()
-    val relation = enumerationByName(
-        name = "relation",
-        length = ENTRY_RELATION_COL_LEN,
-        klass = EntryRelationType::class,
-    ).default(EntryRelationType.RELATED)
+    val relation =
+        enumerationByName(
+            name = "relation",
+            length = ENTRY_RELATION_COL_LEN,
+            klass = EntryRelationType::class,
+        ).default(EntryRelationType.RELATED)
 
     init {
         check("chk_entry_relation_no_self_reference") {

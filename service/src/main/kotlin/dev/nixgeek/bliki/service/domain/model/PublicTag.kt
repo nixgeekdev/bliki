@@ -4,6 +4,7 @@ import ulid.ULID
 
 data class PublicTag(
     val id: ULID,
+    val parentId: ULID? = null,
     val term: String,
     val slug: String,
     val label: String? = null,

@@ -12,7 +12,7 @@ package dev.nixgeek.bliki.service.domain.model
  * - BRANCH: /databases/postgresql
  * - LEAF:   /databases/postgresql/install
  */
-enum class TagScheme(type: String) {
+enum class TagScheme(val type: String) {
     ROOT(":root:"),
     BRANCH(":branch:"),
     LEAF(":leaf:"),
