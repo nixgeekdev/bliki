@@ -1,4 +1,4 @@
-package dev.nixgeek.bliki.lib.shared
+package dev.nixgeek.bliki.lib.test.fixtures.shared
 
 import kotlin.time.TimeSource
 
