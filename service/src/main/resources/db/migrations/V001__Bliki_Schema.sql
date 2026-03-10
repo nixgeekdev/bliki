@@ -173,11 +173,11 @@ create table if not exists identity_roles
 -- constraints
 alter table entry
     add constraint chk_entry_slug_not_empty
-        check (length(slug) > 0 and lenght(slug) <= 128);
+        check (length(slug) > 0 and length(slug) <= 128);
 
 alter table tag
     add constraint chk_tag_slug_not_empty
-        check (length(slug) > 0 and lenght(slug) <= 32);
+        check (length(slug) > 0 and length(slug) <= 32);
 
 alter table tag
     add constraint chk_tag_no_self_reference
@@ -199,7 +199,7 @@ alter table "identity"
 -- Enable Row-Level Security
 alter table "identity" enable row level security;
 
-create function app.current_identity_id()
+create function get_current_identity_id()
     returns ulid
     language sql stable as
 $$
@@ -207,7 +207,7 @@ $$
 $$;
 
 -- revoke all on function set_config(text, text, boolean) from bliki_app;
-create function app.set_identity_id(ulid)
+create function set_identity_id(ulid)
     returns void
     language sql security definer as
 $$
@@ -215,15 +215,24 @@ $$
 $$;
 
 -- policies
-create policy identity_user_policy on "identity"
-    for select, update, delete to bliki_app
-        using (id = app.current_identity_id())
-        with check (id = app.current_identity_id());
+create policy identity_user_read_policy on "identity"
+    for select to bliki_app
+        using (id = get_current_identity_id());
+
+create policy identity_user_save_policy on "identity"
+    for update to bliki_app
+        using (id = get_current_identity_id())
+        with check (id = get_current_identity_id());
+
+create policy identity_user_delete_policy on "identity"
+    for delete to bliki_app
+        using (id = get_current_identity_id());
 
 -- admin can see all rows and add any rows
 create policy identity_admin_policy on "identity"
     for all to bliki_admin
-       using (true) with check (true);
+        using (true)
+        with check (true);
 
 -- Full-Text Search
 alter table entry
