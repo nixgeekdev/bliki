@@ -1,4 +1,4 @@
-package dev.nixgeek.bliki.lib.test.fixtures
+package dev.nixgeek.bliki.lib.test.fixtures.shared
 
 object Constants {
     object TestContainers {
@@ -10,5 +10,7 @@ object Constants {
         const val DB_NAME = "bliki"
         const val DB_USERNAME = "postgres" // "bliki_admin"
         const val DB_PASSWORD = "password!1" // "Z[u;&Im(^w^RGluX"
+        const val NETWORK_NAME = "bliki-test-network"
+        const val ACTIVE_PROFILE = "test-container"
     }
 }

@@ -1,5 +1,10 @@
 package dev.nixgeek.bliki.lib.test.fixtures.data
 
+import dev.nixgeek.bliki.lib.test.fixtures.data.ulid.TestUlidEntity
+import dev.nixgeek.bliki.lib.test.fixtures.data.ulid.TestUlidTable
+import dev.nixgeek.bliki.lib.test.fixtures.data.ulid.TestUlidTableWithCustomSerializer
+import org.jetbrains.exposed.v1.core.Expression
+import org.jetbrains.exposed.v1.core.QueryBuilder
 import org.jetbrains.exposed.v1.core.Transaction
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
@@ -35,3 +40,8 @@ fun withTestUlidTableWithCustomSerializer(db: Database, statement: Transaction.(
             SchemaUtils.drop(tester)
         }
     }
+
+fun renderSql(expression: Expression<*>): String =
+    QueryBuilder(false)
+        .also { expression.toQueryBuilder(it) }
+        .toString()

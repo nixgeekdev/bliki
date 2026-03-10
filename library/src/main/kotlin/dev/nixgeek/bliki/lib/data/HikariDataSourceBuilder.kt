@@ -6,6 +6,7 @@ import javax.sql.DataSource
 /**
  * Builder for creating a HikariDataSource.
  */
+@Suppress("MagicNumber")
 class HikariDataSourceBuilder {
     private var prefix: String = "jdbc"
     private var hostname: String? = null
@@ -107,6 +108,51 @@ class HikariDataSourceBuilder {
         leakDetectionThreshold?.run { config.leakDetectionThreshold = this }
         maxLifetime?.run { config.maxLifetime = this }
 
-        return ShutdownHookHikariDataSource(shutdownHooks, config)
+        config.initializationFailTimeout = -1
+        config.validationTimeout = 5_000
+        config.addDataSourceProperty("connectTimeout", "5")
+        config.addDataSourceProperty("socketTimeout", "30")
+
+        val dataSource = ShutdownHookHikariDataSource(shutdownHooks, config)
+        waitForDatabase(dataSource)
+
+        return dataSource
+    }
+
+    @Suppress("TooGenericExceptionCaught")
+    private fun waitForDatabase(
+        dataSource: DataSource,
+        maxAttempts: Int = 10,
+        initialDelayMillis: Long = 1_000,
+    ) {
+        var attempt = 0
+        var delayMillis = initialDelayMillis
+        var lastException: Exception? = null
+
+        while (attempt < maxAttempts) {
+            try {
+                dataSource.connection.use { connection ->
+                    if (!connection.isValid(5)) {
+                        throw IllegalStateException("Database connection was established but failed validation")
+                    }
+                }
+                return
+            } catch (ex: Exception) {
+                lastException = ex
+                attempt++
+
+                if (attempt >= maxAttempts) {
+                    break
+                }
+
+                Thread.sleep(delayMillis)
+                delayMillis = (delayMillis * 2).coerceAtMost(10_000)
+            }
+        }
+
+        throw IllegalStateException(
+            "Database was not ready after $maxAttempts attempts",
+            lastException,
+        )
     }
 }
