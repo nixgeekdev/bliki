@@ -1,7 +1,7 @@
 package dev.nixgeek.bliki.lib.data.ulid
 
 import dev.nixgeek.bliki.lib.test.fixtures.containers.installDatabase
-import dev.nixgeek.bliki.lib.test.fixtures.data.TestUlidTable
+import dev.nixgeek.bliki.lib.test.fixtures.data.ulid.TestUlidTable
 import dev.nixgeek.bliki.lib.test.fixtures.data.withTestUlidTableWithCustomSerializer
 import dev.nixgeek.bliki.lib.test.fixtures.data.withUlidEntity
 import dev.nixgeek.bliki.lib.test.fixtures.data.withUlidTable
