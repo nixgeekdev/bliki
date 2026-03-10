@@ -1,5 +1,7 @@
 package dev.nixgeek.bliki.lib.test.fixtures.data
 
+import dev.nixgeek.bliki.lib.data.HikariDataSourceBuilder
+import dev.nixgeek.bliki.lib.test.fixtures.containers.pgContainer
 import dev.nixgeek.bliki.lib.test.fixtures.data.ulid.TestUlidEntity
 import dev.nixgeek.bliki.lib.test.fixtures.data.ulid.TestUlidTable
 import dev.nixgeek.bliki.lib.test.fixtures.data.ulid.TestUlidTableWithCustomSerializer
@@ -10,6 +12,8 @@ import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import java.lang.reflect.InvocationTargetException
+import javax.sql.DataSource
 
 fun withUlidTable(db: Database, statement: Transaction.(tester: TestUlidTable) -> Unit) =
     TestUlidTable.let { tester ->
@@ -45,3 +49,16 @@ fun renderSql(expression: Expression<*>): String =
     QueryBuilder(false)
         .also { expression.toQueryBuilder(it) }
         .toString()
+
+fun startedPgContainer() =
+    pgContainer.also { if (!it.isRunning) it.start() }
+
+fun hikariDataSourceBuilderAgainstPostgres(): HikariDataSourceBuilder =
+    with (startedPgContainer()) {
+        HikariDataSourceBuilder()
+            .hostname(host)
+            .port(firstMappedPort)
+            .name(databaseName)
+            .username(username)
+            .password(password)
+    }
