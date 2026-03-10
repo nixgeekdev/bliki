@@ -114,10 +114,10 @@ class StringExtensionsSpec : FunSpec({
             "" to "",
             "   " to "",
             "hello" to "hello",
-            " hello   world " to "hello world",
-            "hello\t\tworld" to "hello world",
-            "hello\nworld" to "hello world",
-            "hello \n\t world" to "hello world",
+            " musing   borg " to "musing borg",
+            "crazy\t\tsutherland" to "crazy sutherland",
+            "keen\nmoser " to "keen moser",
+            "bold \n\t galois" to "bold galois",
         ) { (value, expected) ->
             value.normalizedWhitespace() shouldBe expected
         }
@@ -127,8 +127,8 @@ class StringExtensionsSpec : FunSpec({
         "short text".truncateAtWordBoundary(20) shouldBe "short text"
         "hello brave new world".truncateAtWordBoundary(13) shouldBe "hello brave…"
         "supercalifragilistic".truncateAtWordBoundary(10) shouldBe "supercali…"
-        "  hello   world  ".truncateAtWordBoundary(8) shouldBe "hello…"
-        "hello world".truncateAtWordBoundary(1) shouldBe "…"
+        "  pedantic   heisenberg  ".truncateAtWordBoundary(9) shouldBe "pedantic…"
+        "elated poincare".truncateAtWordBoundary(1) shouldBe "…"
 
         shouldThrow<IllegalArgumentException> {
             "hello".truncateAtWordBoundary(-1)

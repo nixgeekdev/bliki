@@ -146,8 +146,8 @@ class ByteExtensionsSpec : FunSpec({
 
     context("should preview utf-8 content safely") {
         "hello".toByteArray().previewUtf8() shouldBe "hello"
-        "hello world".toByteArray().previewUtf8(5) shouldBe "hello…"
-        "hello\tworld".toByteArray().previewUtf8() shouldBe "hello\tworld"
+        "upbeat pascal".toByteArray().previewUtf8(6) shouldBe "upbeat…"
+        "musing\thofstadter".toByteArray().previewUtf8() shouldBe "musing\thofstadter"
 
         byteArrayOf(0x00, 0x01, 0x02).previewUtf8() shouldBe "[binary:000102]"
 
@@ -158,8 +158,8 @@ class ByteExtensionsSpec : FunSpec({
 
     context("should detect text safely") {
         "".toByteArray().looksLikeText() shouldBe true
-        "Hello world".toByteArray().looksLikeText() shouldBe true
-        "Hello\nworld\t!".toByteArray().looksLikeText() shouldBe true
+        "Busy Satoshi".toByteArray().looksLikeText() shouldBe true
+        "Lucid\nGagarin\t!".toByteArray().looksLikeText() shouldBe true
 
         byteArrayOf(0x00, 0x41, 0x42).looksLikeText() shouldBe false
         byteArrayOf(0xC3.toByte(), 0x28).looksLikeText() shouldBe false
