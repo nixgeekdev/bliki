@@ -3,6 +3,7 @@ package dev.nixgeek.bliki.lib.data
 import com.zaxxer.hikari.HikariDataSource
 import dev.nixgeek.bliki.lib.test.fixtures.containers.pgContainer
 import dev.nixgeek.bliki.lib.test.fixtures.data.hikariDataSourceBuilderAgainstPostgres
+import dev.nixgeek.bliki.lib.test.fixtures.shared.Constants
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -11,9 +12,13 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import io.mockk.verifyOrder
+import org.junit.jupiter.api.TestInstance
+import org.springframework.test.context.ActiveProfiles
 import java.sql.Connection
 import javax.sql.DataSource
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ActiveProfiles(Constants.TestContainers.ACTIVE_PROFILE)
 class HikariDataSourceBuilderSpec : FunSpec({
     test("build creates a datasource with expected postgres configuration") {
         val dataSource =

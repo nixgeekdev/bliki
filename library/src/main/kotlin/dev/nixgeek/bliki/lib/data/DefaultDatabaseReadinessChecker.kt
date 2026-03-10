@@ -5,7 +5,7 @@ import javax.sql.DataSource
 class DefaultDatabaseReadinessChecker(
     private val sleepStrategy: SleepStrategy = SleepStrategy { delayMillis -> Thread.sleep(delayMillis) },
 ) : DatabaseReadinessChecker {
-    @Suppress("TooGenericExceptionCaught")
+    @Suppress("TooGenericExceptionCaught", "MagicNumber")
     override fun waitForDatabase(
         dataSource: DataSource,
         maxAttempts: Int,

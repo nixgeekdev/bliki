@@ -54,7 +54,7 @@ fun startedPgContainer() =
     pgContainer.also { if (!it.isRunning) it.start() }
 
 fun hikariDataSourceBuilderAgainstPostgres(): HikariDataSourceBuilder =
-    with (startedPgContainer()) {
+    with(startedPgContainer()) {
         HikariDataSourceBuilder()
             .hostname(host)
             .port(firstMappedPort)
