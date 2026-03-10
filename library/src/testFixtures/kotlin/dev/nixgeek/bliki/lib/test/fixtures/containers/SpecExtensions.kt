@@ -1,6 +1,6 @@
 package dev.nixgeek.bliki.lib.test.fixtures.containers
 
-import dev.nixgeek.bliki.lib.test.fixtures.Constants
+import dev.nixgeek.bliki.lib.test.fixtures.shared.Constants
 import io.kotest.core.extensions.install
 import io.kotest.core.spec.Spec
 import io.kotest.extensions.testcontainers.JdbcDatabaseContainerSpecExtension
@@ -9,20 +9,31 @@ import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import org.testcontainers.containers.Network
 import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.images.PullPolicy
 import org.testcontainers.postgresql.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
+import java.time.Duration
+import java.util.UUID
 import javax.sql.DataSource
-import kotlin.getValue
 
-private val container by lazy {
+internal val testNetwork by lazy {
+    Network
+        .builder()
+        .createNetworkCmdModifier { cmd ->
+            cmd.withName("${Constants.TestContainers.NETWORK_NAME}-${UUID.randomUUID()}")
+        }.build()
+}
+
+internal val pgContainer by lazy {
     PostgreSQLContainer(
         DockerImageName
             .parse(Constants.TestContainers.DB_IMAGE_NAME)
             .withTag(Constants.TestContainers.DB_IMAGE_TAG)
             .asCompatibleSubstituteFor(Constants.TestContainers.DB_CMD_APP),
     ).apply {
+        withNetwork(testNetwork)
         withImagePullPolicy(PullPolicy.defaultPolicy())
         withDatabaseName(Constants.TestContainers.DB_NAME)
         withUsername(Constants.TestContainers.DB_USERNAME)
@@ -33,11 +44,12 @@ private val container by lazy {
             Constants.TestContainers.DB_CMD_LOG,
         )
         waitingFor(Wait.forListeningPort())
+        withStartupTimeout(Duration.ofSeconds(30))
         withReuse(true)
     }
 }
 
-private val extension by lazy { JdbcDatabaseContainerSpecExtension(container) }
+internal val jdbcExtension by lazy { JdbcDatabaseContainerSpecExtension(pgContainer) }
 
 private fun setDbOptions() =
     with(TransactionManager.current().connection) {
@@ -61,7 +73,7 @@ private fun setDbOptions() =
 fun Spec.installDatabase(
     tables: Array<Table> = arrayOf(),
 ): Pair<DataSource, Database> {
-    val dataSource = install(extension)
+    val dataSource = install(jdbcExtension)
     val database = Database.connect(dataSource)
 
     afterSpec {
