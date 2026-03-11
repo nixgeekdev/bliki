@@ -51,12 +51,14 @@ dependencies {
     ).forEach(::implementation)
 
     listOf(
+        projects.library,
         libs.bundles.kotest,
         libs.bundles.test,
         libs.bundles.test.spring.boot,
     ).forEach(::testImplementation)
 
     listOf(
+        projects.library,
         libs.bundles.kotest,
         libs.bundles.test,
         libs.bundles.test.spring.boot,
