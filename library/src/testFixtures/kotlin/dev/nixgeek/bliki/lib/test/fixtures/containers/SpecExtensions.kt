@@ -1,7 +1,8 @@
 package dev.nixgeek.bliki.lib.test.fixtures.containers
 
+import com.zaxxer.hikari.HikariDataSource
+import dev.nixgeek.bliki.lib.data.HikariDataSourceBuilder
 import dev.nixgeek.bliki.lib.test.fixtures.shared.Constants
-import io.kotest.core.extensions.install
 import io.kotest.core.spec.Spec
 import io.kotest.extensions.testcontainers.JdbcDatabaseContainerSpecExtension
 import org.jetbrains.exposed.v1.core.Table
@@ -16,8 +17,10 @@ import org.testcontainers.postgresql.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
 import java.time.Duration
 import java.util.UUID
-import javax.sql.DataSource
 
+/**
+ * internal, lazily initialized test container network
+ */
 internal val testNetwork by lazy {
     Network
         .builder()
@@ -26,6 +29,9 @@ internal val testNetwork by lazy {
         }.build()
 }
 
+/**
+ * internal, lazily initialized PostgreSQL Test Container fixture
+ */
 internal val pgContainer by lazy {
     PostgreSQLContainer(
         DockerImageName
@@ -45,16 +51,116 @@ internal val pgContainer by lazy {
         )
         waitingFor(Wait.forListeningPort())
         withStartupTimeout(Duration.ofSeconds(30))
-        withReuse(true)
+        withReuse(false)
     }
 }
 
+/**
+ * Internal, Lazy kotest jdbc extension for working with testcontainers
+ */
 internal val jdbcExtension by lazy { JdbcDatabaseContainerSpecExtension(pgContainer) }
 
+/**
+ * Ensures the PostgreSQL container (`pgContainer`) is running. If the container is not
+ * running, it will be started.
+ *
+ * @return The PostgreSQL container instance after ensuring it is running.
+ */
+fun startedPgContainer() =
+    pgContainer.also { if (!it.isRunning) it.start() }
+
+/**
+ * Creates a HikariDataSourceBuilder configured with the details of the started PostgreSQL container.
+ *
+ * @return A configured HikariDataSourceBuilder instance.
+ */
+fun pgContainerAwareHikariDataSourceBuilder(): HikariDataSourceBuilder =
+    with(startedPgContainer()) {
+        HikariDataSourceBuilder()
+            .hostname(host)
+            .port(firstMappedPort)
+            .name(databaseName)
+            .username(username)
+            .password(password)
+    }
+
+/**
+ * Provides a database instance that is guaranteed to be initialized and ready for use.
+ *
+ * @return The initialized database instance.
+ */
+class InstalledDatabase {
+    internal var dataSource: HikariDataSource? = null
+    internal var database: Database? = null
+
+    fun requireDatabase(): Database =
+        requireNotNull(database) {
+            "Database has not been initialized yet. Access it only after beforeSpec has run."
+        }
+
+    fun close() {
+        dataSource?.close()
+        dataSource = null
+        database = null
+    }
+}
+
+/**
+ * Initializes a PostgreSQL testcontainer for the Kotest spec, sets up tables, and configures
+ * timezone settings to UTC.
+ *
+ * @param tables An array of tables to be created and dropped during the test lifecycle.
+ * @return A pair consisting of the initialized DataSource and Database connection.
+ */
+fun Spec.installSharedSpecDatabase(
+    tables: Array<Table> = arrayOf(),
+): InstalledDatabase {
+    val holder = InstalledDatabase()
+
+    beforeSpec {
+        val dataSource = pgContainerAwareHikariDataSourceBuilder().build()
+        val database = Database.connect(dataSource)
+
+        holder.dataSource = dataSource
+        holder.database = database
+
+        transaction(database) {
+            setDbOptions()
+            SchemaUtils.create(*tables)
+        }
+    }
+
+    afterSpec {
+        holder.database?.let { database ->
+            transaction(database) {
+                SchemaUtils.drop(*tables)
+            }
+            holder.close()
+        }
+    }
+
+    return holder
+}
+
+/**
+ * Creates a fresh datasource for a single block and closes it afterwards.
+ *
+ * Useful for tests that verify datasource/pool construction behavior.
+ */
+fun <T> withFreshDataSource(block: (HikariDataSource) -> T): T {
+    val dataSource = pgContainerAwareHikariDataSourceBuilder().build()
+    return dataSource.use { dataSource ->
+        block(dataSource)
+    }
+}
+
+/**
+ * Set up some DB options of the PG container after it starts
+ */
 private fun setDbOptions() =
     with(TransactionManager.current().connection) {
-        val dbTimeZone = "SET TIME ZONE 'UTC';"
-        val dbExtension = "CREATE EXTENSION IF NOT EXISTS \"pgx_ulid\";"
+        val dbTimeZone = "set time zone 'UTC';"
+        val dbExtension = "create extension if not exists \"pgx_ulid\";"
         with(prepareStatement(dbTimeZone, false)) {
             executeUpdate()
         }
@@ -62,30 +168,3 @@ private fun setDbOptions() =
             executeUpdate()
         }
     }
-
-/**
- * Installs a PostgreSQL testcontainer for the Kotest spec, sets up tables, and configures
- * timezone settings to UTC.
- *
- * @param tables An array of tables to be created and dropped during the test lifecycle.
- * @return A pair consisting of the initialized DataSource and Database connection.
- */
-fun Spec.installDatabase(
-    tables: Array<Table> = arrayOf(),
-): Pair<DataSource, Database> {
-    val dataSource = install(jdbcExtension)
-    val database = Database.connect(dataSource)
-
-    afterSpec {
-        transaction(database) { SchemaUtils.drop(*tables) }
-    }
-
-    beforeSpec {
-        transaction(database) {
-            setDbOptions()
-            SchemaUtils.create(*tables)
-        }
-    }
-
-    return dataSource to database
-}
