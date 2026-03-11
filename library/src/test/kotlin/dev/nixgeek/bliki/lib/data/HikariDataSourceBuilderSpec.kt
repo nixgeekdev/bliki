@@ -2,7 +2,7 @@ package dev.nixgeek.bliki.lib.data
 
 import com.zaxxer.hikari.HikariDataSource
 import dev.nixgeek.bliki.lib.test.fixtures.containers.pgContainer
-import dev.nixgeek.bliki.lib.test.fixtures.data.hikariDataSourceBuilderAgainstPostgres
+import dev.nixgeek.bliki.lib.test.fixtures.containers.pgContainerAwareHikariDataSourceBuilder
 import dev.nixgeek.bliki.lib.test.fixtures.shared.Constants
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
@@ -12,57 +12,61 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import io.mockk.verifyOrder
-import org.junit.jupiter.api.TestInstance
 import org.springframework.test.context.ActiveProfiles
 import java.sql.Connection
 import javax.sql.DataSource
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ActiveProfiles(Constants.TestContainers.ACTIVE_PROFILE)
 class HikariDataSourceBuilderSpec : FunSpec({
+
+    fun newBuilder(): HikariDataSourceBuilder =
+        HikariDataSourceBuilder()
+            .prefix("jdbc")
+            .hostname(pgContainer.host)
+            .port(pgContainer.firstMappedPort)
+            .name(pgContainer.databaseName)
+            .username(pgContainer.username)
+            .password(pgContainer.password)
+
     test("build creates a datasource with expected postgres configuration") {
-        val dataSource =
-            hikariDataSourceBuilderAgainstPostgres()
-                .schema("public")
-                .connectionPoolSize(6)
-                .connectionTimeout(2_000)
-                .idleTimeout(30_000)
-                .leakDetectionThreshold(4_000)
-                .maxLifetime(120_000)
-                .build()
-                .shouldBeInstanceOf<ShutdownHookHikariDataSource>()
+        pgContainerAwareHikariDataSourceBuilder()
+            .schema("public")
+            .connectionPoolSize(6)
+            .connectionTimeout(2_000)
+            .idleTimeout(30_000)
+            .leakDetectionThreshold(4_000)
+            .maxLifetime(120_000)
+            .build()
+            .shouldBeInstanceOf<ShutdownHookHikariDataSource>()
+            .use { hikari ->
+                hikari.jdbcUrl shouldBe
+                    "jdbc:postgresql://${pgContainer.host}:${pgContainer.firstMappedPort}/${pgContainer.databaseName}?prepareThreshold=0"
+                hikari.username shouldBe pgContainer.username
+                hikari.schema shouldBe "public"
+                hikari.maximumPoolSize shouldBe 6
+                hikari.minimumIdle shouldBe 3
+                hikari.connectionTimeout shouldBe 2_000
+                hikari.idleTimeout shouldBe 30_000
+                hikari.leakDetectionThreshold shouldBe 4_000
+                hikari.maxLifetime shouldBe 120_000
+                hikari.validationTimeout shouldBe 5_000
+                hikari.initializationFailTimeout shouldBe -1
 
-        dataSource.use { hikari ->
-            hikari.jdbcUrl shouldBe
-                "jdbc:postgresql://${pgContainer.host}:${pgContainer.firstMappedPort}/${pgContainer.databaseName}?prepareThreshold=0"
-            hikari.username shouldBe pgContainer.username
-            hikari.schema shouldBe "public"
-            hikari.maximumPoolSize shouldBe 6
-            hikari.minimumIdle shouldBe 3
-            hikari.connectionTimeout shouldBe 2_000
-            hikari.idleTimeout shouldBe 30_000
-            hikari.leakDetectionThreshold shouldBe 4_000
-            hikari.maxLifetime shouldBe 120_000
-            hikari.validationTimeout shouldBe 5_000
-            hikari.initializationFailTimeout shouldBe -1
-
-            hikari.connection.use { connection ->
-                connection.isValid(5) shouldBe true
+                hikari.connection.use { connection ->
+                    connection.isValid(5) shouldBe true
+                }
             }
-        }
     }
 
     test("build uses minimumIdle of one when pool size is one") {
-        val dataSource =
-            hikariDataSourceBuilderAgainstPostgres()
-                .connectionPoolSize(1)
-                .build()
-                .shouldBeInstanceOf<HikariDataSource>()
-
-        dataSource.use { hikari ->
-            hikari.maximumPoolSize shouldBe 1
-            hikari.minimumIdle shouldBe 1
-        }
+        pgContainerAwareHikariDataSourceBuilder()
+            .connectionPoolSize(1)
+            .build()
+            .shouldBeInstanceOf<HikariDataSource>()
+            .use { hikari ->
+                hikari.maximumPoolSize shouldBe 1
+                hikari.minimumIdle shouldBe 1
+            }
     }
 
     test("build wires shutdown hooks into the datasource") {
@@ -70,7 +74,7 @@ class HikariDataSourceBuilderSpec : FunSpec({
         val secondHook = mockk<Runnable>(relaxed = true)
 
         val dataSource =
-            hikariDataSourceBuilderAgainstPostgres()
+            pgContainerAwareHikariDataSourceBuilder()
                 .addShutdownHook(firstHook)
                 .addShutdownHook(secondHook)
                 .build()
@@ -86,39 +90,29 @@ class HikariDataSourceBuilderSpec : FunSpec({
     test("build delegates database readiness check") {
         val databaseReadinessChecker = mockk<DatabaseReadinessChecker>(relaxed = true)
 
-        val dataSource =
-            HikariDataSourceBuilder(databaseReadinessChecker)
-                .hostname(pgContainer.host)
-                .port(pgContainer.firstMappedPort)
-                .name(pgContainer.databaseName)
-                .username(pgContainer.username)
-                .password(pgContainer.password)
-                .build()
-
-        dataSource.use {
-            verify(exactly = 1) {
-                databaseReadinessChecker.waitForDatabase(any(), 10, 1_000)
+        HikariDataSourceBuilder(databaseReadinessChecker)
+            .hostname(pgContainer.host)
+            .port(pgContainer.firstMappedPort)
+            .name(pgContainer.databaseName)
+            .username(pgContainer.username)
+            .password(pgContainer.password)
+            .build()
+            .use {
+                verify(exactly = 1) {
+                    databaseReadinessChecker.waitForDatabase(any(), 10, 1_000)
+                }
             }
-        }
     }
 
     test("build returns a datasource that can open a real postgres connection") {
-        val dataSource =
-            HikariDataSourceBuilder()
-                .prefix("jdbc")
-                .hostname(pgContainer.host)
-                .port(pgContainer.firstMappedPort)
-                .name(pgContainer.databaseName)
-                .username(pgContainer.username)
-                .password(pgContainer.password)
-                .build()
-
-        dataSource.use { hikari ->
-            val shutdownHookDataSource = hikari.shouldBeInstanceOf<ShutdownHookHikariDataSource>()
-            shutdownHookDataSource.connection.use { connection ->
-                connection.isValid(5) shouldBe true
+        newBuilder()
+            .build()
+            .shouldBeInstanceOf<ShutdownHookHikariDataSource>()
+            .use { hikari ->
+                hikari.connection.use { connection ->
+                    connection.isValid(5) shouldBe true
+                }
             }
-        }
     }
 
     test("default readiness checker succeeds after transient connection failures") {

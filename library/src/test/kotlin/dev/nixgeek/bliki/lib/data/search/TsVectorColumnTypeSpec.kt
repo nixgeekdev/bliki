@@ -1,22 +1,19 @@
 package dev.nixgeek.bliki.lib.data.search
 
-import dev.nixgeek.bliki.lib.test.fixtures.containers.installDatabase
+import dev.nixgeek.bliki.lib.test.fixtures.containers.installSharedSpecDatabase
 import dev.nixgeek.bliki.lib.test.fixtures.shared.Constants
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
-import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
-import org.junit.jupiter.api.TestInstance
 import org.postgresql.util.PGobject
 import org.springframework.test.context.ActiveProfiles
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ActiveProfiles(Constants.TestContainers.ACTIVE_PROFILE)
 class TsVectorColumnTypeSpec : FunSpec() {
-    val db: Database = installDatabase(arrayOf()).second
+    private val db = installSharedSpecDatabase()
 
     init {
         context("TsVectorColumnType") {
@@ -38,7 +35,7 @@ class TsVectorColumnTypeSpec : FunSpec() {
                         value = "'kotlin':1 'search':2"
                     }
 
-                transaction(db) {
+                transaction(db.requireDatabase()) {
                     columnType.valueFromDB(value) shouldBe "'kotlin':1 'search':2"
                 }
             }
@@ -51,7 +48,7 @@ class TsVectorColumnTypeSpec : FunSpec() {
                         value = "'jetbrains':1 'idea':2"
                     }
 
-                transaction(db) {
+                transaction(db.requireDatabase()) {
                     columnType.valueFromDB(value) shouldBe "'jetbrains':1 'idea':2"
                 }
             }
@@ -64,7 +61,7 @@ class TsVectorColumnTypeSpec : FunSpec() {
                         this.value = """{"q":"nope"}"""
                     }
 
-                transaction(db) {
+                transaction(db.requireDatabase()) {
                     columnType.valueFromDB(value).shouldBeNull()
                 }
             }

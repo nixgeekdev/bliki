@@ -1,6 +1,6 @@
 package dev.nixgeek.bliki.lib.data.search
 
-import dev.nixgeek.bliki.lib.test.fixtures.containers.installDatabase
+import dev.nixgeek.bliki.lib.test.fixtures.containers.installSharedSpecDatabase
 import dev.nixgeek.bliki.lib.test.fixtures.data.renderSql
 import dev.nixgeek.bliki.lib.test.fixtures.data.search.TestSearchTable
 import dev.nixgeek.bliki.lib.test.fixtures.shared.Constants
@@ -9,15 +9,12 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.types.shouldBeInstanceOf
 import org.jetbrains.exposed.v1.core.stringLiteral
-import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
-import org.junit.jupiter.api.TestInstance
 import org.springframework.test.context.ActiveProfiles
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ActiveProfiles(Constants.TestContainers.ACTIVE_PROFILE)
 class TsVectorFunctionsSpec : FunSpec() {
-    val db: Database = installDatabase(arrayOf()).second
+    private val db = installSharedSpecDatabase()
 
     init {
         context("tsvector column registration") {
@@ -33,7 +30,7 @@ class TsVectorFunctionsSpec : FunSpec() {
 
                 expression.columnType.shouldBeInstanceOf<TsQueryColumnType>()
 
-                transaction(db) {
+                transaction(db.requireDatabase()) {
                     val sql = renderSql(expression)
 
                     sql shouldContain "plainto_tsquery"
@@ -47,7 +44,7 @@ class TsVectorFunctionsSpec : FunSpec() {
 
                 expression.columnType.shouldBeInstanceOf<TsQueryColumnType>()
 
-                transaction(db) {
+                transaction(db.requireDatabase()) {
                     val sql = renderSql(expression)
 
                     sql shouldContain "websearch_to_tsquery"
@@ -75,7 +72,7 @@ class TsVectorFunctionsSpec : FunSpec() {
                         plainToTsQuery("english", "kotlin"),
                     )
 
-                transaction(db) {
+                transaction(db.requireDatabase()) {
                     val sql = renderSql(expression)
 
                     sql shouldContain "@@"
@@ -93,7 +90,7 @@ class TsVectorFunctionsSpec : FunSpec() {
                         plainToTsQuery("english", "kotlin"),
                     )
 
-                transaction(db) {
+                transaction(db.requireDatabase()) {
                     val sql = renderSql(expression)
 
                     sql shouldContain "ts_rank"
@@ -111,7 +108,7 @@ class TsVectorFunctionsSpec : FunSpec() {
                         stringLiteral("'kotlin'"),
                     )
 
-                transaction(db) {
+                transaction(db.requireDatabase()) {
                     val sql = renderSql(expression)
 
                     sql shouldContain "@@"
