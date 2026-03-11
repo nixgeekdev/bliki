@@ -1,0 +1,77 @@
+name: bliki-compose
+
+services:
+  valkey:
+    container_name: bliki-valkey
+    image: valkey/valkey:9.0.3-alpine3.23
+    restart: on-failure
+    env_file:
+      - ./env/vk/valkey.env
+    environment:
+      VALKEY_URL: ${VALKEY_URL}
+      VALKEY_PORT: ${VALKEY_PORT}
+      VALKEY_PASSWORD: ${VALKEY_PASSWORD}
+    command:
+      [
+        "valkey-server",
+        "--appendonly", "yes",
+        "--io-threads", "4",
+        "--io-threads-do-reads", "yes",
+        "--port", "${VALKEY_PORT}",
+        "--rename-command CONFIG", "\"\"",
+        "--rename-command FLUSHALL", "\"\"",
+        "--rename-command FLUSHDB", "\"\"",
+        "--requirepass", "${VALKEY_PASSWORD}",
+        "--save", "\"\"",
+      ]
+    ports:
+      - ${VALKEY_PORT}:${VALKEY_PORT}
+    networks:
+      bliki-network:
+        aliases:
+          - valkey
+    volumes:
+      - valkey-bliki:/data
+    healthcheck:
+      test: ["CMD", "valkey-cli", "-h", "localhost", "-p", "${VALKEY_PORT}", "-a", "${VALKEY_PASSWORD}", "ping"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+
+  postgres:
+    container_name: bliki-postgres
+    build: postgres
+    restart: on-failure
+    env_file:
+      - ./env/db/postgres.env
+    environment:
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_USER=${POSTGRES_USER}
+    command: postgres -p ${POSTGRES_PORT}
+    ports:
+      - ${POSTGRES_PORT}:${POSTGRES_PORT}
+    networks:
+      bliki-network:
+        aliases:
+          - postgres
+    volumes:
+      - postgres-bliki:/var/lib/postgresql
+      - ./env/db/local-dbinit.sh:/docker-entrypoint-initdb.d/local-dbinit.sh
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB} -h localhost -p ${POSTGRES_PORT}" ]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+
+volumes:
+  postgres-bliki:
+    name: postgres-bliki
+  valkey-bliki:
+    name: valkey-bliki
+
+networks:
+  bliki-network:
+    name: bliki-network

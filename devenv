@@ -1,0 +1,11 @@
+#! /bin/bash
+
+# development environment variables
+export POSTGRES_HOST="127.0.0.1"
+export POSTGRES_PORT="5432"
+export POSTGRES_DB="bliki"
+export POSTGRES_SCHEMA="bliki"
+export POSTGRES_USER="postgres"
+export POSTGRES_PASSWORD="password!1"
+
+export DEFAULT_BLIKI_ID="01KJVTDBJ1F88VQND3V9718C66"
