@@ -23,6 +23,7 @@ kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref =
 kotlin-ulid = { module = "com.aallam.ulid:ulid-kotlin-jvm", version = "1.6.0" }
 
 jakarta-validation-api = { module = "jakarta.validation:jakarta.validation-api", version = "3.1.1" }
+java-diff-utils = { module = "io.github.java-diff-utils:java-diff-utils", version = "4.16" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version = "1.5.28" }
 netty-macos-dns-resolver = { module = "io.netty:netty-resolver-dns-native-macos", version = "4.2.10.Final" }
 reactor-kotlin-extensions = { module = "io.projectreactor.kotlin:reactor-kotlin-extensions", version = "1.3.0" }

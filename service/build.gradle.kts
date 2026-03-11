@@ -45,6 +45,7 @@ dependencies {
         libs.flyway.core,
         libs.flyway.database.postgresql,
         libs.jakarta.validation.api,
+        libs.java.diff.utils,
         libs.kotlin.ulid,
         libs.reactor.kotlin.extensions,
         libs.squareup.okhttp,
