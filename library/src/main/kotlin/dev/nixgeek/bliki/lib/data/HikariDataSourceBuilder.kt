@@ -1,13 +1,15 @@
 package dev.nixgeek.bliki.lib.data
 
 import com.zaxxer.hikari.HikariConfig
-import javax.sql.DataSource
+import com.zaxxer.hikari.HikariDataSource
 
 /**
  * Builder for creating a HikariDataSource.
  */
 @Suppress("MagicNumber")
-class HikariDataSourceBuilder {
+class HikariDataSourceBuilder(
+    private val databaseReadinessChecker: DatabaseReadinessChecker = DefaultDatabaseReadinessChecker(),
+) {
     private var prefix: String = "jdbc"
     private var hostname: String? = null
     private var port: Int? = null
@@ -88,7 +90,7 @@ class HikariDataSourceBuilder {
         return this
     }
 
-    fun build(): DataSource {
+    fun build(): HikariDataSource {
         val config = HikariConfig()
 
         config.jdbcUrl = "${this.prefix}:postgresql://${this.hostname}:${this.port}/${this.name}?prepareThreshold=0"
@@ -114,45 +116,12 @@ class HikariDataSourceBuilder {
         config.addDataSourceProperty("socketTimeout", "30")
 
         val dataSource = ShutdownHookHikariDataSource(shutdownHooks, config)
-        waitForDatabase(dataSource)
+        databaseReadinessChecker.waitForDatabase(
+            dataSource,
+            maxAttempts = 10,
+            initialDelayMillis = 1_000L,
+        )
 
         return dataSource
-    }
-
-    @Suppress("TooGenericExceptionCaught")
-    private fun waitForDatabase(
-        dataSource: DataSource,
-        maxAttempts: Int = 10,
-        initialDelayMillis: Long = 1_000,
-    ) {
-        var attempt = 0
-        var delayMillis = initialDelayMillis
-        var lastException: Exception? = null
-
-        while (attempt < maxAttempts) {
-            try {
-                dataSource.connection.use { connection ->
-                    if (!connection.isValid(5)) {
-                        throw IllegalStateException("Database connection was established but failed validation")
-                    }
-                }
-                return
-            } catch (ex: Exception) {
-                lastException = ex
-                attempt++
-
-                if (attempt >= maxAttempts) {
-                    break
-                }
-
-                Thread.sleep(delayMillis)
-                delayMillis = (delayMillis * 2).coerceAtMost(10_000)
-            }
-        }
-
-        throw IllegalStateException(
-            "Database was not ready after $maxAttempts attempts",
-            lastException,
-        )
     }
 }

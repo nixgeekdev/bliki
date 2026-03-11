@@ -1,6 +1,8 @@
 package dev.nixgeek.bliki.lib.test.fixtures
 
 import dev.nixgeek.bliki.lib.test.fixtures.containers.pgContainer
+import dev.nixgeek.bliki.lib.test.fixtures.containers.pgContainerAwareHikariDataSourceBuilder
+import dev.nixgeek.bliki.lib.test.fixtures.containers.testNetwork
 import dev.nixgeek.bliki.lib.test.fixtures.shared.timedMs
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.common.ExperimentalKotest
@@ -31,11 +33,39 @@ class TestProjectConfig : AbstractProjectConfig() {
 
     override suspend fun beforeProject() {
         timedMs {
+            val netId = testNetwork.id
+
             if (!pgContainer.isRunning) {
                 Startables.deepStart(pgContainer).join()
             }
+
+            pgContainerAwareHikariDataSourceBuilder()
+                .build()
+                .use { dataSource ->
+                    dataSource.connection.use { connection ->
+                        connection.prepareStatement("select 1").use { statement ->
+                            statement.executeQuery().use { resultSet ->
+                                check(resultSet.next()) { "PostgreSQL readiness check returned no rows" }
+                                check(resultSet.getInt(1) == 1) { "PostgreSQL readiness check returned unexpected value" }
+                            }
+                        }
+                    }
+                }
+
+            netId
         }.also {
-            log.info { "🐳 TestContainers started in ${it.second}ms" }
+            log.info { "🐳 PG TestContainer STARTED in ${it.second}ms [Net: ${it.first}]" }
+        }
+    }
+
+    override suspend fun afterProject() {
+        timedMs {
+            if (pgContainer.isRunning) {
+                pgContainer.stop()
+            }
+            testNetwork.close()
+        }.also {
+            log.info { "🐳 PG TestContainer STOPPED in ${it.second}ms" }
         }
     }
 
