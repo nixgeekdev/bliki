@@ -92,12 +92,12 @@ fun envOrDefault(name: String, default: String) =
     env[name] ?: default
 
 flyway {
-    val dbHost = envOrDefault("POSTGRES_HOST", "127.0.0.1")
-    val dbPort = envOrDefault("POSTGRES_PORT", "5432")
-    val dbName = envOrDefault("POSTGRES_DB", "bliki")
-    val dbSchema = envOrDefault("POSTGRES_SCHEMA", "bliki")
-    val dbUser = envOrDefault("POSTGRES_USER", "postgres")
-    val dbPwd = envOrDefault("POSTGRES_PASSWORD", "password!1")
+    val dbHost = envOrDefault("FLYWAY_HOST", "127.0.0.1")
+    val dbPort = envOrDefault("FLYWAY_PORT", "5432")
+    val dbName = envOrDefault("FLYWAY_DB", "bliki")
+    val dbSchema = envOrDefault("FLYWAY_SCHEMA", "bliki")
+    val dbUser = envOrDefault("FLYWAY_USER", "postgres")
+    val dbPwd = envOrDefault("FLYWAY_PASSWORD", "password!1")
 
     driver = "org.postgresql.Driver"
     url = "jdbc:postgresql://$dbHost:$dbPort/$dbName"
