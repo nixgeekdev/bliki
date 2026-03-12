@@ -2,9 +2,9 @@ package dev.nixgeek.bliki.service.frameworks.service
 
 import dev.nixgeek.bliki.service.shared.Constants
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
-import io.kotest.matchers.shouldBe
 
 class DiffServiceSpec : FunSpec({
     val diffService = DiffService()
