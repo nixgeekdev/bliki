@@ -1,2 +1,78 @@
 service:
   name: service-bliki
+
+server:
+  port: '8080'
+  max-http-request-header-size: '64000'
+  shutdown: graceful
+  http2:
+    enabled: true
+  netty:
+    connection-timeout: 30s
+    idle-timeout: 60s
+
+management:
+  endpoints:
+    web:
+      base-path: /bliki/manage
+      discovery:
+        enabled: true
+      exposure:
+        include: "health,info,env,mappings,loggers"
+    jmx:
+      domain: bliki.nixgeek.dev
+      exposure:
+        include: "health,info,env,mappings,loggers"
+  endpoint:
+    health:
+      access: unrestricted
+      show-components: always
+      show-details: always
+      probes:
+        enabled: true
+    info:
+      access: unrestricted
+    env:
+      access: unrestricted
+      keys-to-sanitize: "password, secret, key, token, .*credentials.*"
+    mappings:
+      access: unrestricted
+    loggers:
+      access: unrestricted
+  health:
+    ping:
+      enabled: true
+    db:
+      enabled: true
+    diskspace:
+      enabled: true
+  info:
+    os:
+      enabled: true
+    java:
+      enabled: true
+    env:
+      enabled: true
+    build:
+      enabled: true
+    git:
+      enabled: true
+      mode: full
+
+spring:
+  application:
+    name: service-bliki
+  main:
+    web-application-type: reactive
+  webflux:
+    base-path: /
+    format:
+      date: yyyy-MM-dd HH:mm:ss
+  jmx:
+    unique-names: true
+  lifecycle:
+    timeout-per-shutdown-phase: 15s
+  web:
+    error:
+      include-message: always
+      include-stacktrace: never

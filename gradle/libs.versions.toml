@@ -48,6 +48,7 @@ redisson = { module = "org.redisson:redisson", version = "4.3.0" }
 spring-boot-configuration-processor = { module = "org.springframework.boot:spring-boot-configuration-processor", version.ref = "springboot-version" }
 spring-boot-devtools = { module = "org.springframework.boot:spring-boot-devtools", version.ref = "springboot-version" }
 spring-boot-starter-actuator = { module = "org.springframework.boot:spring-boot-starter-actuator", version.ref = "springboot-version" }
+spring-boot-starter-flyway = { module = "org.springframework.boot:spring-boot-starter-flyway", version.ref = "springboot-version" }
 spring-boot-starter-jdbc = { module = "org.springframework.boot:spring-boot-starter-jdbc", version.ref = "springboot-version" }
 spring-boot-starter-security = { module = "org.springframework.boot:spring-boot-starter-security", version.ref = "springboot-version" }
 spring-boot-starter-validation = { module = "org.springframework.boot:spring-boot-starter-validation", version.ref = "springboot-version" }
@@ -89,8 +90,8 @@ database = [
 jackson = ["jackson-core", "jackson-databind", "jackson-module-kotlin", "redisson"]
 logging = ["logback-classic", "kotlin-logging"]
 spring-boot-starters = [
-    "spring-boot-starter-actuator", "spring-boot-starter-security", "spring-boot-starter-jdbc",
-    "spring-boot-starter-validation", "spring-boot-starter-webflux",
+    "spring-boot-starter-actuator", "spring-boot-starter-flyway", "spring-boot-starter-security",
+    "spring-boot-starter-jdbc", "spring-boot-starter-validation", "spring-boot-starter-webflux",
 ]
 kotest = [
     "kotest-assertions", "kotest-core", "kotest-extension-spring", "kotest-extension-testcontainers",

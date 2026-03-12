@@ -116,7 +116,7 @@ class HikariDataSourceBuilderSpec : FunSpec({
     }
 
     test("default readiness checker succeeds after transient connection failures") {
-        val checker = DefaultDatabaseReadinessChecker(SleepStrategy { })
+        val checker = DefaultDatabaseReadinessChecker { }
         val dataSource = mockk<DataSource>()
         val connection = mockk<Connection>()
 

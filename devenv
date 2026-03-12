@@ -8,4 +8,12 @@ export POSTGRES_SCHEMA="bliki"
 export POSTGRES_USER="postgres"
 export POSTGRES_PASSWORD="password!1"
 
+# flyway migration variables
+export FLYWAY_HOST="127.0.0.1"
+export FLYWAY_PORT="5432"
+export FLYWAY_DB="bliki"
+export FLYWAY_SCHEMA="bliki"
+export FLYWAY_USER="bliki_admin"
+export FLYWAY_PASSWORD="Z[u;&Im(^w^RGluX"
+
 export DEFAULT_BLIKI_ID="01KJVTDBJ1F88VQND3V9718C66"

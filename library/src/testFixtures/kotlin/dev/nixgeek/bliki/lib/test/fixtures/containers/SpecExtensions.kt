@@ -6,6 +6,7 @@ import dev.nixgeek.bliki.lib.test.fixtures.shared.Constants
 import io.kotest.core.spec.Spec
 import io.kotest.extensions.testcontainers.JdbcDatabaseContainerSpecExtension
 import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.core.statements.StatementType
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager
@@ -158,13 +159,12 @@ fun <T> withFreshDataSource(block: (HikariDataSource) -> T): T {
  * Set up some DB options of the PG container after it starts
  */
 private fun setDbOptions() =
-    with(TransactionManager.current().connection) {
-        val dbTimeZone = "set time zone 'UTC';"
-        val dbExtension = "create extension if not exists \"pgx_ulid\";"
-        with(prepareStatement(dbTimeZone, false)) {
-            executeUpdate()
-        }
-        with(prepareStatement(dbExtension, false)) {
-            executeUpdate()
-        }
+    with(TransactionManager.current()) {
+        val dbTimeZoneStmt = "set time zone 'UTC';"
+        val dbUlidExtStmt = "create extension if not exists \"pgx_ulid\";"
+
+        exec(
+            stmt = "$dbTimeZoneStmt; $dbUlidExtStmt;",
+            explicitStatementType = StatementType.MULTI,
+        ) { it.next() }
     }

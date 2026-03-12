@@ -32,12 +32,13 @@ class DiffService : DiffApi<String> {
      */
     override suspend fun diff(original: List<String>, revision: List<String>): String =
         DiffUtils.diff(original, revision).let { patch ->
-            UnifiedDiffUtils.generateUnifiedDiff(
-                Constants.Diff.ORIGINAL_FILE_NAME,
-                Constants.Diff.REVISED_FILE_NAME,
-                original,
-                patch,
-                Constants.Diff.CONTEXT_SIZE,
-            ).joinToString("\n")
+            UnifiedDiffUtils
+                .generateUnifiedDiff(
+                    Constants.Diff.ORIGINAL_FILE_NAME,
+                    Constants.Diff.REVISED_FILE_NAME,
+                    original,
+                    patch,
+                    Constants.Diff.CONTEXT_SIZE,
+                ).joinToString("\n")
         }
 }

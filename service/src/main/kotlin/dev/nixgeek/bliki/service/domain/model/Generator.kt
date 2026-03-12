@@ -5,10 +5,9 @@ import kotlin.time.Instant
 
 data class Generator(
     val id: ULID? = null,
-    val identityId: ULID,
     val name: String,
     val version: String,
     val uri: String? = null,
-    val createdAt: Instant?,
-    val updatedAt: Instant?,
+    val createdAt: Instant,
+    val updatedAt: Instant,
 )

@@ -1,6 +1,12 @@
 package dev.nixgeek.bliki.lib.data
 
+import org.jetbrains.exposed.v1.jdbc.Database
 import javax.sql.DataSource
+
+enum class DatabaseTarget {
+    APP,
+    ADMIN,
+}
 
 fun interface DatabaseReadinessChecker {
     fun waitForDatabase(
@@ -12,4 +18,8 @@ fun interface DatabaseReadinessChecker {
 
 fun interface SleepStrategy {
     fun sleep(delayMillis: Long)
+}
+
+fun interface DatabaseProvider {
+    fun select(target: DatabaseTarget): Database
 }
