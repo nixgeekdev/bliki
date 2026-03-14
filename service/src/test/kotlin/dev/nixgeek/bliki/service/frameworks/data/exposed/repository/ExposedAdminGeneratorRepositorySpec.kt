@@ -51,7 +51,7 @@ class ExposedAdminGeneratorRepositorySpec : FunSpec() {
                             version = "1.2.3",
                             uri = "https://example.test/admin-insert",
                             updatedAt = updatedAt,
-                        )
+                        ),
                     )
 
                 result.id shouldBe generatorId
@@ -85,7 +85,7 @@ class ExposedAdminGeneratorRepositorySpec : FunSpec() {
                             version = "4.5.6",
                             uri = "https://example.test/generated-id",
                             updatedAt = updatedAt,
-                        )
+                        ),
                     )
 
                 result.id shouldNotBe null
@@ -130,7 +130,7 @@ class ExposedAdminGeneratorRepositorySpec : FunSpec() {
                             version = "2.0.0",
                             uri = "https://example.test/after-update",
                             updatedAt = updatedAt,
-                        )
+                        ),
                     )
 
                 result.id shouldBe generatorId

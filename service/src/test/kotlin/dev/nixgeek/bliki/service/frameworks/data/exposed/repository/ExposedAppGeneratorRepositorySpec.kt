@@ -25,14 +25,15 @@ import ulid.ULID
 
 @ActiveProfiles(Constants.TestContainers.ACTIVE_PROFILE)
 class ExposedAppGeneratorRepositorySpec : FunSpec() {
-    private val db = installSharedSpecDatabase(
-        arrayOf(
-            BlikiTable,
-            ProfileTable,
-            IdentityTable,
-            GeneratorTable,
+    private val db =
+        installSharedSpecDatabase(
+            arrayOf(
+                BlikiTable,
+                ProfileTable,
+                IdentityTable,
+                GeneratorTable,
+            ),
         )
-    )
 
     private val databaseProvider =
         mockk<DatabaseProvider> {
@@ -79,10 +80,11 @@ class ExposedAppGeneratorRepositorySpec : FunSpec() {
                 result.map { it.id } shouldBe listOf(firstId, secondId)
                 result.map { it.name } shouldBe listOf("generator-one", "generator-two")
                 result.map { it.version } shouldBe listOf("1.0.0", "2.0.0")
-                result.map { it.uri } shouldBe listOf(
-                    "https://example.test/generator-one",
-                    "https://example.test/generator-two",
-                )
+                result.map { it.uri } shouldBe
+                    listOf(
+                        "https://example.test/generator-one",
+                        "https://example.test/generator-two",
+                    )
             }
         }
 
