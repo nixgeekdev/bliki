@@ -15,8 +15,8 @@ import ulid.ULID
 class ExposedAdminGeneratorRepository(
     override val databaseProvider: DatabaseProvider,
 ) : AdminGeneratorRepository {
-    override suspend fun save(generator: Generator): Generator? =
-        tx(DatabaseTarget.ADMIN) {
+    override suspend fun save(generator: Generator): Generator =
+        stx(DatabaseTarget.ADMIN) {
             GeneratorTable
                 .upsertReturning(GeneratorTable.id) {
                     if (generator.id != null) {
@@ -25,14 +25,13 @@ class ExposedAdminGeneratorRepository(
                     it[GeneratorTable.name] = generator.name
                     it[GeneratorTable.version] = generator.version
                     it[GeneratorTable.uri] = generator.uri
-                    it[GeneratorTable.createdAt] = generator.createdAt
                     it[GeneratorTable.updatedAt] = generator.updatedAt
                 }.single()
                 .toGeneratorModel()
         }
 
     override suspend fun delete(id: ULID): Generator? =
-        tx(DatabaseTarget.ADMIN) {
+        stx(DatabaseTarget.ADMIN) {
             GeneratorTable
                 .deleteReturning { GeneratorTable.id eq id.toString() }
                 .singleOrNull()

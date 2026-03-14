@@ -17,14 +17,14 @@ class ExposedAppGeneratorRepository(
     override val databaseProvider: DatabaseProvider,
 ) : AppGeneratorRepository {
     override suspend fun fetchAll(): List<Generator> =
-        tx(DatabaseTarget.APP) {
+        stx(DatabaseTarget.APP) {
             GeneratorTable
                 .selectAll()
                 .map { it.toGeneratorModel() }
         }
 
     override suspend fun fetchById(id: ULID): Generator? =
-        tx(DatabaseTarget.APP) {
+        stx(DatabaseTarget.APP) {
             GeneratorTable
                 .selectAll()
                 .where { GeneratorTable.id eq id.toString() }
@@ -33,7 +33,7 @@ class ExposedAppGeneratorRepository(
         }
 
     override suspend fun fetchByBlikiId(blikiId: ULID): Generator? =
-        tx(DatabaseTarget.APP) {
+        stx(DatabaseTarget.APP) {
             GeneratorTable
                 .join(BlikiTable, JoinType.INNER, GeneratorTable.id, BlikiTable.generatorId)
                 .selectAll()
