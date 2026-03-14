@@ -13,7 +13,7 @@ interface AppGeneratorRepository : ContextAwareRepository {
 }
 
 interface AdminGeneratorRepository : ContextAwareRepository {
-    suspend fun save(generator: Generator): Generator?
+    suspend fun save(generator: Generator): Generator
 
     suspend fun delete(id: ULID): Generator?
 }
