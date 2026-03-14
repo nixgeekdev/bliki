@@ -47,12 +47,14 @@ dependencies {
         libs.jakarta.validation.api,
         libs.java.diff.utils,
         libs.kotlin.ulid,
+        libs.nimbus.jose.jwt,
         libs.reactor.kotlin.extensions,
         libs.squareup.okhttp,
     ).forEach(::implementation)
 
     listOf(
         projects.library,
+        testFixtures(projects.library),
         libs.bundles.kotest,
         libs.bundles.test,
         libs.bundles.test.spring.boot,
@@ -60,6 +62,7 @@ dependencies {
 
     listOf(
         projects.library,
+        testFixtures(projects.library),
         libs.bundles.kotest,
         libs.bundles.test,
         libs.bundles.test.spring.boot,
