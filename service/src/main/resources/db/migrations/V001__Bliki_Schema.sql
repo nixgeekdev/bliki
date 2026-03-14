@@ -52,8 +52,8 @@ create table if not exists "identity"
     id            ulid primary key   default gen_monotonic_ulid(),
     email         text      not null,
     password_hash text      not null,
-    created_at    timestamp not null default now(),
-    updated_at    timestamp not null default now()
+    created_at    timestamp null default now(),
+    updated_at    timestamp null default now()
 );
 
 create table if not exists roles
@@ -61,8 +61,8 @@ create table if not exists roles
     id         ulid primary key       default gen_monotonic_ulid(),
     "role"     identity_role not null,
     label      text          null,
-    created_at timestamp     not null default now(),
-    updated_at timestamp     not null default now()
+    created_at timestamp     null default now(),
+    updated_at timestamp     null default now()
 );
 
 create table if not exists profile
@@ -71,8 +71,8 @@ create table if not exists profile
     identity_id ulid      not null references identity on delete restrict,
     full_name   text      not null,
     affiliation text      null, -- company or institution
-    created_at  timestamp not null default now(),
-    updated_at  timestamp not null default now()
+    created_at  timestamp null default now(),
+    updated_at  timestamp null default now()
 );
 
 create table if not exists generator
@@ -81,8 +81,8 @@ create table if not exists generator
     name       text      not null,
     version    text      not null,
     uri        text      null,
-    created_at timestamp not null default now(),
-    updated_at timestamp not null default now()
+    created_at timestamp null default now(),
+    updated_at timestamp null default now()
 );
 
 create table if not exists bliki
@@ -97,7 +97,7 @@ create table if not exists bliki
     lang         text      not null,
     author_id    ulid      not null references profile on delete restrict,
     generator_id ulid      not null references generator on delete restrict,
-    updated_at   timestamp not null default now()
+    updated_at   timestamp null default now()
 );
 
 create table if not exists entry
@@ -114,20 +114,20 @@ create table if not exists entry
     visibility   entry_visibility   not null default 'PRIVATE',
     status       entry_status       not null default 'DRAFT',
     published_at timestamp          null,
-    created_at   timestamp          not null default now(),
-    updated_at   timestamp          not null default now()
+    created_at   timestamp          null default now(),
+    updated_at   timestamp          null default now()
 );
 
 create table if not exists tag
 (
-    id         ulid primary key    default gen_monotonic_ulid(),
+    id         ulid primary key     default gen_monotonic_ulid(),
     parent_id  ulid        null     references tag on delete set null,
     term       text        not null,
     slug       varchar(32) not null unique,
     label      text        null,
     scheme     tag_scheme  null,
-    created_at timestamp   not null default now(),
-    updated_at timestamp   not null default now()
+    created_at timestamp   null default now(),
+    updated_at timestamp   null default now()
 );
 
 create table if not exists revision
@@ -138,7 +138,7 @@ create table if not exists revision
     diff       text        not null,
     summary    text        null,
     event      entry_event not null default 'CREATED',
-    created_at timestamp   not null default now()
+    created_at timestamp   null default now()
 );
 
 create table if not exists entry_relation
