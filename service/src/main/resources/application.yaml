@@ -14,7 +14,7 @@ server:
 management:
   endpoints:
     web:
-      base-path: /bliki/manage
+      base-path: /service/manage
       discovery:
         enabled: true
       exposure:
@@ -76,3 +76,9 @@ spring:
     error:
       include-message: always
       include-stacktrace: never
+
+security:
+  jwt:
+    secret: ${JWT_SECRET:<REPLACE_WITH_A_LONG_RANDOM_SECRET>}
+    issuer: bliki-service
+    access-token-ttl-seconds: 3600
