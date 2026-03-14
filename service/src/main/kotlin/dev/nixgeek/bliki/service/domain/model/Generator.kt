@@ -8,6 +8,6 @@ data class Generator(
     val name: String,
     val version: String,
     val uri: String? = null,
-    val createdAt: Instant,
-    val updatedAt: Instant,
+    val createdAt: Instant? = null,
+    val updatedAt: Instant? = null,
 )
