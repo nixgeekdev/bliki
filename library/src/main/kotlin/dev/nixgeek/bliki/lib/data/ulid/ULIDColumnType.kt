@@ -14,7 +14,7 @@ import org.postgresql.util.PGobject
  */
 @Suppress("UNCHECKED_CAST")
 class ULIDColumnType<T : Comparable<T>>(
-    private val serializer: ULIDSerializer,
+    val serializer: ULIDSerializer,
 ) : ColumnType<T>() {
     companion object {
         private val ulidRegex = Regex("^[0-9A-HJKMNP-TV-Z]{26}$")
