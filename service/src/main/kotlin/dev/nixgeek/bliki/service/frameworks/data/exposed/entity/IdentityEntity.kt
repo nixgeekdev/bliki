@@ -11,6 +11,6 @@ class IdentityEntity(id: EntityID<String>) : ULIDEntity<String>(id) {
 
     var email: String by IdentityTable.email
     var passwordHash: String by IdentityTable.passwordHash
-    var createdAt: Instant by IdentityTable.createdAt
-    var updatedAt: Instant by IdentityTable.updatedAt
+    var createdAt: Instant? by IdentityTable.createdAt
+    var updatedAt: Instant? by IdentityTable.updatedAt
 }

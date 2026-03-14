@@ -18,7 +18,7 @@ class BlikiEntity(id: EntityID<String>) : ULIDEntity<String>(id) {
     var lang: String by BlikiTable.lang
     var author by ProfileEntity referencedOn BlikiTable.authorId
     var generator by GeneratorEntity referencedOn BlikiTable.generatorId
-    var updatedAt: Instant by BlikiTable.updatedAt
+    var updatedAt: Instant? by BlikiTable.updatedAt
 
     val authorId: String = author.id.value
     val generatorId: String = generator.id.value

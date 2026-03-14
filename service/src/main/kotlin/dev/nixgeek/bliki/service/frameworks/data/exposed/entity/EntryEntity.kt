@@ -22,8 +22,8 @@ class EntryEntity(id: EntityID<String>) : ULIDEntity<String>(id) {
     var visibility: EntryVisibility by EntryTable.visibility
     var status: EntryStatus by EntryTable.status
     var publishedAt: Instant? by EntryTable.publishedAt
-    var createdAt: Instant by EntryTable.createdAt
-    var updatedAt: Instant by EntryTable.updatedAt
+    var createdAt: Instant? by EntryTable.createdAt
+    var updatedAt: Instant? by EntryTable.updatedAt
 
     val blikiId: String = bliki.id.value
     val authorId: String = author.id.value

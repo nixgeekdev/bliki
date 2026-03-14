@@ -15,7 +15,7 @@ class RevisionEntity(id: EntityID<String>) : ULIDEntity<String>(id) {
     var diff: String by RevisionTable.diff
     var summary: String? by RevisionTable.summary
     var event: EntryEvent by RevisionTable.event
-    var createdAt: Instant by RevisionTable.createdAt
+    var createdAt: Instant? by RevisionTable.createdAt
 
     val entryId: String = entry.id.value
     val authorId: String = author.id.value

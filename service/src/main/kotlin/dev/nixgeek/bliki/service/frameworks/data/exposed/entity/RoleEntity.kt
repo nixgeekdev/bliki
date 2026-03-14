@@ -11,6 +11,6 @@ class RoleEntity(id: EntityID<String>) : ULIDEntity<String>(id) {
 
     var role: String by RoleTable.role
     var label: String by RoleTable.label
-    var createdAt: Instant by RoleTable.createdAt
-    var updatedAt: Instant by RoleTable.updatedAt
+    var createdAt: Instant? by RoleTable.createdAt
+    var updatedAt: Instant? by RoleTable.updatedAt
 }
