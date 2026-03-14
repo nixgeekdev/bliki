@@ -15,7 +15,7 @@ object BlikiTable : AbstractULIDTable("bliki") {
     val authorId =
         reference(
             name = "author_id",
-            refColumn = IdentityTable.id,
+            refColumn = ProfileTable.id,
             onDelete = ReferenceOption.RESTRICT,
         )
     val generatorId =
@@ -24,5 +24,5 @@ object BlikiTable : AbstractULIDTable("bliki") {
             refColumn = GeneratorTable.id,
             onDelete = ReferenceOption.RESTRICT,
         )
-    val updatedAt = timestamp("updated_at").default(Clock.System.now())
+    val updatedAt = timestamp("updated_at").nullable().default(Clock.System.now())
 }

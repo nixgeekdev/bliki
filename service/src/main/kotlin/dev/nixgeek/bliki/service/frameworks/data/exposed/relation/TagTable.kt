@@ -29,8 +29,8 @@ object TagTable : AbstractULIDTable("tag") {
             length = SCHEME_COL_LEN,
             klass = TagScheme::class,
         ).nullable()
-    val createdAt = timestamp("created_at").default(Clock.System.now())
-    val updatedAt = timestamp("updated_at").default(Clock.System.now())
+    val createdAt = timestamp("created_at").nullable().default(Clock.System.now())
+    val updatedAt = timestamp("updated_at").nullable().default(Clock.System.now())
 
     init {
         check("chk_tag_slug_not_empty") {

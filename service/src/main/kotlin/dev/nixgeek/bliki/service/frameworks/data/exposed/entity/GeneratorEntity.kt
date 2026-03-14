@@ -12,6 +12,6 @@ class GeneratorEntity(id: EntityID<String>) : ULIDEntity<String>(id) {
     var name: String by GeneratorTable.name
     var version: String by GeneratorTable.version
     var uri: String? by GeneratorTable.uri
-    var createdAt: Instant by GeneratorTable.createdAt
-    var updatedAt: Instant by GeneratorTable.updatedAt
+    var createdAt: Instant? by GeneratorTable.createdAt
+    var updatedAt: Instant? by GeneratorTable.updatedAt
 }

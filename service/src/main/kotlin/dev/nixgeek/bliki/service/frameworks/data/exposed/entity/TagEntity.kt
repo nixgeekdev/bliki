@@ -18,8 +18,8 @@ class TagEntity(id: EntityID<String>) : ULIDEntity<String>(id) {
     var slug: String by TagTable.slug
     var label: String by TagTable.label
     var scheme: TagScheme? by TagTable.scheme
-    var createdAt: Instant by TagTable.createdAt
-    var updatedAt: Instant by TagTable.updatedAt
+    var createdAt: Instant? by TagTable.createdAt
+    var updatedAt: Instant? by TagTable.updatedAt
 
     val parentId: String? = parent?.id?.value
     val children: SizedIterable<TagEntity> by TagEntity optionalReferrersOn TagTable.parentId

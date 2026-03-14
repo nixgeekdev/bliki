@@ -51,8 +51,8 @@ object EntryTable : AbstractULIDTable("entry") {
             klass = EntryStatus::class,
         ).default(EntryStatus.DRAFT)
     val publishedAt = timestamp("published_at").nullable()
-    val createdAt = timestamp("created_at").default(Clock.System.now())
-    val updatedAt = timestamp("updated_at").default(Clock.System.now())
+    val createdAt = timestamp("created_at").nullable().default(Clock.System.now())
+    val updatedAt = timestamp("updated_at").nullable().default(Clock.System.now())
     val searchVector = tsvector("search_vector").databaseGenerated()
 
     init {

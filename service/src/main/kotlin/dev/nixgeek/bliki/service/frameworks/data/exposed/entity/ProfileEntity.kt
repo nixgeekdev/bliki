@@ -12,8 +12,8 @@ class ProfileEntity(id: EntityID<String>) : ULIDEntity<String>(id) {
     var identity by IdentityEntity referencedOn ProfileTable.identityId
     var fullName: String by ProfileTable.fullName
     var affiliation: String? by ProfileTable.affiliation
-    var createdAt: Instant by ProfileTable.createdAt
-    var updatedAt: Instant by ProfileTable.updatedAt
+    var createdAt: Instant? by ProfileTable.createdAt
+    var updatedAt: Instant? by ProfileTable.updatedAt
 
     val identityId: String = identity.id.value
 }
