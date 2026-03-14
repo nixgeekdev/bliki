@@ -13,6 +13,6 @@ object ProfileTable : AbstractULIDTable("profile") {
         )
     val fullName = text("full_name")
     val affiliation = text("affiliation").nullable()
-    val createdAt = timestamp("created_at").default(Clock.System.now())
-    val updatedAt = timestamp("updated_at").default(Clock.System.now())
+    val createdAt = timestamp("created_at").nullable().default(Clock.System.now())
+    val updatedAt = timestamp("updated_at").nullable().default(Clock.System.now())
 }

@@ -28,5 +28,5 @@ object RevisionTable : AbstractULIDTable("revision") {
             length = ENTRY_EVENT_COL_LEN,
             klass = EntryEvent::class,
         ).default(EntryEvent.CREATED)
-    val createdAt = timestamp("created_at").default(Clock.System.now())
+    val createdAt = timestamp("created_at").nullable().default(Clock.System.now())
 }

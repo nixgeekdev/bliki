@@ -24,5 +24,5 @@ object BlikiTable : AbstractULIDTable("bliki") {
             refColumn = GeneratorTable.id,
             onDelete = ReferenceOption.RESTRICT,
         )
-    val updatedAt = timestamp("updated_at").default(Clock.System.now())
+    val updatedAt = timestamp("updated_at").nullable().default(Clock.System.now())
 }
