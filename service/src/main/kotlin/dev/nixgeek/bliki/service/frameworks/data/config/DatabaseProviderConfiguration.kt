@@ -8,9 +8,9 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 @Configuration
-class DatabaseSelectorConfiguration {
+class DatabaseProviderConfiguration {
     @Bean
-    fun databaseSelector(
+    fun databaseProvider(
         @Qualifier("appDatabase")
         appDatabase: Database,
         @Qualifier("adminDatabase")
