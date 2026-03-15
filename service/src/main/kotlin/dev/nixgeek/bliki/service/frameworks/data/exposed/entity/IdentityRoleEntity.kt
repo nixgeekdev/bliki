@@ -16,12 +16,9 @@ class IdentityRoleEntity(id: EntityID<CompositeID>) : CompositeEntity(id) {
     var identity by IdentityEntity referencedOn IdentityRoleTable.identityId
     var role by RoleEntity referencedOn IdentityRoleTable.roleId
 
-    val identityId: String = identity.id.value
-    val roleId: String = role.id.value
-
     internal fun toRoleModel(): Role =
         Role(
-            id = roleId.toULID(),
+            id = role.id.value.toULID(),
             role = IdentityRole.valueOf(role.role),
             label = role.label,
             createdAt = role.createdAt,
@@ -30,10 +27,10 @@ class IdentityRoleEntity(id: EntityID<CompositeID>) : CompositeEntity(id) {
 
     internal fun toIdentityModel(): Identity =
         Identity(
-            id = identityId.toULID(),
+            id = identity.id.value.toULID(),
             email = identity.email,
             passwordHash = identity.passwordHash,
-            createdAt = role.createdAt,
-            updatedAt = role.updatedAt,
+            createdAt = identity.createdAt,
+            updatedAt = identity.updatedAt,
         )
 }
