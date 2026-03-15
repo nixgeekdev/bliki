@@ -22,23 +22,26 @@ import java.time.Instant
 class JwtServiceSpec : FunSpec({
     test("should create access token with expected token value") {
         val jwtEncoder = mockk<JwtEncoder>()
-        val jwtProperties = JwtProperties(
-            secret = "test-secret",
-            issuer = "https://example.com/bliki-service",
-            accessTokenTtlSeconds = 900,
-        )
+        val jwtProperties =
+            JwtProperties(
+                secret = "test-secret",
+                issuer = "https://example.com/bliki-service",
+                accessTokenTtlSeconds = 900,
+            )
         val service = JwtService(jwtEncoder, jwtProperties)
 
-        val identity = AuthenticatedIdentity(
-            id = "identity-123",
-            email = "johndoe@example.com",
-            roles = listOf("USER", "ADMIN"),
-        )
+        val identity =
+            AuthenticatedIdentity(
+                id = "identity-123",
+                email = "johndoe@example.com",
+                roles = listOf("USER", "ADMIN"),
+            )
 
         val parametersSlot = slot<JwtEncoderParameters>()
 
         every { jwtEncoder.encode(capture(parametersSlot)) } returns
-            Jwt.withTokenValue("access-token-value")
+            Jwt
+                .withTokenValue("access-token-value")
                 .header("alg", "HS256")
                 .subject(identity.id)
                 .claim("email", identity.email)
@@ -72,23 +75,26 @@ class JwtServiceSpec : FunSpec({
 
     test("should include empty roles list in claims") {
         val jwtEncoder = mockk<JwtEncoder>()
-        val jwtProperties = JwtProperties(
-            secret = "test-secret",
-            issuer = "https://example.com/bliki-service",
-            accessTokenTtlSeconds = 60,
-        )
+        val jwtProperties =
+            JwtProperties(
+                secret = "test-secret",
+                issuer = "https://example.com/bliki-service",
+                accessTokenTtlSeconds = 60,
+            )
         val service = JwtService(jwtEncoder, jwtProperties)
 
-        val identity = AuthenticatedIdentity(
-            id = "identity-456",
-            email = "emptyroles@example.com",
-            roles = emptyList(),
-        )
+        val identity =
+            AuthenticatedIdentity(
+                id = "identity-456",
+                email = "emptyroles@example.com",
+                roles = emptyList(),
+            )
 
         val parametersSlot = slot<JwtEncoderParameters>()
 
         every { jwtEncoder.encode(capture(parametersSlot)) } returns
-            Jwt.withTokenValue("token-with-empty-roles")
+            Jwt
+                .withTokenValue("token-with-empty-roles")
                 .header("alg", "HS256")
                 .subject(identity.id)
                 .build()

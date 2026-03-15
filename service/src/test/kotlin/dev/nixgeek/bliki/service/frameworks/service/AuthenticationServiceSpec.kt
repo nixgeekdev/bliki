@@ -4,8 +4,8 @@ import dev.nixgeek.bliki.service.domain.model.IdentityRole
 import dev.nixgeek.bliki.service.domain.model.SecureIdentity
 import dev.nixgeek.bliki.service.domain.model.SecureRole
 import dev.nixgeek.bliki.service.domain.repository.IdentitySecurityRepository
-import io.kotest.core.spec.style.FunSpec
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import io.mockk.confirmVerified
@@ -23,19 +23,21 @@ class AuthenticationServiceSpec : FunSpec({
         val service = AuthenticationService(passwordEncoder, identitySecRepository)
 
         val identityId = mockk<ULID>()
-        val identity = SecureIdentity(
-            id = identityId,
-            email = "jane.doe@example.com",
-            passwordHash = "encoded-password",
-        )
+        val identity =
+            SecureIdentity(
+                id = identityId,
+                email = "jane.doe@example.com",
+                passwordHash = "encoded-password",
+            )
 
         every { identityId.toString() } returns "identity-123"
         every { identitySecRepository.findByEmail("jane.doe@example.com") } returns identity
         every { passwordEncoder.matches("plain-password", "encoded-password") } returns true
-        every { identitySecRepository.findRolesByIdentityId(identityId) } returns listOf(
-            SecureRole(id = mockk(), role = IdentityRole.ADMIN),
-            SecureRole(id = mockk(), role = IdentityRole.AUTHOR),
-        )
+        every { identitySecRepository.findRolesByIdentityId(identityId) } returns
+            listOf(
+                SecureRole(id = mockk(), role = IdentityRole.ADMIN),
+                SecureRole(id = mockk(), role = IdentityRole.AUTHOR),
+            )
 
         val result = service.authenticate("jane.doe@example.com", "plain-password").block()
 
@@ -57,9 +59,10 @@ class AuthenticationServiceSpec : FunSpec({
 
         every { identitySecRepository.findByEmail("missing@example.com") } returns null
 
-        val exception = shouldThrow<BadCredentialsException> {
-            service.authenticate("missing@example.com", "plain-password").block()
-        }
+        val exception =
+            shouldThrow<BadCredentialsException> {
+                service.authenticate("missing@example.com", "plain-password").block()
+            }
 
         exception.message shouldBe "Invalid credentials"
 
@@ -75,18 +78,20 @@ class AuthenticationServiceSpec : FunSpec({
         val service = AuthenticationService(passwordEncoder, identitySecRepository)
 
         val identityId = mockk<ULID>()
-        val identity = SecureIdentity(
-            id = identityId,
-            email = "jane.doe@example.com",
-            passwordHash = "encoded-password",
-        )
+        val identity =
+            SecureIdentity(
+                id = identityId,
+                email = "jane.doe@example.com",
+                passwordHash = "encoded-password",
+            )
 
         every { identitySecRepository.findByEmail("jane.doe@example.com") } returns identity
         every { passwordEncoder.matches("wrong-password", "encoded-password") } returns false
 
-        val exception = shouldThrow<BadCredentialsException> {
-            service.authenticate("jane.doe@example.com", "wrong-password").block()
-        }
+        val exception =
+            shouldThrow<BadCredentialsException> {
+                service.authenticate("jane.doe@example.com", "wrong-password").block()
+            }
 
         exception.message shouldBe "Invalid credentials"
 
