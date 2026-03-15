@@ -13,10 +13,10 @@ $$
         end if;
         if not exists (select 1 from pg_type where typname = 'identity_role') then
             create type identity_role as enum (
-                'ROLE_ADMIN',
-                'ROLE_AUTHOR',
-                'ROLE_EDITOR',
-                'ROLE_CONTRIBUTOR'
+                'ADMIN',
+                'AUTHOR',
+                'EDITOR',
+                'CONTRIBUTOR'
                 );
         end if;
         if not exists (select 1 from pg_type where typname = 'entry_status') then
@@ -193,7 +193,7 @@ alter table "identity"
 
 alter table "identity"
     add constraint chk_identity_password_hash_format
-        check (password_hash like '$argon2%');
+        check (password_hash like '{bcrypt}$%');
 
 -- PostgreSQL Row-Level Security (RLS)
 -- Enable Row-Level Security
