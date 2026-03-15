@@ -12,6 +12,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.config.web.server.ServerHttpSecurity
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder
+import org.springframework.security.crypto.factory.PasswordEncoderFactories
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.oauth2.jwt.JwtEncoder
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder
@@ -70,7 +71,7 @@ class SecurityConfiguration {
 
     @Bean
     fun passwordEncoder(): PasswordEncoder =
-        Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8()
+        PasswordEncoderFactories.createDelegatingPasswordEncoder()
 
     @Bean
     fun reactiveJwtDecoder(jwtProperties: JwtProperties): ReactiveJwtDecoder =
