@@ -16,4 +16,10 @@ data class Role(
             role = role,
             label = label,
         )
+
+    fun toSecureRole(): SecureRole =
+        SecureRole(
+            id = id!!,
+            role = role,
+        )
 }

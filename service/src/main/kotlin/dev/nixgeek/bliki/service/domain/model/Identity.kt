@@ -25,7 +25,6 @@ data class Identity(
         SecureIdentity(
             id = id!!,
             email = email,
-            createdAt = createdAt,
-            updatedAt = updatedAt,
+            passwordHash = passwordHash,
         )
 }
