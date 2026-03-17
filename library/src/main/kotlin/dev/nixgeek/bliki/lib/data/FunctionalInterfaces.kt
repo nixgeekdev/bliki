@@ -6,6 +6,7 @@ import javax.sql.DataSource
 enum class DatabaseTarget {
     APP,
     ADMIN,
+    FAKE,
 }
 
 fun interface DatabaseReadinessChecker {
@@ -21,5 +22,5 @@ fun interface SleepStrategy {
 }
 
 fun interface DatabaseProvider {
-    fun select(target: DatabaseTarget): Database
+    fun select(target: DatabaseTarget): Database?
 }
