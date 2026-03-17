@@ -16,7 +16,6 @@ import java.sql.Connection
 private val log = KotlinLogging.logger(AppDatabaseConfiguration::class.java.canonicalName)
 
 @Configuration
-@NotATestContainerBean
 @EnableConfigurationProperties(value = [AppDatabaseProperties::class])
 class AppDatabaseConfiguration(
     private val appDatabaseProperties: AppDatabaseProperties,
@@ -25,6 +24,7 @@ class AppDatabaseConfiguration(
         log.info { "Configuring database access! App: ${appDatabaseProperties.jdbcUrl}" }
     }
 
+    @NotATestContainerBean
     @Qualifier("appDataSource")
     @Bean(name = ["appDataSource", "dataSource"])
     fun appDataSource(): HikariDataSource =
@@ -44,6 +44,7 @@ class AppDatabaseConfiguration(
                 log.info { "Creating HikariDataSource for app database" }
             }
 
+    @NotATestContainerBean
     @Bean("appDatabase")
     fun appDatabase(
         @Qualifier("appDataSource")
