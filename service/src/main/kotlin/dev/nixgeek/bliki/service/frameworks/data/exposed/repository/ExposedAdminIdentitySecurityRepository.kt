@@ -12,14 +12,16 @@ import org.jetbrains.exposed.v1.core.JoinType
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.springframework.stereotype.Component
+import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 import ulid.ULID
 
 @Component
 class ExposedIdentitySecurityRepository(
-    override val databaseProvider: DatabaseProvider,
+    override val dbProvider: DatabaseProvider,
 ) : IdentitySecurityRepository {
-    override fun findByEmail(email: String): SecureIdentity? =
-        tx(DatabaseTarget.ADMIN) {
+    override fun findByEmail(email: String): Mono<SecureIdentity> =
+        txMono(DatabaseTarget.ADMIN) {
             IdentityTable
                 .selectAll()
                 .where { IdentityTable.email eq email }
@@ -28,8 +30,9 @@ class ExposedIdentitySecurityRepository(
                 ?.toSecureIdentity()
         }
 
-    override fun findRolesByIdentityId(identityId: ULID): List<SecureRole> =
-        tx(DatabaseTarget.ADMIN) {
+
+    override fun findRolesByIdentityId(identityId: ULID): Flux<SecureRole> =
+        txFlux(DatabaseTarget.ADMIN) {
             IdentityTable
                 .join(IdentityRoleTable, JoinType.INNER, IdentityTable.id, IdentityRoleTable.identityId)
                 .join(RoleTable, JoinType.INNER, IdentityRoleTable.roleId, RoleTable.id)
