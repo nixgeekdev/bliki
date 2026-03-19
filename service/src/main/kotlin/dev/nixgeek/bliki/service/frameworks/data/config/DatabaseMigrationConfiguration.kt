@@ -15,7 +15,6 @@ import org.springframework.context.annotation.Primary
 private val log = KotlinLogging.logger(DatabaseMigrationConfiguration::class.java.canonicalName)
 
 @Configuration
-@NotATestContainerBean
 class DatabaseMigrationConfiguration(
     @Qualifier("adminDataSource")
     private val adminDataSource: HikariDataSource,
@@ -27,6 +26,7 @@ class DatabaseMigrationConfiguration(
     private fun MigrationInfo.statusIndicator() =
         if (installedOn == null) "⊕" else "⊘"
 
+    @NotATestContainerBean
     @Bean
     @Primary
     fun migration(databaseProperties: AdminDatabaseProperties): Flyway =
@@ -40,10 +40,12 @@ class DatabaseMigrationConfiguration(
             .baselineOnMigrate(true)
             .load()
 
+    @NotATestContainerBean
     @Bean
     fun migrationInitializer(migration: Flyway): FlywayMigrationInitializer =
         FlywayMigrationInitializer(migration)
 
+    @NotATestContainerBean
     @Bean
     fun executeMigration(migration: Flyway): Int =
         migration

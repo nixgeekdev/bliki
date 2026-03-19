@@ -1,5 +1,7 @@
 package dev.nixgeek.bliki.lib.usecase
 
-interface UseCase<Args, Res> {
-    suspend operator fun invoke(args: Args): Res
+import reactor.core.publisher.Mono
+
+interface UseCase<Args, Res : Any> {
+    operator fun invoke(args: Args): Mono<Res>
 }

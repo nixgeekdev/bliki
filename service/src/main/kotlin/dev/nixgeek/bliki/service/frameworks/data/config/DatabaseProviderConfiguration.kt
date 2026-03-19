@@ -1,5 +1,6 @@
 package dev.nixgeek.bliki.service.frameworks.data.config
 
+import dev.nixgeek.bliki.lib.annotations.NotATestContainerBean
 import dev.nixgeek.bliki.lib.data.DatabaseProvider
 import dev.nixgeek.bliki.lib.data.DatabaseTarget
 import org.jetbrains.exposed.v1.jdbc.Database
@@ -10,16 +11,18 @@ import org.springframework.context.annotation.Configuration
 @Configuration
 class DatabaseProviderConfiguration {
     @Bean
+    @NotATestContainerBean
     fun databaseProvider(
         @Qualifier("appDatabase")
         appDatabase: Database,
         @Qualifier("adminDatabase")
         adminDatabase: Database,
-    ): DatabaseProvider =
+    ): DatabaseProvider? =
         DatabaseProvider { target ->
             when (target) {
                 DatabaseTarget.APP -> appDatabase
                 DatabaseTarget.ADMIN -> adminDatabase
+                DatabaseTarget.FAKE -> null
             }
         }
 }

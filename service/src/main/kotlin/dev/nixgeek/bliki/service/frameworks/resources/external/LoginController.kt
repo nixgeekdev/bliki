@@ -21,9 +21,13 @@ class LoginController(
     private val jwtService: JwtService,
     private val jwtProperties: JwtProperties,
 ) {
-    @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
+    @PostMapping(
+        consumes = [MediaType.APPLICATION_JSON_VALUE],
+        produces = [MediaType.APPLICATION_JSON_VALUE],
+    )
     fun login(
-        @Valid @RequestBody
+        @Valid
+        @RequestBody
         request: LoginRequest,
     ): Mono<LoginResponse> =
         authenticationService

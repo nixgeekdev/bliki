@@ -16,7 +16,6 @@ import java.sql.Connection
 private val log = KotlinLogging.logger(AppDatabaseConfiguration::class.java.canonicalName)
 
 @Configuration
-@NotATestContainerBean
 @EnableConfigurationProperties(value = [AdminDatabaseProperties::class])
 class AdminDatabaseConfiguration(
     private val adminDatabaseProperties: AdminDatabaseProperties,
@@ -25,6 +24,7 @@ class AdminDatabaseConfiguration(
         log.info { "Configuring database access! Admin: ${adminDatabaseProperties.jdbcUrl}" }
     }
 
+    @NotATestContainerBean
     @Qualifier("adminDataSource")
     @Bean(name = ["adminDataSource"])
     fun adminDataSource(): HikariDataSource =
@@ -44,6 +44,7 @@ class AdminDatabaseConfiguration(
                 log.info { "Creating HikariDataSource for admin database" }
             }
 
+    @NotATestContainerBean
     @Bean("adminDatabase")
     fun adminDatabase(
         @Qualifier("adminDataSource")
