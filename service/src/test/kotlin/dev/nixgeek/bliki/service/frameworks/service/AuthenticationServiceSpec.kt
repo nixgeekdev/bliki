@@ -1,103 +1,134 @@
 package dev.nixgeek.bliki.service.frameworks.service
 
+import dev.nixgeek.bliki.lib.data.DatabaseProvider
+import dev.nixgeek.bliki.lib.test.fixtures.shared.Constants
 import dev.nixgeek.bliki.service.domain.model.IdentityRole
 import dev.nixgeek.bliki.service.domain.model.SecureIdentity
 import dev.nixgeek.bliki.service.domain.model.SecureRole
-import dev.nixgeek.bliki.service.domain.repository.IdentitySecurityRepository
-import io.kotest.assertions.throwables.shouldThrow
+import dev.nixgeek.bliki.service.test.fixtures.data.fakes.FakeAdminIdentitySecurityRepository
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.confirmVerified
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.springframework.security.authentication.BadCredentialsException
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
+import org.springframework.test.context.ActiveProfiles
+import reactor.test.StepVerifier
 import ulid.ULID
 
+private const val FAKE_GOOD_EMAIL = "jane.doe@example.com"
+private const val FAKE_BAD_EMAIL = "missing@example.com"
+private const val FAKE_RAW_PASSWORD = "raw-password"
+private const val FAKE_WRONG_PASSWORD = "wrong-password"
+
+@ActiveProfiles(Constants.TestContainers.ACTIVE_PROFILE)
 class AuthenticationServiceSpec : FunSpec({
+    lateinit var mockPwdEncoder: PasswordEncoder
+    lateinit var mockDbProvider: DatabaseProvider
+    lateinit var fakeRepository: FakeAdminIdentitySecurityRepository
+
+    lateinit var identityId: ULID
+    lateinit var roleId01: ULID
+    lateinit var roleId02: ULID
+
+    lateinit var identity: SecureIdentity
+    lateinit var role01: SecureRole
+    lateinit var role02: SecureRole
+
+    lateinit var fakePasswordHash: String
+
+    beforeTest {
+        val pwdEncoder: PasswordEncoder = BCryptPasswordEncoder()
+        fakePasswordHash = "{bcrypt}${pwdEncoder.encode(FAKE_RAW_PASSWORD)!!}"
+
+        mockPwdEncoder = mockk(relaxed = true)
+        every { mockPwdEncoder.matches(FAKE_RAW_PASSWORD, any()) } returns true
+        every { mockPwdEncoder.matches(FAKE_WRONG_PASSWORD, any()) } returns false
+
+        mockDbProvider = mockk()
+        fakeRepository = FakeAdminIdentitySecurityRepository(mockDbProvider)
+
+        identityId = ULID.StatefulMonotonic().nextULID()
+        roleId01 = ULID.StatefulMonotonic().nextULID()
+        roleId02 = ULID.StatefulMonotonic().nextULID()
+
+        identity =
+            fakeRepository.create(
+                SecureIdentity(
+                    id = identityId,
+                    email = FAKE_GOOD_EMAIL,
+                    passwordHash = fakePasswordHash,
+                ),
+            )
+
+        role01 =
+            fakeRepository.create(
+                SecureRole(
+                    id = roleId01,
+                    role = IdentityRole.ADMIN,
+                ),
+            )
+
+        role02 =
+            fakeRepository.create(
+                SecureRole(
+                    id = roleId02,
+                    role = IdentityRole.AUTHOR,
+                ),
+            )
+
+        fakeRepository.create(identityId, roleId01)
+        fakeRepository.create(identityId, roleId02)
+    }
+
+    afterTest { fakeRepository.clear() }
+
     test("should authenticate identity and return authenticated identity with roles") {
-        val passwordEncoder = mockk<PasswordEncoder>()
-        val identitySecRepository = mockk<IdentitySecurityRepository>()
-        val service = AuthenticationService(passwordEncoder, identitySecRepository)
+        val service = AuthenticationService(mockPwdEncoder, fakeRepository)
 
-        val identityId = mockk<ULID>()
-        val identity =
-            SecureIdentity(
-                id = identityId,
-                email = "jane.doe@example.com",
-                passwordHash = "encoded-password",
-            )
+        StepVerifier
+            .create(service.authenticate(FAKE_GOOD_EMAIL, FAKE_RAW_PASSWORD))
+            .assertNext { result ->
+                result.id shouldBe identity.id.toString()
+                result.email shouldBe "jane.doe@example.com"
+                result.roles.sorted() shouldContainExactly
+                    listOf(role01.role.name, role02.role.name).sorted()
+            }.verifyComplete()
 
-        every { identityId.toString() } returns "identity-123"
-        every { identitySecRepository.findByEmail("jane.doe@example.com") } returns identity
-        every { passwordEncoder.matches("plain-password", "encoded-password") } returns true
-        every { identitySecRepository.findRolesByIdentityId(identityId) } returns
-            listOf(
-                SecureRole(id = mockk(), role = IdentityRole.ADMIN),
-                SecureRole(id = mockk(), role = IdentityRole.AUTHOR),
-            )
-
-        val result = service.authenticate("jane.doe@example.com", "plain-password").block()
-
-        result?.id shouldBe "identity-123"
-        result?.email shouldBe "jane.doe@example.com"
-        result?.roles shouldContainExactly listOf("ADMIN", "AUTHOR")
-
-        verify(exactly = 1) { identitySecRepository.findByEmail("jane.doe@example.com") }
-        verify(exactly = 1) { passwordEncoder.matches("plain-password", "encoded-password") }
-        verify(exactly = 1) { identitySecRepository.findRolesByIdentityId(identityId) }
-        verify(exactly = 1) { identityId.toString() }
-        confirmVerified(passwordEncoder, identitySecRepository, identityId)
+        verify(exactly = 1) { mockPwdEncoder.matches(FAKE_RAW_PASSWORD, any()) }
+        confirmVerified(mockPwdEncoder)
     }
 
     test("should throw bad credentials when identity is not found") {
-        val passwordEncoder = mockk<PasswordEncoder>()
-        val identitySecRepository = mockk<IdentitySecurityRepository>()
-        val service = AuthenticationService(passwordEncoder, identitySecRepository)
+        val service = AuthenticationService(mockPwdEncoder, fakeRepository)
 
-        every { identitySecRepository.findByEmail("missing@example.com") } returns null
+        StepVerifier
+            .create(service.authenticate(FAKE_BAD_EMAIL, FAKE_WRONG_PASSWORD))
+            .expectErrorSatisfies { exception ->
+                exception.shouldBeInstanceOf<BadCredentialsException>()
+                exception.message shouldBe "Invalid credentials"
+            }.verify()
 
-        val exception =
-            shouldThrow<BadCredentialsException> {
-                service.authenticate("missing@example.com", "plain-password").block()
-            }
-
-        exception.message shouldBe "Invalid credentials"
-
-        verify(exactly = 1) { identitySecRepository.findByEmail("missing@example.com") }
-        verify(exactly = 0) { passwordEncoder.matches(any(), any()) }
-        verify(exactly = 0) { identitySecRepository.findRolesByIdentityId(any()) }
-        confirmVerified(passwordEncoder, identitySecRepository)
+        verify(exactly = 0) { mockPwdEncoder.matches(FAKE_WRONG_PASSWORD, any()) }
+        confirmVerified(mockPwdEncoder)
     }
 
     test("should throw bad credentials when password does not match") {
-        val passwordEncoder = mockk<PasswordEncoder>()
-        val identitySecRepository = mockk<IdentitySecurityRepository>()
-        val service = AuthenticationService(passwordEncoder, identitySecRepository)
+        val service = AuthenticationService(mockPwdEncoder, fakeRepository)
 
-        val identityId = mockk<ULID>()
-        val identity =
-            SecureIdentity(
-                id = identityId,
-                email = "jane.doe@example.com",
-                passwordHash = "encoded-password",
-            )
+        StepVerifier
+            .create(service.authenticate(FAKE_GOOD_EMAIL, FAKE_WRONG_PASSWORD))
+            .expectErrorSatisfies { exception ->
+                exception.shouldBeInstanceOf<BadCredentialsException>()
+                exception.message shouldBe "Invalid credentials"
+            }.verify()
 
-        every { identitySecRepository.findByEmail("jane.doe@example.com") } returns identity
-        every { passwordEncoder.matches("wrong-password", "encoded-password") } returns false
-
-        val exception =
-            shouldThrow<BadCredentialsException> {
-                service.authenticate("jane.doe@example.com", "wrong-password").block()
-            }
-
-        exception.message shouldBe "Invalid credentials"
-
-        verify(exactly = 1) { identitySecRepository.findByEmail("jane.doe@example.com") }
-        verify(exactly = 1) { passwordEncoder.matches("wrong-password", "encoded-password") }
-        verify(exactly = 0) { identitySecRepository.findRolesByIdentityId(any()) }
-        confirmVerified(passwordEncoder, identitySecRepository)
+        verify(exactly = 1) { mockPwdEncoder.matches(FAKE_WRONG_PASSWORD, any()) }
+        confirmVerified(mockPwdEncoder)
     }
 })
