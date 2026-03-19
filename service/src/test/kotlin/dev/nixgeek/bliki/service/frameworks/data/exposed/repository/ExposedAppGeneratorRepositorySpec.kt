@@ -23,6 +23,7 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.springframework.test.context.ActiveProfiles
 import ulid.ULID
 
+@Suppress("ReactiveStreamsUnusedPublisher")
 @ActiveProfiles(Constants.TestContainers.ACTIVE_PROFILE)
 class ExposedAppGeneratorRepositorySpec : FunSpec() {
     private val db =
@@ -55,8 +56,8 @@ class ExposedAppGeneratorRepositorySpec : FunSpec() {
 
         context("fetchAll") {
             test("should return all generators") {
-                val firstId = ULID.parseULID("01ARZ3NDEKTSV4RRFFQ69G5FAV")
-                val secondId = ULID.parseULID("01ARZ3NDEKTSV4RRFFQ69G5FAW")
+                val firstId = ULID.StatefulMonotonic().nextULID()
+                val secondId = ULID.StatefulMonotonic().nextULID()
 
                 insertGenerator(
                     db = db.requireDatabase(),
@@ -74,7 +75,7 @@ class ExposedAppGeneratorRepositorySpec : FunSpec() {
                     uri = "https://example.test/generator-two",
                 )
 
-                val result = repository.fetchAll()
+                val result = repository.fetchAll().collectList().block()!!
 
                 result shouldHaveSize 2
                 result.map { it.id } shouldBe listOf(firstId, secondId)
@@ -90,7 +91,7 @@ class ExposedAppGeneratorRepositorySpec : FunSpec() {
 
         context("fetchById") {
             test("should return the matching generator when it exists") {
-                val generatorId = ULID.parseULID("01ARZ3NDEKTSV4RRFFQ69G5FAX")
+                val generatorId = ULID.StatefulMonotonic().nextULID()
 
                 insertGenerator(
                     db = db.requireDatabase(),
@@ -100,7 +101,7 @@ class ExposedAppGeneratorRepositorySpec : FunSpec() {
                     uri = "https://example.test/by-id",
                 )
 
-                val result = repository.fetchById(generatorId)
+                val result = repository.fetchById(generatorId).block()
 
                 result?.id shouldBe generatorId
                 result?.name shouldBe "generator-by-id"
@@ -109,16 +110,15 @@ class ExposedAppGeneratorRepositorySpec : FunSpec() {
             }
 
             test("should return null when the generator does not exist") {
-                val result = repository.fetchById(ULID.parseULID("01ARZ3NDEKTSV4RRFFQ69G5FAY"))
-
+                val result = repository.fetchById(ULID.StatefulMonotonic().nextULID()).block()
                 result.shouldBeNull()
             }
         }
 
         context("fetchByBlikiId") {
             test("should return the generator associated with the bliki id") {
-                val generatorId = ULID.parseULID("01ARZ3NDEKTSV4RRFFQ69G5FAZ")
-                val blikiId = ULID.parseULID("01ARZ3NDEKTSV4RRFFQ69G5FB0")
+                val generatorId = ULID.StatefulMonotonic().nextULID()
+                val blikiId = ULID.StatefulMonotonic().nextULID()
 
                 val identityId = insertIdentity(db.requireDatabase())
                 val profileId = insertProfile(db.requireDatabase(), identityId)
@@ -138,7 +138,7 @@ class ExposedAppGeneratorRepositorySpec : FunSpec() {
                     authorId = profileId,
                 )
 
-                val result = repository.fetchByBlikiId(blikiId)
+                val result = repository.fetchByBlikiId(blikiId).block()
 
                 result?.id shouldBe generatorId
                 result?.name shouldBe "generator-by-bliki"
@@ -147,7 +147,7 @@ class ExposedAppGeneratorRepositorySpec : FunSpec() {
             }
 
             test("should return null when no bliki matches the id") {
-                val result = repository.fetchByBlikiId(ULID.parseULID("01ARZ3NDEKTSV4RRFFQ69G5FB1"))
+                val result = repository.fetchByBlikiId(ULID.StatefulMonotonic().nextULID()).block()
 
                 result.shouldBeNull()
             }

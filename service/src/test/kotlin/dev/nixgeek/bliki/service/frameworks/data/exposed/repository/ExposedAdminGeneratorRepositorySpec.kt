@@ -40,25 +40,26 @@ class ExposedAdminGeneratorRepositorySpec : FunSpec() {
 
         context("save") {
             test("should insert a new generator when the id is provided") {
-                val generatorId = ULID.parseULID("01ARZ3NDEKTSV4RRFFQ69G5FB2")
+                val generatorId = ULID.StatefulMonotonic().nextULID()
                 val updatedAt = Instant.parse("2026-03-14T12:00:00Z")
 
                 val result =
-                    repository.save(
-                        Generator(
-                            id = generatorId,
-                            name = "generator-admin-insert",
-                            version = "1.2.3",
-                            uri = "https://example.test/admin-insert",
-                            updatedAt = updatedAt,
-                        ),
-                    )
+                    repository
+                        .save(
+                            Generator(
+                                id = generatorId,
+                                name = "generator-admin-insert",
+                                version = "1.2.3",
+                                uri = "https://example.test/admin-insert",
+                                updatedAt = updatedAt,
+                            ),
+                        ).block()
 
-                result.id shouldBe generatorId
-                result.name shouldBe "generator-admin-insert"
-                result.version shouldBe "1.2.3"
-                result.uri shouldBe "https://example.test/admin-insert"
-                result.updatedAt shouldBe updatedAt
+                result?.id shouldBe generatorId
+                result?.name shouldBe "generator-admin-insert"
+                result?.version shouldBe "1.2.3"
+                result?.uri shouldBe "https://example.test/admin-insert"
+                result?.updatedAt shouldBe updatedAt
 
                 val persisted =
                     transaction(db.requireDatabase()) {
@@ -79,20 +80,21 @@ class ExposedAdminGeneratorRepositorySpec : FunSpec() {
                 val updatedAt = Instant.parse("2026-03-14T13:00:00Z")
 
                 val result =
-                    repository.save(
-                        Generator(
-                            name = "generator-admin-generated-id",
-                            version = "4.5.6",
-                            uri = "https://example.test/generated-id",
-                            updatedAt = updatedAt,
-                        ),
-                    )
+                    repository
+                        .save(
+                            Generator(
+                                name = "generator-admin-generated-id",
+                                version = "4.5.6",
+                                uri = "https://example.test/generated-id",
+                                updatedAt = updatedAt,
+                            ),
+                        ).block()
 
-                result.id shouldNotBe null
-                result.name shouldBe "generator-admin-generated-id"
-                result.version shouldBe "4.5.6"
-                result.uri shouldBe "https://example.test/generated-id"
-                result.updatedAt shouldBe updatedAt
+                result?.id shouldNotBe null
+                result?.name shouldBe "generator-admin-generated-id"
+                result?.version shouldBe "4.5.6"
+                result?.uri shouldBe "https://example.test/generated-id"
+                result?.updatedAt shouldBe updatedAt
 
                 val persisted =
                     transaction(db.requireDatabase()) {
@@ -102,7 +104,7 @@ class ExposedAdminGeneratorRepositorySpec : FunSpec() {
                             .toGeneratorModel()
                     }
 
-                persisted.id shouldBe result.id
+                persisted.id shouldBe result?.id
                 persisted.name shouldBe "generator-admin-generated-id"
                 persisted.version shouldBe "4.5.6"
                 persisted.uri shouldBe "https://example.test/generated-id"
@@ -110,7 +112,7 @@ class ExposedAdminGeneratorRepositorySpec : FunSpec() {
             }
 
             test("should update an existing generator when the id already exists") {
-                val generatorId = ULID.parseULID("01ARZ3NDEKTSV4RRFFQ69G5FB3")
+                val generatorId = ULID.StatefulMonotonic().nextULID()
 
                 insertGenerator(
                     db = db.requireDatabase(),
@@ -123,21 +125,22 @@ class ExposedAdminGeneratorRepositorySpec : FunSpec() {
                 val updatedAt = Instant.parse("2026-03-14T14:00:00Z")
 
                 val result =
-                    repository.save(
-                        Generator(
-                            id = generatorId,
-                            name = "generator-after-update",
-                            version = "2.0.0",
-                            uri = "https://example.test/after-update",
-                            updatedAt = updatedAt,
-                        ),
-                    )
+                    repository
+                        .save(
+                            Generator(
+                                id = generatorId,
+                                name = "generator-after-update",
+                                version = "2.0.0",
+                                uri = "https://example.test/after-update",
+                                updatedAt = updatedAt,
+                            ),
+                        ).block()
 
-                result.id shouldBe generatorId
-                result.name shouldBe "generator-after-update"
-                result.version shouldBe "2.0.0"
-                result.uri shouldBe "https://example.test/after-update"
-                result.updatedAt shouldBe updatedAt
+                result?.id shouldBe generatorId
+                result?.name shouldBe "generator-after-update"
+                result?.version shouldBe "2.0.0"
+                result?.uri shouldBe "https://example.test/after-update"
+                result?.updatedAt shouldBe updatedAt
 
                 val persistedRows =
                     transaction(db.requireDatabase()) {
@@ -157,7 +160,7 @@ class ExposedAdminGeneratorRepositorySpec : FunSpec() {
 
         context("delete") {
             test("should delete and return the matching generator when it exists") {
-                val generatorId = ULID.parseULID("01ARZ3NDEKTSV4RRFFQ69G5FB4")
+                val generatorId = ULID.StatefulMonotonic().nextULID()
 
                 insertGenerator(
                     db = db.requireDatabase(),
@@ -167,7 +170,7 @@ class ExposedAdminGeneratorRepositorySpec : FunSpec() {
                     uri = "https://example.test/to-delete",
                 )
 
-                val result = repository.delete(generatorId)
+                val result = repository.delete(generatorId).block()
 
                 result?.id shouldBe generatorId
                 result?.name shouldBe "generator-to-delete"
@@ -183,7 +186,7 @@ class ExposedAdminGeneratorRepositorySpec : FunSpec() {
             }
 
             test("should return null when the generator does not exist") {
-                val result = repository.delete(ULID.parseULID("01ARZ3NDEKTSV4RRFFQ69G5FB5"))
+                val result = repository.delete(ULID.StatefulMonotonic().nextULID()).block()
 
                 result.shouldBeNull()
             }
