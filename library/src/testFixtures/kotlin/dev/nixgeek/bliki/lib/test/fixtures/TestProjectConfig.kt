@@ -1,9 +1,9 @@
 package dev.nixgeek.bliki.lib.test.fixtures
 
+import dev.nixgeek.bliki.lib.log.timedMs
 import dev.nixgeek.bliki.lib.test.fixtures.containers.pgContainer
 import dev.nixgeek.bliki.lib.test.fixtures.containers.pgContainerAwareHikariDataSourceBuilder
 import dev.nixgeek.bliki.lib.test.fixtures.containers.testNetwork
-import dev.nixgeek.bliki.lib.test.fixtures.shared.timedMs
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.common.ExperimentalKotest
 import io.kotest.core.config.AbstractProjectConfig

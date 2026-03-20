@@ -1,9 +1,10 @@
+### Login - Username + Password
 POST http://localhost:8080/service/login
 Accept: application/json
 Content-Type: application/json
 
 {
-    "email": "johndoe@example.com",
+    "email": "jgorauskas@gmail.com",
     "password": "secret!123"
 }
 

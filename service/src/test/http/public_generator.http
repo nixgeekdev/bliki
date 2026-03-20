@@ -1,0 +1,13 @@
+### Get all generators
+GET http://localhost:8080/service/public/api/v1/generator
+Accept: application/json
+
+### Get generator by ID
+GET http://localhost:8080/service/public/api/v1/generator/01KM5S9ZDJJ3NGPWWX05M62M1Y
+Accept: application/json
+
+### Get generator by Bliki ID
+GET http://localhost:8080/service/public/api/v1/generator/bliki/01KM5T2EE67VGV6E6APPWV8E87
+Accept: application/json
+
+###

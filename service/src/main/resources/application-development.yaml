@@ -14,8 +14,8 @@ logging:
     org.jetbrains.exposed: DEBUG
     org.springframework:
       boot:
-        autoconfigure: DEBUG
-        actuate: DEBUG
+        autoconfigure: INFO
+        actuate: INFO
       web: DEBUG
     zaxxer.hikari:
       pool:
