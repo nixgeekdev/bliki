@@ -13,7 +13,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJibGlraS1zZXJ2aWNlIiwic3ViI
 }
 
 ### Delete generator
-DELETE http://localhost:8080/service/admin/api/v1/generator/01KM68GAE651BRYZZDZR1947T7
+DELETE http://localhost:8080/service/admin/api/v1/generator/01KM6C7PS7K7RR274KV4EK8064
 Accept: application/json
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJibGlraS1zZXJ2aWNlIiwic3ViIjoiMDFLTTU5UEFNVlIyNkUxVlNaWlNKWUUxOVEiLCJleHAiOjE3NzQwMzY1NTgsImlhdCI6MTc3NDAzMjk1OCwiZW1haWwiOiJqZ29yYXVza2FzQGdtYWlsLmNvbSIsInJvbGVzIjpbIkFETUlOIiwiQVVUSE9SIl19.dBuIYxLufqA8f1Kh9GzHvMtywQSYqlIbpCledwALTeM
