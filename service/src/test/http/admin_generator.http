@@ -1,0 +1,21 @@
+# Use the login endpoint first to generate a JWT
+
+### Save generator
+POST http://localhost:8080/service/admin/api/v1/generator
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJibGlraS1zZXJ2aWNlIiwic3ViIjoiMDFLTTU5UEFNVlIyNkUxVlNaWlNKWUUxOVEiLCJleHAiOjE3NzQwMzY1NTgsImlhdCI6MTc3NDAzMjk1OCwiZW1haWwiOiJqZ29yYXVza2FzQGdtYWlsLmNvbSIsInJvbGVzIjpbIkFETUlOIiwiQVVUSE9SIl19.dBuIYxLufqA8f1Kh9GzHvMtywQSYqlIbpCledwALTeM
+
+{
+    "name": "My Generator",
+    "version": "1.0.0",
+    "uri": "https://example.com/generator"
+}
+
+### Delete generator
+DELETE http://localhost:8080/service/admin/api/v1/generator/01KM68GAE651BRYZZDZR1947T7
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJibGlraS1zZXJ2aWNlIiwic3ViIjoiMDFLTTU5UEFNVlIyNkUxVlNaWlNKWUUxOVEiLCJleHAiOjE3NzQwMzY1NTgsImlhdCI6MTc3NDAzMjk1OCwiZW1haWwiOiJqZ29yYXVza2FzQGdtYWlsLmNvbSIsInJvbGVzIjpbIkFETUlOIiwiQVVUSE9SIl19.dBuIYxLufqA8f1Kh9GzHvMtywQSYqlIbpCledwALTeM
+
+###
