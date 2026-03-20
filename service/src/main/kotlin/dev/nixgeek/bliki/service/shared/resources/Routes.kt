@@ -4,22 +4,23 @@ object Routes {
     private const val CONTEXT_PATH = "/service"
 
     private const val ADMIN_PATH = "/admin"
-    private const val BLIKI_PATH = "/bliki"
     private const val API_V1_PATH = "/api/v1"
     private const val DOCS_PATH = "/docs"
-    private const val ENTRY_PATH = "/entry"
-    private const val GENERATOR_PATH = "/generator"
     private const val HEALTH_PATH = "/health"
-    private const val IDENTITY_PATH = "/identity"
     private const val LOGIN_PATH = "/login"
     private const val MANAGE_PATH = "/manage"
-    private const val PROFILE_PATH = "/profile"
     private const val PUBLIC_PATH = "/public"
-    private const val ROLE_PATH = "/role"
-    private const val REVISION_PATH = "/revision"
-    private const val TAG_PATH = "/tag"
 
-    const val ULID_PARAM = "/{ulid}"
+    internal const val BLIKI_PATH = "/bliki"
+    internal const val ENTRY_PATH = "/entry"
+    internal const val GENERATOR_PATH = "/generator"
+    internal const val IDENTITY_PATH = "/identity"
+    internal const val PROFILE_PATH = "/profile"
+    internal const val ROLE_PATH = "/role"
+    internal const val REVISION_PATH = "/revision"
+    internal const val TAG_PATH = "/tag"
+
+    internal const val ULID_PARAM = "/{ulid}"
 
     // ***************************************  DOCS  *************************************** //
 
@@ -79,27 +80,27 @@ object Routes {
     // -> /service/admin/api/v1
     const val ADMIN_API_V1_BASE = "$ADMIN_BASE$API_V1_PATH"
 
-    // -> /service/public/api/v1/bliki
+    // -> /service/admin/api/v1/bliki
     const val ADMIN_BLIKI_BASE = "$ADMIN_API_V1_BASE$BLIKI_PATH"
 
-    // -> /service/public/api/v1/entry
+    // -> /service/admin/api/v1/entry
     const val ADMIN_ENTRY_BASE = "$ADMIN_API_V1_BASE$ENTRY_PATH"
 
-    // -> /service/public/api/v1/generator
+    // -> /service/admin/api/v1/generator
     const val ADMIN_GENERATOR_BASE = "$ADMIN_API_V1_BASE$GENERATOR_PATH"
 
-    // -> /service/public/api/v1/identity
+    // -> /service/admin/api/v1/identity
     const val ADMIN_IDENTITY_BASE = "$ADMIN_API_V1_BASE$IDENTITY_PATH"
 
-    // -> /service/public/api/v1/profile
+    // -> /service/admin/api/v1/profile
     const val ADMIN_PROFILE_BASE = "$ADMIN_API_V1_BASE$PROFILE_PATH"
 
-    // -> /service/public/api/v1/revision
+    // -> /service/admin/api/v1/revision
     const val ADMIN_REVISION_BASE = "$ADMIN_API_V1_BASE$REVISION_PATH"
 
-    // -> /service/public/api/v1/role
+    // -> /service/admin/api/v1/role
     const val ADMIN_ROLE_BASE = "$ADMIN_API_V1_BASE$ROLE_PATH"
 
-    // -> /service/public/api/v1/tag
+    // -> /service/admin/api/v1/tag
     const val ADMIN_TAG_BASE = "$ADMIN_API_V1_BASE$TAG_PATH"
 }
