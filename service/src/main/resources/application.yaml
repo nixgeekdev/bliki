@@ -75,10 +75,10 @@ spring:
   web:
     error:
       include-message: always
-      include-stacktrace: never
+      include-stacktrace: always
 
 security:
   jwt:
-    secret: ${JWT_SECRET:<REPLACE_WITH_A_LONG_RANDOM_SECRET>}
+    secret: ${JWT_SECRET:Qm9xR1R4eW9sN2pWc0x6V3h4Rk5rY2pQd0hVbTV1Qk1uQ3RjR3VJY0M1N0Z4T3lQY1dQd0dQeG1oV0J0}
     issuer: bliki-service
     access-token-ttl-seconds: 3600
