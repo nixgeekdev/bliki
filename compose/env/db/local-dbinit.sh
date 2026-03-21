@@ -2,7 +2,7 @@
 set -eu
 
 : "${POSTGRES_USER:?POSTGRES_USER must be set}"
-: "${POSTGRES_PASS:?POSTGRES_PASS must be set}"
+: "${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}"
 : "${DB_USER_APP:?DB_USER_APP must be set}"
 : "${DB_PASS_APP:?DB_PASS_APP must be set}"
 : "${DB_NAME_ADMIN:?DB_NAME_ADMIN must be set}"
@@ -29,13 +29,7 @@ begin
 end
 \$\$;
 
-do \$\$
-begin
-    if not exists (select from pg_database where datname = '${DB_NAME_ADMIN}') then
-        create database "${DB_NAME_ADMIN}" owner "${DB_USER_ADMIN}";
-    end if;
-end
-\$\$;
+create database "${DB_NAME_ADMIN}" owner "${DB_USER_ADMIN}";
 
 do \$\$
 begin
@@ -54,11 +48,11 @@ begin
     grant all privileges on schema "${DB_SCHEMA_ADMIN}" to "${DB_USER_ADMIN}";
     grant all privileges on schema "${DB_SCHEMA_ADMIN}" to "${POSTGRES_USER}";
     grant select on all tables in schema "${DB_SCHEMA_ADMIN}" to "${DB_USER_APP}";
-    grant select on all views in schema "${DB_SCHEMA_ADMIN}" to "${DB_USER_APP}";
+    grant execute on all functions in schema "${DB_SCHEMA_ADMIN}" to "${DB_USER_APP}";
 
     alter default privileges in schema "${DB_SCHEMA_ADMIN}" grant all on tables to "${DB_USER_ADMIN}";
     alter default privileges in schema "${DB_SCHEMA_ADMIN}" grant select on tables to "${DB_USER_APP}";
-    alter default privileges in schema "${DB_SCHEMA_ADMIN}" grant select on views to "${DB_USER_APP}";
+    alter default privileges in schema "${DB_SCHEMA_ADMIN}" grant execute on functions to "${DB_USER_APP}";
 
     create extension if not exists "pgx_ulid" schema "${DB_SCHEMA_ADMIN}";
 end
