@@ -1,0 +1,37 @@
+service:
+  environment: ${ENVIRONMENT}
+
+server:
+  port: ${SERVER_PORT}
+
+logging:
+  level:
+    root: INFO
+    Exposed: INFO
+    dev.nixgeek.bliki:
+      lib: INFO
+      service: INFO
+    org.jetbrains.exposed: INFO
+    org.springframework:
+      boot:
+        autoconfigure: INFO
+        actuate: INFO
+      web: INFO
+    zaxxer.hikari:
+      pool:
+        HikariPool: INFO
+      HikariConfig: INFO
+
+security:
+  jwt:
+    secret: ${JWT_SECRET}
+
+database:
+  app:
+    host: ${DB_HOST}
+    port: ${DB_PORT}
+    password: ${DB_PASS}
+  admin:
+    host: ${DB_HOST}
+    port: ${DB_PORT}
+    password: ${DB_PASS}

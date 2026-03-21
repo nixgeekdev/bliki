@@ -79,6 +79,29 @@ spring:
 
 security:
   jwt:
-    secret: ${JWT_SECRET:Qm9xR1R4eW9sN2pWc0x6V3h4Rk5rY2pQd0hVbTV1Qk1uQ3RjR3VJY0M1N0Z4T3lQY1dQd0dQeG1oV0J0}
     issuer: bliki-service
     access-token-ttl-seconds: 3600
+
+database:
+  app:
+    name: ${DB_NAME_APP:bliki}
+    username: ${DB_USER_APP}
+    schema: ${DB_SCHEMA_APP:bliki}
+    connection_pool_size: ${DB_CONNECTION_POOL_SIZE_APP}
+    isolation_level: ${DB_ISOLATION_LEVEL:TRANSACTION_READ_COMMITTED}
+    max_lifetime: ${DB_MAX_LIFETIME:1800000}
+    db_type: ${DB_TYPE:postgresql}
+    default_database: ${DB_DEFAULT_DATABASE_APP}
+    auto_commit: ${DB_AUTO_COMMIT:true}
+    leak_detection_threshold_ms: ${DB_LEAK_DETECTION_THRESHOLD:120000}
+  admin:
+    name: ${DB_NAME_ADMIN:bliki}
+    username: ${DB_USER_ADMIN}
+    schema: ${DB_SCHEMA_ADMIN:bliki}
+    connection_pool_size: ${DB_CONNECTION_POOL_SIZE_ADMIN}
+    isolation_level: ${DB_ISOLATION_LEVEL:TRANSACTION_READ_COMMITTED}
+    max_lifetime: ${DB_MAX_LIFETIME:1800000}
+    db_type: ${DB_TYPE:postgresql}
+    default_database: ${DB_DEFAULT_DATABASE_ADMIN}
+    auto_commit: ${DB_AUTO_COMMIT:true}
+    leak_detection_threshold_ms: ${DB_LEAK_DETECTION_THRESHOLD:120000}
