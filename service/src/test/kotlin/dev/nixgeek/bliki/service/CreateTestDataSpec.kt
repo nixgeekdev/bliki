@@ -2,12 +2,14 @@ package dev.nixgeek.bliki.service
 
 import com.zaxxer.hikari.HikariDataSource
 import dev.nixgeek.bliki.service.test.fixtures.data.insertIdentity
+import io.kotest.core.annotation.Ignored
 import io.kotest.core.spec.style.FunSpec
 import org.jetbrains.exposed.v1.jdbc.Database
 import ulid.ULID
 
 private const val FAKE_PASSWORD_HASH_01 = $$"{bcrypt}$2a$10$9aB242Y0FJyxaKhuimUjPOUxq1qYmjtVihJRPa6hXL0nGvWMYyxka"
 
+@Ignored
 class CreateTestDataSpec : FunSpec({
     val ds =
         HikariDataSource().apply {

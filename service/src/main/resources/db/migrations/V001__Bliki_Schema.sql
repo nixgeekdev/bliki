@@ -2,9 +2,13 @@
 -- Goal: model the major Bliki elements closely: bliki, entry, tag, profile, identity, roles, revision,
 set lock_timeout = '5s';
 
+-------------------------------------------------------------------------------
+-- EXTENSIONS
 create extension if not exists "pgx_ulid" schema bliki;
 create extension if not exists pgcrypto schema bliki;
 
+-------------------------------------------------------------------------------
+-- CUSTOM TYPES
 do
 $$
     begin
@@ -47,19 +51,23 @@ $$
     end;
 $$;
 
+-------------------------------------------------------------------------------
+-- TABLES
 create table if not exists "identity"
 (
     id            ulid primary key   default gen_monotonic_ulid(),
-    email         text      not null,
+    email         text      not null unique,
     password_hash text      not null,
     created_at    timestamp null default now(),
-    updated_at    timestamp null default now()
+    updated_at    timestamp null default now(),
+    constraint chk_identity_email_not_empty check (length(email) > 0),
+    constraint chk_identity_password_hash_format check (password_hash like '{bcrypt}$%')
 );
 
 create table if not exists roles
 (
     id         ulid primary key       default gen_monotonic_ulid(),
-    "role"     identity_role not null,
+    "role"     identity_role not null unique,
     label      text          null,
     created_at timestamp     null default now(),
     updated_at timestamp     null default now()
@@ -68,7 +76,7 @@ create table if not exists roles
 create table if not exists profile
 (
     id          ulid primary key   default gen_monotonic_ulid(),
-    identity_id ulid      not null references identity on delete restrict,
+    identity_id ulid      not null references "identity" on delete restrict,
     full_name   text      not null,
     affiliation text      null, -- company or institution
     created_at  timestamp null default now(),
@@ -78,7 +86,7 @@ create table if not exists profile
 create table if not exists generator
 (
     id         ulid primary key   default gen_monotonic_ulid(),
-    name       text      not null,
+    "name"     text      not null,
     version    text      not null,
     uri        text      null,
     created_at timestamp null default now(),
@@ -115,19 +123,22 @@ create table if not exists entry
     status       entry_status       not null default 'DRAFT',
     published_at timestamp          null,
     created_at   timestamp          null default now(),
-    updated_at   timestamp          null default now()
+    updated_at   timestamp          null default now(),
+    constraint chk_entry_slug_not_empty check (length(slug) > 0 and length(slug) <= 128)
 );
 
 create table if not exists tag
 (
     id         ulid primary key     default gen_monotonic_ulid(),
     parent_id  ulid        null     references tag on delete set null,
-    term       text        not null,
+    term       text        not null unique,
     slug       varchar(32) not null unique,
     label      text        null,
     scheme     tag_scheme  null,
     created_at timestamp   null default now(),
-    updated_at timestamp   null default now()
+    updated_at timestamp   null default now(),
+    constraint chk_tag_slug_not_empty check (length(slug) > 0 and length(slug) <= 32),
+    constraint chk_tag_no_self_reference check (parent_id != id)
 );
 
 create table if not exists revision
@@ -146,7 +157,8 @@ create table if not exists entry_relation
     from_entry_id ulid                not null references entry on delete restrict,
     to_entry_id   ulid                not null references entry on delete restrict,
     relation      entry_relation_type not null default 'RELATED',
-    primary key (from_entry_id, to_entry_id)
+    primary key (from_entry_id, to_entry_id),
+    constraint chk_entry_relation_no_self_reference check (from_entry_id != to_entry_id)
 );
 
 create table if not exists entry_tag
@@ -165,38 +177,19 @@ create table if not exists entry_contributor
 
 create table if not exists identity_roles
 (
-    identity_id ulid not null references identity on delete restrict,
+    identity_id ulid not null references "identity" on delete restrict,
     role_id     ulid not null references roles on delete restrict,
     primary key (identity_id, role_id)
 );
 
--- constraints
-alter table entry
-    add constraint chk_entry_slug_not_empty
-        check (length(slug) > 0 and length(slug) <= 128);
+-------------------------------------------------------------------------------
+-- VIEWS
+create view identity_public as
+select id, email, created_at, updated_at
+from "identity";
 
-alter table tag
-    add constraint chk_tag_slug_not_empty
-        check (length(slug) > 0 and length(slug) <= 32);
-
-alter table tag
-    add constraint chk_tag_no_self_reference
-        check (parent_id != id);
-
-alter table entry_relation
-    add constraint chk_entry_relation_no_self_reference
-        check (from_entry_id != to_entry_id);
-
-alter table "identity"
-    add constraint chk_identity_email_not_empty
-        check (length(email) > 0);
-
-alter table "identity"
-    add constraint chk_identity_password_hash_format
-        check (password_hash like '{bcrypt}$%');
-
--- PostgreSQL Row-Level Security (RLS)
--- Enable Row-Level Security
+-------------------------------------------------------------------------------
+-- ROW LEVEL SECURITY (RLS)
 alter table "identity" enable row level security;
 
 create function get_current_identity_id()
@@ -234,44 +227,32 @@ create policy identity_admin_policy on "identity"
         using (true)
         with check (true);
 
--- Full-Text Search
+-------------------------------------------------------------------------------
+-- ADDITIONAL INDICES
+create index if not exists idx_bliki_updated on bliki (updated_at);
+create index if not exists idx_entry_created_updated on entry (created_at, updated_at);
+create index if not exists idx_entry_published_desc on entry (published_at desc) where published_at is not null;
+create index if not exists idx_identity_created_updated on "identity" (created_at, updated_at);
+create index if not exists idx_profile_created_updated on profile (created_at, updated_at);
+create index if not exists idx_profile_full_name on profile (full_name);
+create index if not exists idx_revision_created on revision (created_at);
+create index if not exists idx_revision_entry_author_id on revision (entry_id, author_id);
+create index if not exists idx_roles_created_updated on roles (created_at, updated_at);
+create index if not exists idx_tag_created_updated on tag (created_at, updated_at);
+
+-------------------------------------------------------------------------------
+-- FULL TEXT SEARCH
 alter table entry
     add column search_vector tsvector
         generated always as (to_tsvector('english', title || ' ' || content)) stored;
+
 create index if not exists idx_entry_search_vector on entry using gin (search_vector);
 -- Usage:
--- select * from entry
---   where search_vector @@ plainto_tsquery('english', 'jvm memory')
--- order by published_at desc
--- limit 100;
+--   select * from entry
+--       where search_vector @@ plainto_tsquery('english', 'jvm memory')
+--   order by published_at desc
+--   limit 100;
 
--- indices
-create index if not exists idx_bliki_updated on bliki (updated_at);
-
-create index if not exists idx_entry_created_updated on entry (created_at, updated_at);
-create index if not exists idx_entry_published_desc
-    on entry (published_at desc) where published_at is not null;
-create index if not exists idx_entry_slug on entry (slug);
-
-create index if not exists idx_revision_created on revision (created_at);
-create index if not exists idx_revision_entry_author_id on revision (entry_id, author_id);
-
-create index if not exists idx_tag_term on tag (term);
-create index if not exists idx_tag_term_slug on tag (slug);
-create index if not exists idx_tag_created_updated on tag (created_at, updated_at);
-
-create index if not exists idx_profile_created_updated on profile (created_at, updated_at);
-create index if not exists idx_profile_full_name on profile (full_name);
-
-create index if not exists idx_identity_email on identity (email);
-create index if not exists idx_identity_created_updated on identity (created_at, updated_at);
-
-create index if not exists idx_roles_created_updated on roles (created_at, updated_at);
-
--- views
-create view identity_public as
-select id, email, created_at, updated_at
-from identity;
-
-grant select on identity_public to bliki_app;
-revoke select (password_hash) on identity from bliki_app;
+-- TODO 1: Ensure the `bliki_app` role cannot access any sensitive data.
+--         Specifically, no access to the `identity` table. Use the view
+--         `identity_public` instead.

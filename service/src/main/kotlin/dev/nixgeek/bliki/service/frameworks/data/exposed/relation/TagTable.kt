@@ -93,7 +93,7 @@ object TagTable : AbstractULIDTable("tag") {
      *
      * Example: "Kotlin Programming", "Web Development", "Tutorial"
      */
-    val term = text("term")
+    val term = text("term").uniqueIndex()
 
     /**
      * URL-friendly unique identifier for this tag.
