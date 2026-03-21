@@ -1,21 +1,60 @@
-#!/usr/bin/env bash
-set -e
+#!/usr/bin/env sh
+set -eu
 
-# bliki
-psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" <<- EOSQL
-    create database bliki;
-    create role bliki_app with login encrypted password 'FbZ)D_MG5Xfkk%Sl' noinherit;
-    create role bliki_admin with login encrypted password 'Z[u;&Im(^w^RGluX' noinherit;
-    grant connect on database bliki to bliki_app;
-    grant all privileges on database bliki to bliki_admin;
-    grant all privileges on database bliki to $POSTGRES_USER;
+: "${POSTGRES_USER:?POSTGRES_USER must be set}"
+: "${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}"
+: "${DB_USER_APP:?DB_USER_APP must be set}"
+: "${DB_PASS_APP:?DB_PASS_APP must be set}"
+: "${DB_NAME_ADMIN:?DB_NAME_ADMIN must be set}"
+: "${DB_SCHEMA_ADMIN:?DB_SCHEMA_APP must be set}"
+: "${DB_USER_ADMIN:?DB_USER_ADMIN must be set}"
+: "${DB_PASS_ADMIN:?DB_PASS_ADMIN must be set}"
 
-    \connect "bliki";
+# Optional but useful if your image provides these tools.
+# Avoid echoing secrets to logs.
 
-    create schema if not exists bliki;
-    alter database bliki set search_path to bliki;
-    grant select, insert, update on all tables in schema bliki to bliki_app;
-    grant all privileges on schema bliki to bliki_admin;
-    grant all privileges on schema bliki to $POSTGRES_USER;
-    create extension if not exists "pgx_ulid" schema bliki;
-EOSQL
+psql --username "${POSTGRES_USER:-postgres}" --dbname "${POSTGRES_DB:-postgres}" <<SQL
+do \$\$
+begin
+    if not exists (select from pg_roles where rolname = '${DB_USER_APP}') then
+        create role "${DB_USER_APP}" login password '${DB_PASS_APP}';
+    else
+        alter role "${DB_USER_APP}" with password '${DB_PASS_APP}';
+    end if;
+    if not exists (select from pg_roles where rolname = '${DB_USER_ADMIN}') then
+        create role "${DB_USER_ADMIN}" login password '${DB_PASS_ADMIN}';
+    else
+        alter role "${DB_USER_ADMIN}" with password '${DB_PASS_ADMIN}';
+    end if;
+end
+\$\$;
+
+create database "${DB_NAME_ADMIN}" owner "${DB_USER_ADMIN}";
+
+do \$\$
+begin
+    grant connect on database "${DB_NAME_ADMIN}" to "${DB_USER_APP}";
+    grant all privileges on database "${DB_NAME_ADMIN}" to "${POSTGRES_USER}";
+end
+\$\$;
+
+\connect "${DB_NAME_ADMIN}";
+
+do \$\$
+begin
+    create schema if not exists "${DB_SCHEMA_ADMIN}";
+    alter database "${DB_NAME_ADMIN}" set search_path to "${DB_SCHEMA_ADMIN}";
+
+    grant all privileges on schema "${DB_SCHEMA_ADMIN}" to "${DB_USER_ADMIN}";
+    grant all privileges on schema "${DB_SCHEMA_ADMIN}" to "${POSTGRES_USER}";
+    grant select on all tables in schema "${DB_SCHEMA_ADMIN}" to "${DB_USER_APP}";
+    grant execute on all functions in schema "${DB_SCHEMA_ADMIN}" to "${DB_USER_APP}";
+
+    alter default privileges in schema "${DB_SCHEMA_ADMIN}" grant all on tables to "${DB_USER_ADMIN}";
+    alter default privileges in schema "${DB_SCHEMA_ADMIN}" grant select on tables to "${DB_USER_APP}";
+    alter default privileges in schema "${DB_SCHEMA_ADMIN}" grant execute on functions to "${DB_USER_APP}";
+
+    create extension if not exists "pgx_ulid" schema "${DB_SCHEMA_ADMIN}";
+end
+\$\$;
+SQL

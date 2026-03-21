@@ -34,3 +34,13 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+### ENV FILES ###
+compose/.env
+**/*.env
+!.env.example
+
+### SECRETS ###
+*.local
+*.secret
+devenv

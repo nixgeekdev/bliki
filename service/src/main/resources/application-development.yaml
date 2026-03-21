@@ -22,32 +22,16 @@ logging:
         HikariPool: DEBUG
       HikariConfig: DEBUG
 
+security:
+  jwt:
+    secret: ${JWT_SECRET:dev_0nly!Ch4ngeME}
+
 database:
   app:
-    name: ${DB_NAME:bliki}
-    host: ${DB_HOST:localhost}
-    port: ${DB_PORT:5432}
-    username: ${DB_USER:bliki_app}
-    password: ${DB_PASS:FbZ)D_MG5Xfkk%Sl}
-    schema: ${DB_SCHEMA:bliki}
-    connection_pool_size: ${DB_CONNECTION_POOL_SIZE:16}
-    isolation_level: ${DB_ISOLATION_LEVEL:TRANSACTION_READ_COMMITTED}
-    max_lifetime: ${DB_MAX_LIFETIME:1800000}
-    db_type: ${DB_TYPE:postgresql}
-    default_database: ${DB_DEFAULT_DATABASE:true}
-    auto_commit: ${DB_AUTO_COMMIT:true}
-    leak_detection_threshold_ms: ${DB_LEAK_DETECTION_THRESHOLD:120000}
+    host: ${DB_HOST_APP:localhost}
+    port: ${DB_PORT_APP:5432}
+    password: ${DB_PASS_APP:dev_ChangeM3}
   admin:
-    name: ${DB_NAME:bliki}
-    host: ${DB_HOST:localhost}
-    port: ${DB_PORT:5432}
-    username: ${DB_USER:bliki_admin}
-    password: ${DB_PASS:Z[u;&Im(^w^RGluX}
-    schema: ${DB_SCHEMA:bliki}
-    connection_pool_size: ${DB_CONNECTION_POOL_SIZE:8}
-    isolation_level: ${DB_ISOLATION_LEVEL:TRANSACTION_READ_COMMITTED}
-    max_lifetime: ${DB_MAX_LIFETIME:1800000}
-    db_type: ${DB_TYPE:postgresql}
-    default_database: ${DB_DEFAULT_DATABASE:false}
-    auto_commit: ${DB_AUTO_COMMIT:true}
-    leak_detection_threshold_ms: ${DB_LEAK_DETECTION_THRESHOLD:120000}
+    host: ${DB_HOST_ADMIN:localhost}
+    port: ${DB_PORT_ADMIN:5432}
+    password: ${DB_PASS_ADMIN:dev_ChangeM3}

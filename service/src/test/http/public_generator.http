@@ -9,5 +9,3 @@ Accept: application/json
 ### Get generator by Bliki ID
 GET http://localhost:8080/service/public/api/v1/generator/bliki/01KM5T2EE67VGV6E6APPWV8E87
 Accept: application/json
-
-###
