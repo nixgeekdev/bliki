@@ -29,7 +29,7 @@ object IdentityTable : AbstractULIDTable("identity") {
      * The email address of the identity, used as the username for authentication.
      * Must be at least 1 character long (enforced by database constraint).
      */
-    val email = text("email")
+    val email = text("email").uniqueIndex()
 
     /**
      * The bcrypt-encoded password hash for the identity.

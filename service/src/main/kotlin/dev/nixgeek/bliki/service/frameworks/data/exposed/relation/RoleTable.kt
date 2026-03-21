@@ -25,7 +25,7 @@ object RoleTable : AbstractULIDTable("roles") {
      * This is typically an uppercase string constant (e.g., "ADMIN", "AUTHOR")
      * that corresponds to [dev.nixgeek.bliki.service.domain.model.IdentityRole] enum values.
      */
-    val role = text("role")
+    val role = text("role").uniqueIndex()
 
     /**
      * The human-readable label for the role.
