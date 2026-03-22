@@ -1,4 +1,4 @@
-name: Build & Test
+name: Build + Test
 
 on:
   workflow_dispatch:
@@ -18,8 +18,8 @@ permissions:
   pull-requests: write
 
 jobs:
-  build:
-    name: Build, Test & Coverage
+  build-test:
+    name: Build + Test
     runs-on: ubuntu-latest
 
     steps:
