@@ -20,11 +20,12 @@ fun insertBliki(
     blikiId: ULID,
     generatorId: ULID,
     authorId: ULID,
+    title: String? = null,
 ) {
     transaction(db) {
         BlikiTable.insert {
             it[BlikiTable.id] = blikiId.toString()
-            it[BlikiTable.title] = "My Bliki"
+            it[BlikiTable.title] = title ?: "My Bliki"
             it[BlikiTable.rights] = "Copyright 2026 nixgeek.dev"
             it[BlikiTable.baseUri] = "https://example.test/bliki"
             it[BlikiTable.lang] = "en/US"
@@ -57,6 +58,17 @@ fun insertIdentity(db: Database): ULID =
         IdentityTable.insert {
             it[IdentityTable.id] = identityId
             it[IdentityTable.email] = "test@example.com"
+            it[IdentityTable.passwordHash] = $$"{bcrypt}$2a$10$egsoWMzDrqR3aaE2oqpDJ.G9.ljiWVKmhH6Sbf0lFt583wW1SImkW"
+        }
+        identityId.toULID()
+    }
+
+fun insertIdentity(db: Database, email: String): ULID =
+    transaction(db) {
+        val identityId = ULID.randomULID()
+        IdentityTable.insert {
+            it[IdentityTable.id] = identityId
+            it[IdentityTable.email] = email
             it[IdentityTable.passwordHash] = $$"{bcrypt}$2a$10$egsoWMzDrqR3aaE2oqpDJ.G9.ljiWVKmhH6Sbf0lFt583wW1SImkW"
         }
         identityId.toULID()
