@@ -1,6 +1,7 @@
 package dev.nixgeek.bliki.service.test.fixtures.data
 
 import dev.nixgeek.bliki.lib.data.ulid.toULID
+import dev.nixgeek.bliki.service.domain.model.Bliki
 import dev.nixgeek.bliki.service.domain.model.Identity
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.BlikiTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.GeneratorTable
@@ -8,12 +9,15 @@ import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.IdentityRoleTa
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.IdentityTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.ProfileTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.RoleTable
+import dev.nixgeek.bliki.service.frameworks.data.exposed.repository.toBlikiModel
 import dev.nixgeek.bliki.service.frameworks.data.exposed.repository.toIdentityModel
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.insertReturning
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import ulid.ULID
+import kotlin.time.Clock
+import kotlin.time.Instant
 
 fun insertBliki(
     db: Database,
@@ -21,19 +25,22 @@ fun insertBliki(
     generatorId: ULID,
     authorId: ULID,
     title: String? = null,
-) {
+    updatedAt: Instant? = null,
+): Bliki =
     transaction(db) {
-        BlikiTable.insert {
-            it[BlikiTable.id] = blikiId.toString()
-            it[BlikiTable.title] = title ?: "My Bliki"
-            it[BlikiTable.rights] = "Copyright 2026 nixgeek.dev"
-            it[BlikiTable.baseUri] = "https://example.test/bliki"
-            it[BlikiTable.lang] = "en/US"
-            it[BlikiTable.authorId] = authorId.toString()
-            it[BlikiTable.generatorId] = generatorId.toString()
-        }
+        BlikiTable
+            .insertReturning {
+                it[BlikiTable.id] = blikiId.toString()
+                it[BlikiTable.title] = title ?: "My Bliki"
+                it[BlikiTable.rights] = "Copyright 2026 nixgeek.dev"
+                it[BlikiTable.baseUri] = "https://example.test/bliki"
+                it[BlikiTable.lang] = "en/US"
+                it[BlikiTable.authorId] = authorId.toString()
+                it[BlikiTable.generatorId] = generatorId.toString()
+                it[BlikiTable.updatedAt] = updatedAt ?: Clock.System.now()
+            }.single()
+            .toBlikiModel()
     }
-}
 
 fun insertGenerator(
     db: Database,

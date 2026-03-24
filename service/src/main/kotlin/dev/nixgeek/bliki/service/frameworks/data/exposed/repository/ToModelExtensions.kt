@@ -5,10 +5,12 @@ import dev.nixgeek.bliki.service.domain.model.Bliki
 import dev.nixgeek.bliki.service.domain.model.Generator
 import dev.nixgeek.bliki.service.domain.model.Identity
 import dev.nixgeek.bliki.service.domain.model.IdentityRole
+import dev.nixgeek.bliki.service.domain.model.Profile
 import dev.nixgeek.bliki.service.domain.model.Role
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.BlikiTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.GeneratorTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.IdentityTable
+import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.ProfileTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.RoleTable
 import org.jetbrains.exposed.v1.core.ResultRow
 
@@ -49,6 +51,18 @@ internal fun ResultRow.toIdentityModel(): Identity =
             passwordHash = row[IdentityTable.passwordHash],
             createdAt = row[IdentityTable.createdAt],
             updatedAt = row[IdentityTable.updatedAt],
+        )
+    }
+
+internal fun ResultRow.toProfileModel(): Profile =
+    let { row ->
+        Profile(
+            id = row[ProfileTable.id].value.toULID(),
+            identityId = row[ProfileTable.identityId].value.toULID(),
+            fullName = row[ProfileTable.fullName],
+            affiliation = row[ProfileTable.affiliation],
+            createdAt = row[ProfileTable.createdAt],
+            updatedAt = row[ProfileTable.updatedAt],
         )
     }
 
