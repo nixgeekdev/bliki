@@ -85,7 +85,6 @@ class SaveGeneratorUseCase(
                     uri = args.uri,
                 ),
             ).map { savedGenerator ->
-                println("SAVED GENERATOR: ${savedGenerator.asPrettyJson()}")
                 GeneratorResponse(
                     generators = listOf(savedGenerator),
                 )

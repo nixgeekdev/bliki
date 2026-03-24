@@ -12,7 +12,6 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import ulid.ULID
 
-
 /**
  * Exposed-based implementation of [AppBlikiRepository] for managing Bliki entities.
  *

@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 import ulid.ULID
 
-
 /**
  * Repository implementation for managing Bliki entities in the admin database using Exposed ORM framework.
  *
