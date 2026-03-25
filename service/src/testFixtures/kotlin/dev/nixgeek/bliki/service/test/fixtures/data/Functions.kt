@@ -19,6 +19,15 @@ import ulid.ULID
 import kotlin.time.Clock
 import kotlin.time.Instant
 
+private const val FAKE_BCRYPT_PASSWORD_HASH = $$"{bcrypt}$2a$10$egsoWMzDrqR3aaE2oqpDJ.G9.ljiWVKmhH6Sbf0lFt583wW1SImkW"
+private const val FAKE_BLIKI_BASE_URI = "https://example.test/bliki"
+private const val FAKE_BLIKI_LANG = "en/US"
+private const val FAKE_BLIKI_RIGHTS = "Copyright 2026 nixgeek.dev"
+private const val FAKE_BLIKI_TITLE = "My Bliki"
+private const val FAKE_EMAIL_ADDRESS = "test@example.com"
+private const val FAKE_PROFILE_AFFILIATION = "Test Organization"
+private const val FAKE_PROFILE_FULL_NAME = "Test User"
+
 fun insertBliki(
     db: Database,
     blikiId: ULID,
@@ -31,10 +40,10 @@ fun insertBliki(
         BlikiTable
             .insertReturning {
                 it[BlikiTable.id] = blikiId.toString()
-                it[BlikiTable.title] = title ?: "My Bliki"
-                it[BlikiTable.rights] = "Copyright 2026 nixgeek.dev"
-                it[BlikiTable.baseUri] = "https://example.test/bliki"
-                it[BlikiTable.lang] = "en/US"
+                it[BlikiTable.title] = title ?: FAKE_BLIKI_TITLE
+                it[BlikiTable.rights] = FAKE_BLIKI_RIGHTS
+                it[BlikiTable.baseUri] = FAKE_BLIKI_BASE_URI
+                it[BlikiTable.lang] = FAKE_BLIKI_LANG
                 it[BlikiTable.authorId] = authorId.toString()
                 it[BlikiTable.generatorId] = generatorId.toString()
                 it[BlikiTable.updatedAt] = updatedAt ?: Clock.System.now()
@@ -60,26 +69,20 @@ fun insertGenerator(
 }
 
 fun insertIdentity(db: Database): ULID =
-    transaction(db) {
-        val identityId = ULID.randomULID()
-        IdentityTable.insert {
-            it[IdentityTable.id] = identityId
-            it[IdentityTable.email] = "test@example.com"
-            it[IdentityTable.passwordHash] = $$"{bcrypt}$2a$10$egsoWMzDrqR3aaE2oqpDJ.G9.ljiWVKmhH6Sbf0lFt583wW1SImkW"
-        }
-        identityId.toULID()
-    }
+    insertIdentity(
+        db = db,
+        id = ULID.randomULID().toULID(),
+        email = FAKE_EMAIL_ADDRESS,
+        passwordHash = FAKE_BCRYPT_PASSWORD_HASH,
+    ).id!!
 
 fun insertIdentity(db: Database, email: String): ULID =
-    transaction(db) {
-        val identityId = ULID.randomULID()
-        IdentityTable.insert {
-            it[IdentityTable.id] = identityId
-            it[IdentityTable.email] = email
-            it[IdentityTable.passwordHash] = $$"{bcrypt}$2a$10$egsoWMzDrqR3aaE2oqpDJ.G9.ljiWVKmhH6Sbf0lFt583wW1SImkW"
-        }
-        identityId.toULID()
-    }
+    insertIdentity(
+        db = db,
+        id = ULID.randomULID().toULID(),
+        email = email,
+        passwordHash = FAKE_BCRYPT_PASSWORD_HASH,
+    ).id!!
 
 fun insertIdentity(
     db: Database,
@@ -87,12 +90,29 @@ fun insertIdentity(
     email: String,
     passwordHash: String,
 ): Identity =
+    insertIdentity(
+        db = db,
+        id = id,
+        email = email,
+        passwordHash = passwordHash,
+        created = null,
+    )
+
+fun insertIdentity(
+    db: Database,
+    id: ULID,
+    email: String,
+    passwordHash: String,
+    created: Instant? = null,
+): Identity =
     transaction(db) {
         IdentityTable
             .insertReturning {
                 it[IdentityTable.id] = id.toString()
                 it[IdentityTable.email] = email
                 it[IdentityTable.passwordHash] = passwordHash
+                it[IdentityTable.createdAt] = created ?: Clock.System.now()
+                it[IdentityTable.updatedAt] = created ?: Clock.System.now()
             }.single()
             .toIdentityModel()
     }
@@ -103,8 +123,8 @@ fun insertProfile(db: Database, identityId: ULID): ULID =
         ProfileTable.insert {
             it[ProfileTable.id] = profileId
             it[ProfileTable.identityId] = identityId.toString()
-            it[ProfileTable.fullName] = "Test User"
-            it[ProfileTable.affiliation] = "Test Organization"
+            it[ProfileTable.fullName] = FAKE_PROFILE_FULL_NAME
+            it[ProfileTable.affiliation] = FAKE_PROFILE_AFFILIATION
         }
         profileId.toULID()
     }
