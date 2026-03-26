@@ -4,12 +4,15 @@ import dev.nixgeek.bliki.lib.data.DatabaseProvider
 import dev.nixgeek.bliki.lib.data.DatabaseTarget
 import dev.nixgeek.bliki.lib.test.fixtures.containers.installSharedSpecDatabase
 import dev.nixgeek.bliki.service.domain.model.Identity
+import dev.nixgeek.bliki.service.domain.model.SecureIdentity
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.IdentityTable
 import dev.nixgeek.bliki.service.test.fixtures.data.insertIdentity
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.types.beInstanceOf
 import io.mockk.every
 import io.mockk.mockk
 import org.jetbrains.exposed.v1.jdbc.deleteAll
@@ -42,6 +45,52 @@ class ExposedAdminIdentityRepositorySpec : FunSpec() {
         beforeTest {
             transaction(db.requireDatabase()) {
                 IdentityTable.deleteAll()
+            }
+        }
+
+        context("fetchSecureById") {
+            test("should return the matching secure identity when it exists") {
+                val identityId = ULID.StatefulMonotonic().nextULID()
+                insertIdentity(
+                    db = db.requireDatabase(),
+                    id = identityId,
+                    email = FAKE_EMAIL_01,
+                    passwordHash = FAKE_PASSWORD_HASH_01,
+                )
+
+                val result = repository.fetchSecureById(identityId).block()
+                result should beInstanceOf<SecureIdentity>()
+                result?.id shouldBe identityId
+                result?.email shouldBe FAKE_EMAIL_01
+                result?.passwordHash shouldBe FAKE_PASSWORD_HASH_01
+            }
+
+            test("should return null when the identity does not exist") {
+                val result = repository.fetchSecureById(ULID.StatefulMonotonic().nextULID()).block()
+                result.shouldBeNull()
+            }
+        }
+
+        context("fetchSecureByEmail") {
+            test("should return the matching secure identity when it exists") {
+                val identityId = ULID.StatefulMonotonic().nextULID()
+                insertIdentity(
+                    db = db.requireDatabase(),
+                    id = identityId,
+                    email = FAKE_EMAIL_01,
+                    passwordHash = FAKE_PASSWORD_HASH_01,
+                )
+
+                val result = repository.fetchSecureByEmail(FAKE_EMAIL_01).block()
+                result should beInstanceOf<SecureIdentity>()
+                result?.id shouldBe identityId
+                result?.email shouldBe FAKE_EMAIL_01
+                result?.passwordHash shouldBe FAKE_PASSWORD_HASH_01
+            }
+
+            test("should return null when the identity does not exist") {
+                val result = repository.fetchSecureByEmail(FAKE_EMAIL_02).block()
+                result shouldBe null
             }
         }
 

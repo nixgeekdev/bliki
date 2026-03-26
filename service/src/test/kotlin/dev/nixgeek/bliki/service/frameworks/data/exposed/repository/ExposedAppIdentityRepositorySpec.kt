@@ -120,20 +120,6 @@ class ExposedAppIdentityRepositorySpec : FunSpec() {
 
                 result should beInstanceOf<PublicIdentity>()
             }
-
-            test("should return the matching secure identity when it exists") {
-                val identityId = ULID.StatefulMonotonic().nextULID()
-                insertIdentity(
-                    db = db.requireDatabase(),
-                    id = identityId,
-                    email = FAKE_EMAIL_01,
-                    passwordHash = FAKE_PASSWORD_HASH_01,
-                )
-
-                val result = repository.fetchSecureById(identityId).block()
-
-                result should beInstanceOf<SecureIdentity>()
-            }
         }
 
         context("fetchByEmail") {
@@ -171,18 +157,6 @@ class ExposedAppIdentityRepositorySpec : FunSpec() {
 
                 val result = repository.fetchPublicByEmail(FAKE_EMAIL_01).block()
                 result should beInstanceOf<PublicIdentity>()
-            }
-
-            test("should return the matching secure identity when it exists") {
-                insertIdentity(
-                    db = db.requireDatabase(),
-                    id = ULID.StatefulMonotonic().nextULID(),
-                    email = FAKE_EMAIL_01,
-                    passwordHash = FAKE_PASSWORD_HASH_01,
-                )
-
-                val result = repository.fetchSecureByEmail(FAKE_EMAIL_01).block()
-                result should beInstanceOf<SecureIdentity>()
             }
         }
     }
