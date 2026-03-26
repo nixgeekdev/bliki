@@ -3,6 +3,7 @@ package dev.nixgeek.bliki.service.test.fixtures.data
 import dev.nixgeek.bliki.lib.data.ulid.toULID
 import dev.nixgeek.bliki.service.domain.model.Bliki
 import dev.nixgeek.bliki.service.domain.model.Identity
+import dev.nixgeek.bliki.service.domain.model.Profile
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.BlikiTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.GeneratorTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.IdentityRoleTable
@@ -11,6 +12,7 @@ import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.ProfileTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.RoleTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.repository.toBlikiModel
 import dev.nixgeek.bliki.service.frameworks.data.exposed.repository.toIdentityModel
+import dev.nixgeek.bliki.service.frameworks.data.exposed.repository.toProfileModel
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.insertReturning
@@ -118,15 +120,34 @@ fun insertIdentity(
     }
 
 fun insertProfile(db: Database, identityId: ULID): ULID =
+    insertProfile(
+        db = db,
+        id = ULID.randomULID().toULID(),
+        identityId = identityId,
+        fullName = FAKE_PROFILE_FULL_NAME,
+        affiliation = FAKE_PROFILE_AFFILIATION,
+        created = null,
+    ).id!!
+
+fun insertProfile(
+    db: Database,
+    id: ULID,
+    identityId: ULID,
+    fullName: String,
+    affiliation: String,
+    created: Instant? = null,
+): Profile =
     transaction(db) {
-        val profileId = ULID.randomULID()
-        ProfileTable.insert {
-            it[ProfileTable.id] = profileId
-            it[ProfileTable.identityId] = identityId.toString()
-            it[ProfileTable.fullName] = FAKE_PROFILE_FULL_NAME
-            it[ProfileTable.affiliation] = FAKE_PROFILE_AFFILIATION
-        }
-        profileId.toULID()
+        ProfileTable
+            .insertReturning {
+                it[ProfileTable.id] = id.toString()
+                it[ProfileTable.identityId] = identityId.toString()
+                it[ProfileTable.fullName] = fullName
+                it[ProfileTable.affiliation] = affiliation
+                it[ProfileTable.createdAt] = created ?: Clock.System.now()
+                it[ProfileTable.updatedAt] = created ?: Clock.System.now()
+            }.single()
+            .toProfileModel()
     }
 
 fun insertRole(
