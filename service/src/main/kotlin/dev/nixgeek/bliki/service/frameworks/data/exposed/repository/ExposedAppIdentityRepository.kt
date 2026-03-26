@@ -23,7 +23,7 @@ import ulid.ULID
  */
 @Component
 class ExposedAppIdentityRepository(
-    override val dbProvider: DatabaseProvider
+    override val dbProvider: DatabaseProvider,
 ) : AppIdentityRepository {
     /**
      * Fetches all identities from the database.

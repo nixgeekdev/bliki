@@ -10,7 +10,7 @@ import reactor.core.publisher.Mono
 import ulid.ULID
 
 class FakeAppIdentityRepository(
-    override val dbProvider: DatabaseProvider
+    override val dbProvider: DatabaseProvider,
 ) : AppIdentityRepository, AbstractFakeTestRepository<ULID, Identity>() {
     override fun fetchAll(): Flux<Identity> = blockingFlux { cache.values }
 
