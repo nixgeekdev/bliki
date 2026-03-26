@@ -21,15 +21,15 @@ class FakeAdminBlikiRepository(
             val saved =
                 existing?.copy(
                     title = bliki.title,
-                    subtitle = bliki?.subtitle,
+                    subtitle = bliki.subtitle,
                     rights = bliki.rights,
                     baseUri = bliki.baseUri,
-                    iconUri = bliki?.iconUri,
-                    logoUri = bliki?.logoUri,
+                    iconUri = bliki.iconUri,
+                    logoUri = bliki.logoUri,
                     lang = bliki.lang,
                     authorId = bliki.authorId,
                     generatorId = bliki.generatorId,
-                    updatedAt = bliki?.updatedAt ?: now,
+                    updatedAt = bliki.updatedAt ?: now,
                 ) ?: bliki.copy(
                     id = key,
                     updatedAt = now,

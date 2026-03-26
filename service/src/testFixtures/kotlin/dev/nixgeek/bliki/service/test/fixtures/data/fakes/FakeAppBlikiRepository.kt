@@ -41,7 +41,7 @@ class FakeAppBlikiRepository(
         val created = record.copy(id = record.id ?: key)
         cache[key] = created
         generatorIdToBlikiId[created.generatorId] = created.id!!
-        authorIdToBlikiId[created.authorId] = created.id!!
+        authorIdToBlikiId[created.authorId] = created.id
         return created
     }
 
