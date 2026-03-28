@@ -13,16 +13,14 @@ import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.RoleTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.repository.toBlikiModel
 import dev.nixgeek.bliki.service.frameworks.data.exposed.repository.toIdentityModel
 import dev.nixgeek.bliki.service.frameworks.data.exposed.repository.toProfileModel
-import org.jetbrains.exposed.v1.core.eq
-import dev.nixgeek.bliki.service.test.fixtures.Constants as LocalConstants
 import org.jetbrains.exposed.v1.jdbc.Database
-import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.insertReturning
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import ulid.ULID
 import kotlin.time.Clock
 import kotlin.time.Instant
+import dev.nixgeek.bliki.service.test.fixtures.Constants as LocalConstants
 
 fun insertBliki(
     db: Database,

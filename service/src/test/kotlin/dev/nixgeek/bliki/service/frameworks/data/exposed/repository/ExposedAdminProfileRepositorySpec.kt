@@ -74,16 +74,17 @@ class ExposedAdminProfileRepositorySpec : FunSpec() {
                 val now = Clock.System.now()
 
                 val result =
-                    repository.save(
-                        Profile(
-                            id = profileId,
-                            identityId = identityId,
-                            fullName = LocalConstants.Profile.NAME_01,
-                            affiliation = LocalConstants.Profile.AFFILIATION_01,
-                            createdAt = now,
-                            updatedAt = now,
-                        )
-                    ).block()!!
+                    repository
+                        .save(
+                            Profile(
+                                id = profileId,
+                                identityId = identityId,
+                                fullName = LocalConstants.Profile.NAME_01,
+                                affiliation = LocalConstants.Profile.AFFILIATION_01,
+                                createdAt = now,
+                                updatedAt = now,
+                            ),
+                        ).block()!!
 
                 result.id shouldBe profileId
                 result.identityId shouldBe identityId
@@ -112,15 +113,16 @@ class ExposedAdminProfileRepositorySpec : FunSpec() {
                 val now = Clock.System.now()
 
                 val result =
-                    repository.save(
-                        Profile(
-                            identityId = identityId,
-                            fullName = LocalConstants.Profile.NAME_02,
-                            affiliation = LocalConstants.Profile.AFFILIATION_02,
-                            createdAt = now,
-                            updatedAt = now,
-                        )
-                    ).block()!!
+                    repository
+                        .save(
+                            Profile(
+                                identityId = identityId,
+                                fullName = LocalConstants.Profile.NAME_02,
+                                affiliation = LocalConstants.Profile.AFFILIATION_02,
+                                createdAt = now,
+                                updatedAt = now,
+                            ),
+                        ).block()!!
 
                 result.id shouldNotBe null
                 result.identityId shouldBe identityId
@@ -159,11 +161,13 @@ class ExposedAdminProfileRepositorySpec : FunSpec() {
                         created = originalInstant,
                     )
 
-                val changed = existing.copy(
-                    fullName = LocalConstants.Profile.NAME_02,
-                    affiliation = LocalConstants.Profile.AFFILIATION_02,
-                    updatedAt = Clock.System.now(),
-                )
+                val changed =
+                    existing
+                        .copy(
+                            fullName = LocalConstants.Profile.NAME_02,
+                            affiliation = LocalConstants.Profile.AFFILIATION_02,
+                            updatedAt = Clock.System.now(),
+                        )
 
                 val result = repository.save(changed).block()!!
 

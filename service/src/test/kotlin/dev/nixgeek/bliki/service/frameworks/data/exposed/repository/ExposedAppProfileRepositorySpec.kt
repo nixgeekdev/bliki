@@ -34,15 +34,23 @@ class ExposedAppProfileRepositorySpec : FunSpec() {
         }
 
         context("fetchAll") {
-
+            test("should return all profiles") { }
         }
 
         context("fetchById") {
+            test("should return the matching profile when it exists") { }
 
+            test("should return null when the profile does not exist") { }
+
+            test("should return the matching public profile when it exists") { }
         }
 
         context("fetchByIdentityId") {
+            test("should return the matching profile when it exists") { }
 
+            test("should return null when the profile does not exist") { }
+
+            test("should return the matching public profile when it exists") { }
         }
     }
 }

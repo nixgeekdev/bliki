@@ -193,11 +193,12 @@ class ExposedAdminBlikiRepositorySpec : FunSpec() {
                         updatedAt = originalInstant,
                     )
 
-                val changed = existing.copy(
-                    title = LocalConstants.Bliki.TITLE_04,
-                    subtitle = LocalConstants.Bliki.SUBTITLE,
-                    updatedAt = Clock.System.now(),
-                )
+                val changed =
+                    existing.copy(
+                        title = LocalConstants.Bliki.TITLE_04,
+                        subtitle = LocalConstants.Bliki.SUBTITLE,
+                        updatedAt = Clock.System.now(),
+                    )
 
                 val result = repository.save(changed).block()!!
 
