@@ -3,7 +3,6 @@ package dev.nixgeek.bliki.service.frameworks.data.exposed.repository
 import dev.nixgeek.bliki.lib.data.DatabaseProvider
 import dev.nixgeek.bliki.lib.data.DatabaseTarget
 import dev.nixgeek.bliki.lib.test.fixtures.containers.installSharedSpecDatabase
-import dev.nixgeek.bliki.lib.test.fixtures.shared.Constants
 import dev.nixgeek.bliki.service.domain.model.Bliki
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.BlikiTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.GeneratorTable
@@ -14,7 +13,6 @@ import dev.nixgeek.bliki.service.test.fixtures.data.insertGenerator
 import dev.nixgeek.bliki.service.test.fixtures.data.insertIdentity
 import dev.nixgeek.bliki.service.test.fixtures.data.insertProfile
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.every
@@ -26,8 +24,10 @@ import org.springframework.test.context.ActiveProfiles
 import ulid.ULID
 import kotlin.time.Clock
 import kotlin.time.Instant
+import dev.nixgeek.bliki.lib.test.fixtures.shared.Constants as SharedConstants
+import dev.nixgeek.bliki.service.test.fixtures.Constants as LocalConstants
 
-@ActiveProfiles(Constants.TestContainers.ACTIVE_PROFILE)
+@ActiveProfiles(SharedConstants.TestContainers.ACTIVE_PROFILE)
 class ExposedAdminBlikiRepositorySpec : FunSpec() {
     private val db =
         installSharedSpecDatabase(
@@ -71,9 +71,9 @@ class ExposedAdminBlikiRepositorySpec : FunSpec() {
                 insertGenerator(
                     db = db.requireDatabase(),
                     id = generatorId,
-                    name = "save-bliki",
-                    version = "2.3.4",
-                    uri = "https://example.test/save-bliki",
+                    name = LocalConstants.Generator.NAME_03,
+                    version = LocalConstants.Generator.VERSION_03,
+                    uri = LocalConstants.Generator.URI,
                 )
 
                 val result =
@@ -83,19 +83,19 @@ class ExposedAdminBlikiRepositorySpec : FunSpec() {
                                 id = blikiId,
                                 generatorId = generatorId,
                                 authorId = profileId,
-                                title = "Save this bliki with ID",
-                                rights = "2026 nixgeek.dev",
-                                baseUri = "https://example.test/bliki",
-                                lang = "en/US",
+                                title = LocalConstants.Bliki.TITLE_01,
+                                rights = LocalConstants.Bliki.RIGHTS,
+                                baseUri = LocalConstants.Bliki.BASE_URI,
+                                lang = LocalConstants.Bliki.LANG,
                                 updatedAt = Clock.System.now(),
                             ),
                         ).block()!!
 
                 result.id shouldBe blikiId
-                result.title shouldBe "Save this bliki with ID"
-                result.rights shouldBe "2026 nixgeek.dev"
-                result.baseUri shouldBe "https://example.test/bliki"
-                result.lang shouldBe "en/US"
+                result.title shouldBe LocalConstants.Bliki.TITLE_01
+                result.rights shouldBe LocalConstants.Bliki.RIGHTS
+                result.baseUri shouldBe LocalConstants.Bliki.BASE_URI
+                result.lang shouldBe LocalConstants.Bliki.LANG
                 result.generatorId shouldBe generatorId
                 result.authorId shouldBe profileId
 
@@ -108,10 +108,10 @@ class ExposedAdminBlikiRepositorySpec : FunSpec() {
                     }
 
                 persisted.id shouldBe result.id
-                persisted.title shouldBe "Save this bliki with ID"
-                persisted.rights shouldBe "2026 nixgeek.dev"
-                persisted.baseUri shouldBe "https://example.test/bliki"
-                persisted.lang shouldBe "en/US"
+                persisted.title shouldBe LocalConstants.Bliki.TITLE_01
+                persisted.rights shouldBe LocalConstants.Bliki.RIGHTS
+                persisted.baseUri shouldBe LocalConstants.Bliki.BASE_URI
+                persisted.lang shouldBe LocalConstants.Bliki.LANG
                 persisted.generatorId shouldBe generatorId
                 persisted.authorId shouldBe profileId
             }
@@ -124,9 +124,9 @@ class ExposedAdminBlikiRepositorySpec : FunSpec() {
                 insertGenerator(
                     db = db.requireDatabase(),
                     id = generatorId,
-                    name = "bliki-by-id",
-                    version = "1.2.3",
-                    uri = "https://example.test/bliki-by-id",
+                    name = LocalConstants.Generator.NAME_01,
+                    version = LocalConstants.Generator.VERSION_01,
+                    uri = LocalConstants.Generator.URI,
                 )
 
                 val result =
@@ -135,19 +135,19 @@ class ExposedAdminBlikiRepositorySpec : FunSpec() {
                             Bliki(
                                 generatorId = generatorId,
                                 authorId = profileId,
-                                title = "Save this bliki with null ID",
-                                rights = "2026 nixgeek.dev",
-                                baseUri = "https://example.test/bliki",
-                                lang = "en/US",
+                                title = LocalConstants.Bliki.TITLE_02,
+                                rights = LocalConstants.Bliki.RIGHTS,
+                                baseUri = LocalConstants.Bliki.BASE_URI,
+                                lang = LocalConstants.Bliki.LANG,
                                 updatedAt = Clock.System.now(),
                             ),
                         ).block()!!
 
                 result.id shouldNotBe null
-                result.title shouldBe "Save this bliki with null ID"
-                result.rights shouldBe "2026 nixgeek.dev"
-                result.baseUri shouldBe "https://example.test/bliki"
-                result.lang shouldBe "en/US"
+                result.title shouldBe LocalConstants.Bliki.TITLE_02
+                result.rights shouldBe LocalConstants.Bliki.RIGHTS
+                result.baseUri shouldBe LocalConstants.Bliki.BASE_URI
+                result.lang shouldBe LocalConstants.Bliki.LANG
                 result.generatorId shouldBe generatorId
                 result.authorId shouldBe profileId
 
@@ -160,10 +160,10 @@ class ExposedAdminBlikiRepositorySpec : FunSpec() {
                     }
 
                 persisted.id shouldBe result.id
-                persisted.title shouldBe "Save this bliki with null ID"
-                persisted.rights shouldBe "2026 nixgeek.dev"
-                persisted.baseUri shouldBe "https://example.test/bliki"
-                persisted.lang shouldBe "en/US"
+                persisted.title shouldBe LocalConstants.Bliki.TITLE_02
+                persisted.rights shouldBe LocalConstants.Bliki.RIGHTS
+                persisted.baseUri shouldBe LocalConstants.Bliki.BASE_URI
+                persisted.lang shouldBe LocalConstants.Bliki.LANG
                 persisted.generatorId shouldBe generatorId
                 persisted.authorId shouldBe profileId
             }
@@ -178,9 +178,9 @@ class ExposedAdminBlikiRepositorySpec : FunSpec() {
                 insertGenerator(
                     db = db.requireDatabase(),
                     id = generatorId,
-                    name = "bliki-by-id",
-                    version = "1.2.3",
-                    uri = "https://example.test/bliki-by-id",
+                    name = LocalConstants.Generator.NAME_02,
+                    version = LocalConstants.Generator.VERSION_02,
+                    uri = LocalConstants.Generator.URI,
                 )
 
                 val existing =
@@ -189,11 +189,15 @@ class ExposedAdminBlikiRepositorySpec : FunSpec() {
                         blikiId = blikiId,
                         generatorId = generatorId,
                         authorId = profileId,
-                        title = "Existing bliki",
+                        title = LocalConstants.Bliki.TITLE_03,
                         updatedAt = originalInstant,
                     )
 
-                val changed = existing.copy(title = "Changed bliki", updatedAt = Clock.System.now())
+                val changed = existing.copy(
+                    title = LocalConstants.Bliki.TITLE_04,
+                    subtitle = LocalConstants.Bliki.SUBTITLE,
+                    updatedAt = Clock.System.now(),
+                )
 
                 val result = repository.save(changed).block()!!
 
@@ -201,6 +205,8 @@ class ExposedAdminBlikiRepositorySpec : FunSpec() {
                 existing.id shouldBe result.id
                 result.title shouldNotBe existing.title
                 result.title shouldBe changed.title
+                result.subtitle shouldBe changed.subtitle
+                existing.subtitle shouldBe null
                 result.updatedAt shouldNotBe existing.updatedAt
             }
         }
@@ -215,9 +221,9 @@ class ExposedAdminBlikiRepositorySpec : FunSpec() {
                 insertGenerator(
                     db = db.requireDatabase(),
                     id = generatorId,
-                    name = "bliki-by-id",
-                    version = "1.2.3",
-                    uri = "https://example.test/bliki-by-id",
+                    name = LocalConstants.Generator.NAME_01,
+                    version = LocalConstants.Generator.VERSION_01,
+                    uri = LocalConstants.Generator.URI,
                 )
 
                 insertBliki(
@@ -242,12 +248,12 @@ class ExposedAdminBlikiRepositorySpec : FunSpec() {
                         BlikiTable.selectAll().singleOrNull()
                     }
 
-                persisted.shouldBeNull()
+                persisted shouldBe null
             }
 
             test("should return null when the bliki does not exist") {
                 val result = repository.delete(ULID.StatefulMonotonic().nextULID()).block()
-                result.shouldBeNull()
+                result shouldBe null
             }
         }
     }

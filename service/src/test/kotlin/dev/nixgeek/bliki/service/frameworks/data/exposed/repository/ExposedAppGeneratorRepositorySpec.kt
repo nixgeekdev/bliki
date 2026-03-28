@@ -3,7 +3,6 @@ package dev.nixgeek.bliki.service.frameworks.data.exposed.repository
 import dev.nixgeek.bliki.lib.data.DatabaseProvider
 import dev.nixgeek.bliki.lib.data.DatabaseTarget
 import dev.nixgeek.bliki.lib.test.fixtures.containers.installSharedSpecDatabase
-import dev.nixgeek.bliki.lib.test.fixtures.shared.Constants
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.BlikiTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.GeneratorTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.IdentityTable
@@ -14,7 +13,6 @@ import dev.nixgeek.bliki.service.test.fixtures.data.insertIdentity
 import dev.nixgeek.bliki.service.test.fixtures.data.insertProfile
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
-import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
@@ -22,9 +20,11 @@ import org.jetbrains.exposed.v1.jdbc.deleteAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.springframework.test.context.ActiveProfiles
 import ulid.ULID
+import dev.nixgeek.bliki.lib.test.fixtures.shared.Constants as SharedConstants
+import dev.nixgeek.bliki.service.test.fixtures.Constants as LocalConstants
 
 @Suppress("ReactiveStreamsUnusedPublisher")
-@ActiveProfiles(Constants.TestContainers.ACTIVE_PROFILE)
+@ActiveProfiles(SharedConstants.TestContainers.ACTIVE_PROFILE)
 class ExposedAppGeneratorRepositorySpec : FunSpec() {
     private val db =
         installSharedSpecDatabase(
@@ -62,29 +62,29 @@ class ExposedAppGeneratorRepositorySpec : FunSpec() {
                 insertGenerator(
                     db = db.requireDatabase(),
                     id = firstId,
-                    name = "generator-one",
-                    version = "1.0.0",
-                    uri = "https://example.test/generator-one",
+                    name = LocalConstants.Generator.NAME_01,
+                    version = LocalConstants.Generator.VERSION_01,
+                    uri = "${LocalConstants.Generator.URI}/one",
                 )
 
                 insertGenerator(
                     db = db.requireDatabase(),
                     id = secondId,
-                    name = "generator-two",
-                    version = "2.0.0",
-                    uri = "https://example.test/generator-two",
+                    name = LocalConstants.Generator.NAME_02,
+                    version = LocalConstants.Generator.VERSION_02,
+                    uri = "${LocalConstants.Generator.URI}/two",
                 )
 
                 val result = repository.fetchAll().collectList().block()!!
 
                 result shouldHaveSize 2
                 result.map { it.id } shouldBe listOf(firstId, secondId)
-                result.map { it.name } shouldBe listOf("generator-one", "generator-two")
-                result.map { it.version } shouldBe listOf("1.0.0", "2.0.0")
+                result.map { it.name } shouldBe listOf(LocalConstants.Generator.NAME_01, LocalConstants.Generator.NAME_02)
+                result.map { it.version } shouldBe listOf(LocalConstants.Generator.VERSION_01, LocalConstants.Generator.VERSION_02)
                 result.map { it.uri } shouldBe
                     listOf(
-                        "https://example.test/generator-one",
-                        "https://example.test/generator-two",
+                        "${LocalConstants.Generator.URI}/one",
+                        "${LocalConstants.Generator.URI}/two",
                     )
             }
         }
@@ -96,22 +96,22 @@ class ExposedAppGeneratorRepositorySpec : FunSpec() {
                 insertGenerator(
                     db = db.requireDatabase(),
                     id = generatorId,
-                    name = "generator-by-id",
-                    version = "3.1.4",
-                    uri = "https://example.test/by-id",
+                    name = LocalConstants.Generator.NAME_01,
+                    version = LocalConstants.Generator.VERSION_01,
+                    uri = LocalConstants.Generator.URI,
                 )
 
                 val result = repository.fetchById(generatorId).block()
 
                 result?.id shouldBe generatorId
-                result?.name shouldBe "generator-by-id"
-                result?.version shouldBe "3.1.4"
-                result?.uri shouldBe "https://example.test/by-id"
+                result?.name shouldBe LocalConstants.Generator.NAME_01
+                result?.version shouldBe LocalConstants.Generator.VERSION_01
+                result?.uri shouldBe LocalConstants.Generator.URI
             }
 
             test("should return null when the generator does not exist") {
                 val result = repository.fetchById(ULID.StatefulMonotonic().nextULID()).block()
-                result.shouldBeNull()
+                result shouldBe null
             }
         }
 
@@ -126,9 +126,9 @@ class ExposedAppGeneratorRepositorySpec : FunSpec() {
                 insertGenerator(
                     db = db.requireDatabase(),
                     id = generatorId,
-                    name = "generator-by-bliki",
-                    version = "9.9.9",
-                    uri = "https://example.test/by-bliki",
+                    name = LocalConstants.Generator.NAME_03,
+                    version = LocalConstants.Generator.VERSION_03,
+                    uri = "${LocalConstants.Generator.URI}/three",
                 )
 
                 insertBliki(
@@ -141,15 +141,14 @@ class ExposedAppGeneratorRepositorySpec : FunSpec() {
                 val result = repository.fetchByBlikiId(blikiId).block()
 
                 result?.id shouldBe generatorId
-                result?.name shouldBe "generator-by-bliki"
-                result?.version shouldBe "9.9.9"
-                result?.uri shouldBe "https://example.test/by-bliki"
+                result?.name shouldBe LocalConstants.Generator.NAME_03
+                result?.version shouldBe LocalConstants.Generator.VERSION_03
+                result?.uri shouldBe "${LocalConstants.Generator.URI}/three"
             }
 
             test("should return null when no bliki matches the id") {
                 val result = repository.fetchByBlikiId(ULID.StatefulMonotonic().nextULID()).block()
-
-                result.shouldBeNull()
+                result shouldBe null
             }
         }
     }

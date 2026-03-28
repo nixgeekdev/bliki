@@ -3,12 +3,10 @@ package dev.nixgeek.bliki.service.frameworks.data.exposed.repository
 import dev.nixgeek.bliki.lib.data.DatabaseProvider
 import dev.nixgeek.bliki.lib.data.DatabaseTarget
 import dev.nixgeek.bliki.lib.test.fixtures.containers.installSharedSpecDatabase
-import dev.nixgeek.bliki.lib.test.fixtures.shared.Constants
 import dev.nixgeek.bliki.service.domain.model.Generator
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.GeneratorTable
 import dev.nixgeek.bliki.service.test.fixtures.data.insertGenerator
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.every
@@ -19,8 +17,10 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.springframework.test.context.ActiveProfiles
 import ulid.ULID
 import kotlin.time.Instant
+import dev.nixgeek.bliki.lib.test.fixtures.shared.Constants as SharedConstants
+import dev.nixgeek.bliki.service.test.fixtures.Constants as LocalConstants
 
-@ActiveProfiles(Constants.TestContainers.ACTIVE_PROFILE)
+@ActiveProfiles(SharedConstants.TestContainers.ACTIVE_PROFILE)
 class ExposedAdminGeneratorRepositorySpec : FunSpec() {
     private val db = installSharedSpecDatabase(arrayOf(GeneratorTable))
 
@@ -48,17 +48,17 @@ class ExposedAdminGeneratorRepositorySpec : FunSpec() {
                         .save(
                             Generator(
                                 id = generatorId,
-                                name = "generator-admin-insert",
-                                version = "1.2.3",
-                                uri = "https://example.test/admin-insert",
+                                name = LocalConstants.Generator.NAME_01,
+                                version = LocalConstants.Generator.VERSION_01,
+                                uri = LocalConstants.Generator.URI,
                                 updatedAt = updatedAt,
                             ),
                         ).block()
 
                 result?.id shouldBe generatorId
-                result?.name shouldBe "generator-admin-insert"
-                result?.version shouldBe "1.2.3"
-                result?.uri shouldBe "https://example.test/admin-insert"
+                result?.name shouldBe LocalConstants.Generator.NAME_01
+                result?.version shouldBe LocalConstants.Generator.VERSION_01
+                result?.uri shouldBe LocalConstants.Generator.URI
                 result?.updatedAt shouldBe updatedAt
 
                 val persisted =
@@ -70,9 +70,9 @@ class ExposedAdminGeneratorRepositorySpec : FunSpec() {
                     }
 
                 persisted.id shouldBe generatorId
-                persisted.name shouldBe "generator-admin-insert"
-                persisted.version shouldBe "1.2.3"
-                persisted.uri shouldBe "https://example.test/admin-insert"
+                persisted.name shouldBe LocalConstants.Generator.NAME_01
+                persisted.version shouldBe LocalConstants.Generator.VERSION_01
+                persisted.uri shouldBe LocalConstants.Generator.URI
                 persisted.updatedAt shouldBe updatedAt
             }
 
@@ -83,17 +83,17 @@ class ExposedAdminGeneratorRepositorySpec : FunSpec() {
                     repository
                         .save(
                             Generator(
-                                name = "generator-admin-generated-id",
-                                version = "4.5.6",
-                                uri = "https://example.test/generated-id",
+                                name = LocalConstants.Generator.NAME_02,
+                                version = LocalConstants.Generator.VERSION_02,
+                                uri = LocalConstants.Generator.URI,
                                 updatedAt = updatedAt,
                             ),
                         ).block()
 
                 result?.id shouldNotBe null
-                result?.name shouldBe "generator-admin-generated-id"
-                result?.version shouldBe "4.5.6"
-                result?.uri shouldBe "https://example.test/generated-id"
+                result?.name shouldBe LocalConstants.Generator.NAME_02
+                result?.version shouldBe LocalConstants.Generator.VERSION_02
+                result?.uri shouldBe LocalConstants.Generator.URI
                 result?.updatedAt shouldBe updatedAt
 
                 val persisted =
@@ -105,9 +105,9 @@ class ExposedAdminGeneratorRepositorySpec : FunSpec() {
                     }
 
                 persisted.id shouldBe result?.id
-                persisted.name shouldBe "generator-admin-generated-id"
-                persisted.version shouldBe "4.5.6"
-                persisted.uri shouldBe "https://example.test/generated-id"
+                persisted.name shouldBe LocalConstants.Generator.NAME_02
+                persisted.version shouldBe LocalConstants.Generator.VERSION_02
+                persisted.uri shouldBe LocalConstants.Generator.URI
                 persisted.updatedAt shouldBe updatedAt
             }
 
@@ -117,9 +117,9 @@ class ExposedAdminGeneratorRepositorySpec : FunSpec() {
                 insertGenerator(
                     db = db.requireDatabase(),
                     id = generatorId,
-                    name = "generator-before-update",
-                    version = "1.0.0",
-                    uri = "https://example.test/before-update",
+                    name = LocalConstants.Generator.NAME_01,
+                    version = LocalConstants.Generator.VERSION_01,
+                    uri = LocalConstants.Generator.URI,
                 )
 
                 val updatedAt = Instant.parse("2026-03-14T14:00:00Z")
@@ -129,17 +129,17 @@ class ExposedAdminGeneratorRepositorySpec : FunSpec() {
                         .save(
                             Generator(
                                 id = generatorId,
-                                name = "generator-after-update",
-                                version = "2.0.0",
-                                uri = "https://example.test/after-update",
+                                name = LocalConstants.Generator.NAME_03,
+                                version = LocalConstants.Generator.VERSION_03,
+                                uri = "${LocalConstants.Generator.URI}/after-update",
                                 updatedAt = updatedAt,
                             ),
                         ).block()
 
                 result?.id shouldBe generatorId
-                result?.name shouldBe "generator-after-update"
-                result?.version shouldBe "2.0.0"
-                result?.uri shouldBe "https://example.test/after-update"
+                result?.name shouldBe LocalConstants.Generator.NAME_03
+                result?.version shouldBe LocalConstants.Generator.VERSION_03
+                result?.uri shouldBe "${LocalConstants.Generator.URI}/after-update"
                 result?.updatedAt shouldBe updatedAt
 
                 val persistedRows =
@@ -151,9 +151,9 @@ class ExposedAdminGeneratorRepositorySpec : FunSpec() {
 
                 persistedRows.size shouldBe 1
                 persistedRows.single().id shouldBe generatorId
-                persistedRows.single().name shouldBe "generator-after-update"
-                persistedRows.single().version shouldBe "2.0.0"
-                persistedRows.single().uri shouldBe "https://example.test/after-update"
+                persistedRows.single().name shouldBe LocalConstants.Generator.NAME_03
+                persistedRows.single().version shouldBe LocalConstants.Generator.VERSION_03
+                persistedRows.single().uri shouldBe "${LocalConstants.Generator.URI}/after-update"
                 persistedRows.single().updatedAt shouldBe updatedAt
             }
         }
@@ -165,30 +165,29 @@ class ExposedAdminGeneratorRepositorySpec : FunSpec() {
                 insertGenerator(
                     db = db.requireDatabase(),
                     id = generatorId,
-                    name = "generator-to-delete",
-                    version = "7.8.9",
-                    uri = "https://example.test/to-delete",
+                    name = LocalConstants.Generator.NAME_01,
+                    version = LocalConstants.Generator.VERSION_01,
+                    uri = LocalConstants.Generator.URI,
                 )
 
                 val result = repository.delete(generatorId).block()
 
                 result?.id shouldBe generatorId
-                result?.name shouldBe "generator-to-delete"
-                result?.version shouldBe "7.8.9"
-                result?.uri shouldBe "https://example.test/to-delete"
+                result?.name shouldBe LocalConstants.Generator.NAME_01
+                result?.version shouldBe LocalConstants.Generator.VERSION_01
+                result?.uri shouldBe LocalConstants.Generator.URI
 
                 val persisted =
                     transaction(db.requireDatabase()) {
                         GeneratorTable.selectAll().singleOrNull()
                     }
 
-                persisted.shouldBeNull()
+                persisted shouldBe null
             }
 
             test("should return null when the generator does not exist") {
                 val result = repository.delete(ULID.StatefulMonotonic().nextULID()).block()
-
-                result.shouldBeNull()
+                result shouldBe null
             }
         }
     }
