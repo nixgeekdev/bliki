@@ -8,9 +8,9 @@ import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.GeneratorTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.IdentityTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.ProfileTable
 import dev.nixgeek.bliki.service.test.fixtures.data.insertBliki
-import dev.nixgeek.bliki.service.test.fixtures.data.insertGenerator
 import dev.nixgeek.bliki.service.test.fixtures.data.insertIdentity
 import dev.nixgeek.bliki.service.test.fixtures.data.insertProfile
+import dev.nixgeek.bliki.service.test.fixtures.data.setupBlikiSimpleFixtures
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
@@ -60,42 +60,32 @@ class ExposedAppBlikiRepositorySpec : FunSpec() {
 
         context("fetchAll") {
             test("should return all blikis") {
-                val generatorId = ULID.StatefulMonotonic().nextULID()
+                val identifiers = setupBlikiSimpleFixtures(db.requireDatabase())
                 val blikiId01 = ULID.StatefulMonotonic().nextULID()
                 val blikiId02 = ULID.StatefulMonotonic().nextULID()
                 val blikiId03 = ULID.StatefulMonotonic().nextULID()
-                val identityId = insertIdentity(db.requireDatabase())
-                val profileId = insertProfile(db.requireDatabase(), identityId)
-
-                insertGenerator(
-                    db = db.requireDatabase(),
-                    id = generatorId,
-                    name = LocalConstants.Generator.NAME_01,
-                    version = LocalConstants.Generator.VERSION_01,
-                    uri = LocalConstants.Generator.URI,
-                )
 
                 insertBliki(
                     db = db.requireDatabase(),
                     blikiId = blikiId01,
-                    generatorId = generatorId,
-                    authorId = profileId,
+                    generatorId = identifiers.generatorId!!,
+                    authorId = identifiers.profileId!!,
                     title = LocalConstants.Bliki.TITLE_01,
                 )
 
                 insertBliki(
                     db = db.requireDatabase(),
                     blikiId = blikiId02,
-                    generatorId = generatorId,
-                    authorId = profileId,
+                    generatorId = identifiers.generatorId,
+                    authorId = identifiers.profileId,
                     title = LocalConstants.Bliki.TITLE_02,
                 )
 
                 insertBliki(
                     db = db.requireDatabase(),
                     blikiId = blikiId03,
-                    generatorId = generatorId,
-                    authorId = profileId,
+                    generatorId = identifiers.generatorId,
+                    authorId = identifiers.profileId,
                     title = LocalConstants.Bliki.TITLE_03,
                 )
 
@@ -114,30 +104,18 @@ class ExposedAppBlikiRepositorySpec : FunSpec() {
 
         context("fetchById") {
             test("should return the bliki associated with the id") {
-                val blikiId = ULID.StatefulMonotonic().nextULID()
-                val generatorId = ULID.StatefulMonotonic().nextULID()
-
-                val identityId = insertIdentity(db.requireDatabase())
-                val profileId = insertProfile(db.requireDatabase(), identityId)
-
-                insertGenerator(
-                    db = db.requireDatabase(),
-                    id = generatorId,
-                    name = LocalConstants.Generator.NAME_01,
-                    version = LocalConstants.Generator.VERSION_01,
-                    uri = LocalConstants.Generator.URI,
-                )
+                val identifiers = setupBlikiSimpleFixtures(db.requireDatabase())
 
                 insertBliki(
                     db = db.requireDatabase(),
-                    blikiId = blikiId,
-                    generatorId = generatorId,
-                    authorId = profileId,
+                    blikiId = identifiers.blikiId!!,
+                    generatorId = identifiers.generatorId!!,
+                    authorId = identifiers.profileId!!,
                 )
 
-                val result = repository.fetchById(blikiId).block()
+                val result = repository.fetchById(identifiers.blikiId).block()
 
-                result?.id shouldBe blikiId
+                result?.id shouldBe identifiers.blikiId
                 result?.title shouldBe LocalConstants.Bliki.TITLE_01
                 result?.rights shouldBe LocalConstants.Bliki.RIGHTS
                 result?.baseUri shouldBe LocalConstants.Bliki.BASE_URI
@@ -152,53 +130,39 @@ class ExposedAppBlikiRepositorySpec : FunSpec() {
 
         context("fetchByAuthorId") {
             test("should return all blikis associated with the author id") {
-                val generatorId = ULID.StatefulMonotonic().nextULID()
-                val blikiId01 = ULID.StatefulMonotonic().nextULID()
-                val blikiId02 = ULID.StatefulMonotonic().nextULID()
-
-                val email01 = "author.one@example.com"
-                val identityId01 = insertIdentity(db.requireDatabase(), email01)
-                val profileId01 = insertProfile(db.requireDatabase(), identityId01)
-
-                val email02 = "author.two@example.net"
-                val identityId02 = insertIdentity(db.requireDatabase(), email02)
-                val profileId02 = insertProfile(db.requireDatabase(), identityId02)
-
-                insertGenerator(
-                    db = db.requireDatabase(),
-                    id = generatorId,
-                    name = LocalConstants.Generator.NAME_01,
-                    version = LocalConstants.Generator.VERSION_01,
-                    uri = LocalConstants.Generator.URI,
-                )
+                val identifiers = setupBlikiSimpleFixtures(db.requireDatabase())
+                val blikiId = ULID.StatefulMonotonic().nextULID()
+                val email = LocalConstants.Identity.EMAIL_02
+                val identityId = insertIdentity(db.requireDatabase(), email)
+                val profileId = insertProfile(db.requireDatabase(), identityId)
 
                 insertBliki(
                     db = db.requireDatabase(),
-                    blikiId = blikiId01,
-                    generatorId = generatorId,
-                    authorId = profileId01,
+                    blikiId = identifiers.blikiId!!,
+                    generatorId = identifiers.generatorId!!,
+                    authorId = identifiers.profileId!!,
                     title = LocalConstants.Bliki.TITLE_02,
                 )
 
                 insertBliki(
                     db = db.requireDatabase(),
-                    blikiId = blikiId02,
-                    generatorId = generatorId,
-                    authorId = profileId02,
+                    blikiId = blikiId,
+                    generatorId = identifiers.generatorId,
+                    authorId = profileId,
                     title = LocalConstants.Bliki.TITLE_03,
                 )
 
-                val result01 = repository.fetchByAuthorId(profileId01).collectList().block()!!
-                val result02 = repository.fetchByAuthorId(profileId02).collectList().block()!!
+                val result01 = repository.fetchByAuthorId(identifiers.profileId).collectList().block()!!
+                val result02 = repository.fetchByAuthorId(profileId).collectList().block()!!
 
                 result01 shouldHaveSize 1
-                result01.map { it.id } shouldBe listOf(blikiId01)
-                result01.map { it.authorId } shouldBe listOf(profileId01)
+                result01.map { it.id } shouldBe listOf(identifiers.blikiId)
+                result01.map { it.authorId } shouldBe listOf(identifiers.profileId)
                 result01.map { it.title } shouldBe listOf(LocalConstants.Bliki.TITLE_02)
 
                 result02 shouldHaveSize 1
-                result02.map { it.id } shouldBe listOf(blikiId02)
-                result02.map { it.authorId } shouldBe listOf(profileId02)
+                result02.map { it.id } shouldBe listOf(blikiId)
+                result02.map { it.authorId } shouldBe listOf(profileId)
                 result02.map { it.title } shouldBe listOf(LocalConstants.Bliki.TITLE_03)
             }
 
@@ -210,42 +174,30 @@ class ExposedAppBlikiRepositorySpec : FunSpec() {
 
         context("fetchByGeneratorId") {
             test("should return all blikis associated with the generator id") {
-                val blikiId01 = ULID.StatefulMonotonic().nextULID()
-                val blikiId02 = ULID.StatefulMonotonic().nextULID()
-                val generatorId = ULID.StatefulMonotonic().nextULID()
-
-                val identityId = insertIdentity(db.requireDatabase())
-                val profileId = insertProfile(db.requireDatabase(), identityId)
-
-                insertGenerator(
-                    db = db.requireDatabase(),
-                    id = generatorId,
-                    name = LocalConstants.Generator.NAME_01,
-                    version = LocalConstants.Generator.VERSION_01,
-                    uri = LocalConstants.Generator.URI,
-                )
+                val identifiers = setupBlikiSimpleFixtures(db.requireDatabase())
+                val blikiId = ULID.StatefulMonotonic().nextULID()
 
                 insertBliki(
                     db = db.requireDatabase(),
-                    blikiId = blikiId01,
-                    generatorId = generatorId,
-                    authorId = profileId,
+                    blikiId = identifiers.blikiId!!,
+                    generatorId = identifiers.generatorId!!,
+                    authorId = identifiers.profileId!!,
                     title = LocalConstants.Bliki.TITLE_01,
                 )
 
                 insertBliki(
                     db = db.requireDatabase(),
-                    blikiId = blikiId02,
-                    generatorId = generatorId,
-                    authorId = profileId,
+                    blikiId = blikiId,
+                    generatorId = identifiers.generatorId,
+                    authorId = identifiers.profileId,
                     title = LocalConstants.Bliki.TITLE_03,
                 )
 
-                val result = repository.fetchByGeneratorId(generatorId).collectList().block()!!
+                val result = repository.fetchByGeneratorId(identifiers.generatorId).collectList().block()!!
 
                 result shouldHaveSize 2
-                result.map { it.id } shouldBe listOf(blikiId01, blikiId02)
-                result.map { it.generatorId }.toSet() shouldBe setOf(generatorId)
+                result.map { it.id } shouldBe listOf(identifiers.blikiId, blikiId)
+                result.map { it.generatorId }.toSet() shouldBe setOf(identifiers.generatorId)
                 result.map { it.title } shouldBe listOf(LocalConstants.Bliki.TITLE_01, LocalConstants.Bliki.TITLE_03)
             }
 
