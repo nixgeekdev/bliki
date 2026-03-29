@@ -55,13 +55,14 @@ class ExposedAppProfileRepositorySpec : FunSpec() {
                         email = LocalConstants.Identity.EMAIL_01,
                         passwordHash = LocalConstants.Identity.HASH_01,
                     )
-                val profile01 = insertProfile(
-                    db = db.requireDatabase(),
-                    id = ULID.StatefulMonotonic().nextULID(),
-                    identityId = identity01.id!!,
-                    fullName = LocalConstants.Profile.NAME_01,
-                    affiliation = LocalConstants.Profile.AFFILIATION_01,
-                )
+                val profile01 =
+                    insertProfile(
+                        db = db.requireDatabase(),
+                        id = ULID.StatefulMonotonic().nextULID(),
+                        identityId = identity01.id!!,
+                        fullName = LocalConstants.Profile.NAME_01,
+                        affiliation = LocalConstants.Profile.AFFILIATION_01,
+                    )
 
                 val identity02 =
                     insertIdentity(
@@ -70,13 +71,14 @@ class ExposedAppProfileRepositorySpec : FunSpec() {
                         email = LocalConstants.Identity.EMAIL_02,
                         passwordHash = LocalConstants.Identity.HASH_02,
                     )
-                val profile02 = insertProfile(
-                    db = db.requireDatabase(),
-                    id = ULID.StatefulMonotonic().nextULID(),
-                    identityId = identity02.id!!,
-                    fullName = LocalConstants.Profile.NAME_02,
-                    affiliation = LocalConstants.Profile.AFFILIATION_02,
-                )
+                val profile02 =
+                    insertProfile(
+                        db = db.requireDatabase(),
+                        id = ULID.StatefulMonotonic().nextULID(),
+                        identityId = identity02.id!!,
+                        fullName = LocalConstants.Profile.NAME_02,
+                        affiliation = LocalConstants.Profile.AFFILIATION_02,
+                    )
 
                 val identity03 =
                     insertIdentity(
@@ -85,13 +87,14 @@ class ExposedAppProfileRepositorySpec : FunSpec() {
                         email = LocalConstants.Identity.EMAIL_03,
                         passwordHash = LocalConstants.Identity.HASH_03,
                     )
-                val profile03 = insertProfile(
-                    db = db.requireDatabase(),
-                    id = ULID.StatefulMonotonic().nextULID(),
-                    identityId = identity03.id!!,
-                    fullName = LocalConstants.Profile.NAME_03,
-                    affiliation = LocalConstants.Profile.AFFILIATION_03,
-                )
+                val profile03 =
+                    insertProfile(
+                        db = db.requireDatabase(),
+                        id = ULID.StatefulMonotonic().nextULID(),
+                        identityId = identity03.id!!,
+                        fullName = LocalConstants.Profile.NAME_03,
+                        affiliation = LocalConstants.Profile.AFFILIATION_03,
+                    )
 
                 val result = repository.fetchAll().collectList().block()!!
 
