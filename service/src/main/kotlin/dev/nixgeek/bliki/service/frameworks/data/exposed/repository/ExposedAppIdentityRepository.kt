@@ -20,6 +20,9 @@ import ulid.ULID
  * transactional contexts targeting the APP database.
  *
  * @property dbProvider The database provider for obtaining database connections
+ * @see AppIdentityRepository
+ * @see IdentityTable
+ * @see Identity
  */
 @Component
 class ExposedAppIdentityRepository(
