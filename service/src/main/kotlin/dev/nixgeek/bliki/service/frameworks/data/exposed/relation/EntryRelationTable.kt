@@ -1,6 +1,7 @@
 package dev.nixgeek.bliki.service.frameworks.data.exposed.relation
 
 import dev.nixgeek.bliki.service.domain.model.EntryRelationType
+import org.jetbrains.exposed.v1.core.ReferenceOption
 import org.jetbrains.exposed.v1.core.dao.id.CompositeIdTable
 import org.jetbrains.exposed.v1.core.neq
 
@@ -42,8 +43,20 @@ import org.jetbrains.exposed.v1.core.neq
 object EntryRelationTable : CompositeIdTable("entry_relation") {
     private const val ENTRY_RELATION_COL_LEN = 16
 
-    val fromEntryId = reference("from_entry_id", EntryTable.id).entityId()
-    val toEntryId = reference("to_entry_id", EntryTable.id).entityId()
+    val fromEntryId =
+        reference(
+            name = "from_entry_id",
+            refColumn = EntryTable.id,
+            onDelete = ReferenceOption.RESTRICT,
+        ).entityId()
+
+    val toEntryId =
+        reference(
+            name = "to_entry_id",
+            refColumn = EntryTable.id,
+            onDelete = ReferenceOption.RESTRICT,
+        ).entityId()
+
     val relation =
         enumerationByName(
             name = "relation",

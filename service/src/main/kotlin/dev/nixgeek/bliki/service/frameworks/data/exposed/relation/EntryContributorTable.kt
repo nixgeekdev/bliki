@@ -1,5 +1,6 @@
 package dev.nixgeek.bliki.service.frameworks.data.exposed.relation
 
+import org.jetbrains.exposed.v1.core.ReferenceOption
 import org.jetbrains.exposed.v1.core.dao.id.CompositeIdTable
 
 /**
@@ -17,8 +18,18 @@ import org.jetbrains.exposed.v1.core.dao.id.CompositeIdTable
  * @property primaryKey Composite primary key composed of [entryId] and [profileId]
  */
 object EntryContributorTable : CompositeIdTable("entry_contributor") {
-    val entryId = reference("entry_id", EntryTable.id).entityId()
-    val profileId = reference("profile_id", ProfileTable.id).entityId()
+    val entryId =
+        reference(
+            name = "entry_id",
+            refColumn = EntryTable.id,
+            onDelete = ReferenceOption.RESTRICT,
+        ).entityId()
+
+    val profileId = reference(
+        name = "profile_id",
+        refColumn = ProfileTable.id,
+        onDelete = ReferenceOption.RESTRICT,
+    ).entityId()
 
     override val primaryKey = PrimaryKey(entryId, profileId)
 }

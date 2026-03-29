@@ -35,7 +35,7 @@ object ProfileTable : AbstractULIDTable("profile") {
         reference(
             name = "identity_id",
             refColumn = IdentityTable.id,
-            onDelete = ReferenceOption.RESTRICT,
+            onDelete = ReferenceOption.SET_NULL,
         )
     val fullName = text("full_name")
     val affiliation = text("affiliation").nullable()

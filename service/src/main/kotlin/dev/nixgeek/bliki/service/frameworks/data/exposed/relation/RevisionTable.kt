@@ -37,13 +37,13 @@ object RevisionTable : AbstractULIDTable("revision") {
         reference(
             name = "entry_id",
             refColumn = EntryTable.id,
-            onDelete = ReferenceOption.RESTRICT,
+            onDelete = ReferenceOption.SET_NULL,
         )
     val authorId =
         reference(
             name = "author_id",
             refColumn = ProfileTable.id,
-            onDelete = ReferenceOption.RESTRICT,
+            onDelete = ReferenceOption.SET_NULL,
         )
     val diff = text("diff")
     val summary = text("summary").nullable()

@@ -46,7 +46,7 @@ object EntryTable : AbstractULIDTable("entry") {
         reference(
             name = "bliki_id",
             refColumn = BlikiTable.id,
-            onDelete = ReferenceOption.RESTRICT,
+            onDelete = ReferenceOption.SET_NULL,
         )
 
     /** The title/heading of the blog entry. */
@@ -83,7 +83,7 @@ object EntryTable : AbstractULIDTable("entry") {
         reference(
             name = "author_id",
             refColumn = ProfileTable.id,
-            onDelete = ReferenceOption.RESTRICT,
+            onDelete = ReferenceOption.SET_NULL,
         )
 
     /**
