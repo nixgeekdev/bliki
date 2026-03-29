@@ -3,6 +3,7 @@ package dev.nixgeek.bliki.service.frameworks.data.exposed.repository
 import dev.nixgeek.bliki.lib.data.DatabaseProvider
 import dev.nixgeek.bliki.lib.data.DatabaseTarget
 import dev.nixgeek.bliki.service.domain.model.Profile
+import dev.nixgeek.bliki.service.domain.model.PublicProfile
 import dev.nixgeek.bliki.service.domain.repository.AppProfileRepository
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.ProfileTable
 import org.jetbrains.exposed.v1.core.eq
@@ -99,6 +100,28 @@ class ExposedAppProfileRepository(
                 .where { ProfileTable.id eq id.toString() }
                 .singleOrNull()
                 ?.toProfileModel()
+        }
+
+    /**
+     * Retrieves the public profile information for a user by their unique identifier.
+     *
+     * This method queries the `profile` table to find a profile with the specified ID and
+     * returns only the publicly accessible fields. The operation is executed within a reactive
+     * transaction context using [DatabaseTarget.APP]. Public profiles contain a subset of
+     * profile information suitable for public display, excluding sensitive data like affiliation.
+     *
+     * @param id The unique identifier of the profile to retrieve
+     * @return A [Mono] emitting the [PublicProfile] if found, or an empty Mono if no profile
+     *         exists with the specified ID
+     */
+    override fun fetchPublicById(id: ULID): Mono<PublicProfile> =
+        txMono(DatabaseTarget.APP) {
+            ProfileTable
+                .selectAll()
+                .where { ProfileTable.id eq id.toString() }
+                .singleOrNull()
+                ?.toProfileModel()
+                ?.toPublicProfile()
         }
 
     /**
