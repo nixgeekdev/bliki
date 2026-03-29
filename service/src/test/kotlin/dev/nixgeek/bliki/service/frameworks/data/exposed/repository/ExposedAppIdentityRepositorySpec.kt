@@ -44,7 +44,6 @@ class ExposedAppIdentityRepositorySpec : FunSpec() {
 
         context("fetchAll") {
             test("should return all identities") {
-
                 val identity01 =
                     insertIdentity(
                         db = db.requireDatabase(),
