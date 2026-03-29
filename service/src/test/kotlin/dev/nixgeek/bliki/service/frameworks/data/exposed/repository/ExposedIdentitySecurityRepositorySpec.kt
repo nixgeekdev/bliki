@@ -3,7 +3,6 @@ package dev.nixgeek.bliki.service.frameworks.data.exposed.repository
 import dev.nixgeek.bliki.lib.data.DatabaseProvider
 import dev.nixgeek.bliki.lib.data.DatabaseTarget
 import dev.nixgeek.bliki.lib.test.fixtures.containers.installSharedSpecDatabase
-import dev.nixgeek.bliki.lib.test.fixtures.shared.Constants
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.IdentityRoleTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.IdentityTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.RoleTable
@@ -12,7 +11,6 @@ import dev.nixgeek.bliki.service.test.fixtures.data.insertIdentity
 import dev.nixgeek.bliki.service.test.fixtures.data.insertRole
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
-import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
@@ -20,12 +18,11 @@ import org.jetbrains.exposed.v1.jdbc.deleteAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.springframework.test.context.ActiveProfiles
 import ulid.ULID
-
-private const val FAKE_PASSWORD_HASH_01 = $$"{bcrypt}$2a$10$9aB242Y0FJyxaKhuimUjPOUxq1qYmjtVihJRPa6hXL0nGvWMYyxka"
-private const val FAKE_PASSWORD_HASH_02 = $$"{bcrypt}$2a$10$.Ghl.FxRyEpGQS51QKL4wedUa6pe/38fs6Gc9m9uC14MdDjEfMPsK"
+import dev.nixgeek.bliki.lib.test.fixtures.shared.Constants as SharedConstants
+import dev.nixgeek.bliki.service.test.fixtures.Constants as LocalConstants
 
 @Suppress("ReactiveStreamsUnusedPublisher")
-@ActiveProfiles(Constants.TestContainers.ACTIVE_PROFILE)
+@ActiveProfiles(SharedConstants.TestContainers.ACTIVE_PROFILE)
 class ExposedIdentitySecurityRepositorySpec : FunSpec() {
     private val db =
         installSharedSpecDatabase(
@@ -55,25 +52,24 @@ class ExposedIdentitySecurityRepositorySpec : FunSpec() {
         context("findByEmail") {
             test("should return the matching secure identity when it exists") {
                 val identityId = ULID.StatefulMonotonic().nextULID()
-                val email = "security-user@example.test"
 
                 insertIdentity(
                     db = db.requireDatabase(),
                     id = identityId,
-                    email = email,
-                    passwordHash = FAKE_PASSWORD_HASH_01,
+                    email = LocalConstants.Identity.EMAIL_02,
+                    passwordHash = LocalConstants.Identity.HASH_02,
                 )
 
-                val result = repository.findByEmail(email).block()
+                val result = repository.findByEmail(LocalConstants.Identity.EMAIL_02).block()
 
                 result?.id shouldBe identityId
-                result?.email shouldBe email
-                result?.passwordHash shouldBe FAKE_PASSWORD_HASH_01
+                result?.email shouldBe LocalConstants.Identity.EMAIL_02
+                result?.passwordHash shouldBe LocalConstants.Identity.HASH_02
             }
 
             test("should return null when the identity does not exist") {
                 val result = repository.findByEmail("missing@example.test").block()
-                result.shouldBeNull()
+                result shouldBe null
             }
         }
 
@@ -89,33 +85,33 @@ class ExposedIdentitySecurityRepositorySpec : FunSpec() {
                 insertIdentity(
                     db = db.requireDatabase(),
                     id = identityId,
-                    email = "assigned@example.test",
-                    passwordHash = FAKE_PASSWORD_HASH_01,
+                    email = LocalConstants.Identity.EMAIL_01,
+                    passwordHash = LocalConstants.Identity.HASH_01,
                 )
                 insertIdentity(
                     db = db.requireDatabase(),
                     id = otherIdentityId,
-                    email = "other@example.test",
-                    passwordHash = FAKE_PASSWORD_HASH_02,
+                    email = LocalConstants.Identity.EMAIL_02,
+                    passwordHash = LocalConstants.Identity.HASH_02,
                 )
 
                 insertRole(
                     db = db.requireDatabase(),
                     id = adminRoleId,
-                    role = "ADMIN",
-                    label = "Administrator",
+                    role = LocalConstants.Role.ROLE_01,
+                    label = LocalConstants.Role.LABEL_01,
                 )
                 insertRole(
                     db = db.requireDatabase(),
                     id = authorRoleId,
-                    role = "AUTHOR",
-                    label = "Author",
+                    role = LocalConstants.Role.ROLE_02,
+                    label = LocalConstants.Role.LABEL_02,
                 )
                 insertRole(
                     db = db.requireDatabase(),
                     id = editorRoleId,
-                    role = "EDITOR",
-                    label = "Editor",
+                    role = LocalConstants.Role.ROLE_03,
+                    label = LocalConstants.Role.LABEL_03,
                 )
 
                 assignRole(
@@ -137,7 +133,7 @@ class ExposedIdentitySecurityRepositorySpec : FunSpec() {
                 val result = repository.findRolesByIdentityId(identityId).collectList().block()!!
 
                 result shouldHaveSize 2
-                result.map { it.role.name } shouldBe listOf("ADMIN", "AUTHOR")
+                result.map { it.role.name } shouldBe listOf(LocalConstants.Role.ROLE_01, LocalConstants.Role.ROLE_02)
             }
 
             test("should return an empty list when the identity has no roles") {
@@ -146,12 +142,11 @@ class ExposedIdentitySecurityRepositorySpec : FunSpec() {
                 insertIdentity(
                     db = db.requireDatabase(),
                     id = identityId,
-                    email = "no-roles@example.test",
-                    passwordHash = FAKE_PASSWORD_HASH_01,
+                    email = LocalConstants.Identity.EMAIL_03,
+                    passwordHash = LocalConstants.Identity.HASH_03,
                 )
 
                 val result = repository.findRolesByIdentityId(identityId).collectList().block()!!
-
                 result shouldHaveSize 0
             }
         }

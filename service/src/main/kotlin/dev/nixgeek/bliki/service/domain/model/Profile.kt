@@ -11,10 +11,17 @@ data class Profile(
     val createdAt: Instant?,
     val updatedAt: Instant?,
 ) {
-    fun toPublicProfile(identity: Identity): PublicProfile =
+    fun toPublicProfile(): PublicProfile =
         PublicProfile(
+            id = id,
+            identityId = identityId,
+            fullName = fullName,
+        )
+
+    fun toSecureProfile(): SecureProfile =
+        SecureProfile(
             id = id!!,
-            publicIdentity = identity.toPublicIdentity(),
+            identityId = identityId,
             fullName = fullName,
             affiliation = affiliation,
         )

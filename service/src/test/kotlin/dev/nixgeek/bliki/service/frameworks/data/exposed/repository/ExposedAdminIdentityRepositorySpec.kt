@@ -4,26 +4,27 @@ import dev.nixgeek.bliki.lib.data.DatabaseProvider
 import dev.nixgeek.bliki.lib.data.DatabaseTarget
 import dev.nixgeek.bliki.lib.test.fixtures.containers.installSharedSpecDatabase
 import dev.nixgeek.bliki.service.domain.model.Identity
+import dev.nixgeek.bliki.service.domain.model.SecureIdentity
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.IdentityTable
 import dev.nixgeek.bliki.service.test.fixtures.data.insertIdentity
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.types.beInstanceOf
 import io.mockk.every
 import io.mockk.mockk
 import org.jetbrains.exposed.v1.jdbc.deleteAll
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import org.springframework.test.context.ActiveProfiles
 import ulid.ULID
 import kotlin.time.Clock
 import kotlin.time.Instant
+import dev.nixgeek.bliki.lib.test.fixtures.shared.Constants as SharedConstants
+import dev.nixgeek.bliki.service.test.fixtures.Constants as LocalConstants
 
-private const val FAKE_EMAIL_01 = "test1@example.com"
-private const val FAKE_EMAIL_02 = "test2@example.com"
-private const val FAKE_PASSWORD_HASH_01 = $$"{bcrypt}$2a$10$9aB242Y0FJyxaKhuimUjPOUxq1qYmjtVihJRPa6hXL0nGvWMYyxka"
-private const val FAKE_PASSWORD_HASH_02 = $$"{bcrypt}$2a$10$.Ghl.FxRyEpGQS51QKL4wedUa6pe/38fs6Gc9m9uC14MdDjEfMPsK"
-
+@ActiveProfiles(SharedConstants.TestContainers.ACTIVE_PROFILE)
 class ExposedAdminIdentityRepositorySpec : FunSpec() {
     private val db = installSharedSpecDatabase(arrayOf(IdentityTable))
 
@@ -45,6 +46,52 @@ class ExposedAdminIdentityRepositorySpec : FunSpec() {
             }
         }
 
+        context("fetchSecureById") {
+            test("should return the matching secure identity when it exists") {
+                val identityId = ULID.StatefulMonotonic().nextULID()
+                insertIdentity(
+                    db = db.requireDatabase(),
+                    id = identityId,
+                    email = LocalConstants.Identity.EMAIL_01,
+                    passwordHash = LocalConstants.Identity.HASH_01,
+                )
+
+                val result = repository.fetchSecureById(identityId).block()
+                result should beInstanceOf<SecureIdentity>()
+                result?.id shouldBe identityId
+                result?.email shouldBe LocalConstants.Identity.EMAIL_01
+                result?.passwordHash shouldBe LocalConstants.Identity.HASH_01
+            }
+
+            test("should return null when the identity does not exist") {
+                val result = repository.fetchSecureById(ULID.StatefulMonotonic().nextULID()).block()
+                result shouldBe null
+            }
+        }
+
+        context("fetchSecureByEmail") {
+            test("should return the matching secure identity when it exists") {
+                val identityId = ULID.StatefulMonotonic().nextULID()
+                insertIdentity(
+                    db = db.requireDatabase(),
+                    id = identityId,
+                    email = LocalConstants.Identity.EMAIL_01,
+                    passwordHash = LocalConstants.Identity.HASH_01,
+                )
+
+                val result = repository.fetchSecureByEmail(LocalConstants.Identity.EMAIL_01).block()
+                result should beInstanceOf<SecureIdentity>()
+                result?.id shouldBe identityId
+                result?.email shouldBe LocalConstants.Identity.EMAIL_01
+                result?.passwordHash shouldBe LocalConstants.Identity.HASH_01
+            }
+
+            test("should return null when the identity does not exist") {
+                val result = repository.fetchSecureByEmail(LocalConstants.Identity.EMAIL_02).block()
+                result shouldBe null
+            }
+        }
+
         context("save") {
             test("should insert a new identity when the id is provided") {
                 val identityId = ULID.StatefulMonotonic().nextULID()
@@ -55,16 +102,16 @@ class ExposedAdminIdentityRepositorySpec : FunSpec() {
                         .save(
                             Identity(
                                 id = identityId,
-                                email = FAKE_EMAIL_01,
-                                passwordHash = FAKE_PASSWORD_HASH_01,
+                                email = LocalConstants.Identity.EMAIL_01,
+                                passwordHash = LocalConstants.Identity.HASH_01,
                                 createdAt = now,
                                 updatedAt = now,
                             ),
                         ).block()
 
                 result?.id shouldBe identityId
-                result?.email shouldBe FAKE_EMAIL_01
-                result?.passwordHash shouldBe FAKE_PASSWORD_HASH_01
+                result?.email shouldBe LocalConstants.Identity.EMAIL_01
+                result?.passwordHash shouldBe LocalConstants.Identity.HASH_01
 
                 val persisted =
                     transaction(db.requireDatabase()) {
@@ -89,16 +136,16 @@ class ExposedAdminIdentityRepositorySpec : FunSpec() {
                     repository
                         .save(
                             Identity(
-                                email = FAKE_EMAIL_02,
-                                passwordHash = FAKE_PASSWORD_HASH_02,
+                                email = LocalConstants.Identity.EMAIL_02,
+                                passwordHash = LocalConstants.Identity.HASH_02,
                                 createdAt = createdAt,
                                 updatedAt = now,
                             ),
                         ).block()
 
                 result?.id shouldNotBe null
-                result?.email shouldBe FAKE_EMAIL_02
-                result?.passwordHash shouldBe FAKE_PASSWORD_HASH_02
+                result?.email shouldBe LocalConstants.Identity.EMAIL_02
+                result?.passwordHash shouldBe LocalConstants.Identity.HASH_02
                 result?.createdAt shouldNotBe result?.updatedAt
 
                 val persisted =
@@ -125,8 +172,8 @@ class ExposedAdminIdentityRepositorySpec : FunSpec() {
                     insertIdentity(
                         db = db.requireDatabase(),
                         id = identityId,
-                        email = FAKE_EMAIL_01,
-                        passwordHash = FAKE_PASSWORD_HASH_01,
+                        email = LocalConstants.Identity.EMAIL_01,
+                        passwordHash = LocalConstants.Identity.HASH_01,
                         created = createdAt,
                     )
 
@@ -135,16 +182,16 @@ class ExposedAdminIdentityRepositorySpec : FunSpec() {
                         .save(
                             Identity(
                                 id = identityId,
-                                email = FAKE_EMAIL_02,
-                                passwordHash = FAKE_PASSWORD_HASH_02,
+                                email = LocalConstants.Identity.EMAIL_02,
+                                passwordHash = LocalConstants.Identity.HASH_02,
                                 createdAt = createdAt,
                                 updatedAt = now,
                             ),
                         ).block()
 
                 result?.id shouldBe identityId
-                result?.email shouldBe FAKE_EMAIL_02
-                result?.passwordHash shouldBe FAKE_PASSWORD_HASH_02
+                result?.email shouldBe LocalConstants.Identity.EMAIL_02
+                result?.passwordHash shouldBe LocalConstants.Identity.HASH_02
                 result?.createdAt shouldBe createdAt
 
                 val persisted =
@@ -171,15 +218,15 @@ class ExposedAdminIdentityRepositorySpec : FunSpec() {
                     insertIdentity(
                         db = db.requireDatabase(),
                         id = identityId,
-                        email = FAKE_EMAIL_01,
-                        passwordHash = FAKE_PASSWORD_HASH_01,
+                        email = LocalConstants.Identity.EMAIL_01,
+                        passwordHash = LocalConstants.Identity.HASH_01,
                     )
 
                 val result = repository.delete(identityId).block()
 
                 result?.id shouldBe identityId
-                result?.email shouldBe FAKE_EMAIL_01
-                result?.passwordHash shouldBe FAKE_PASSWORD_HASH_01
+                result?.email shouldBe LocalConstants.Identity.EMAIL_01
+                result?.passwordHash shouldBe LocalConstants.Identity.HASH_01
 
                 val persisted =
                     transaction(db.requireDatabase()) {
@@ -188,12 +235,12 @@ class ExposedAdminIdentityRepositorySpec : FunSpec() {
                             .singleOrNull()
                     }
 
-                persisted.shouldBeNull()
+                persisted shouldBe null
             }
 
             test("should return null when the identity does not exist") {
                 val result = repository.delete(ULID.StatefulMonotonic().nextULID()).block()
-                result.shouldBeNull()
+                result shouldBe null
             }
         }
     }

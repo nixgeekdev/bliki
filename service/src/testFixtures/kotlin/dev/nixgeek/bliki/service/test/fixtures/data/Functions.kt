@@ -3,6 +3,7 @@ package dev.nixgeek.bliki.service.test.fixtures.data
 import dev.nixgeek.bliki.lib.data.ulid.toULID
 import dev.nixgeek.bliki.service.domain.model.Bliki
 import dev.nixgeek.bliki.service.domain.model.Identity
+import dev.nixgeek.bliki.service.domain.model.Profile
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.BlikiTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.GeneratorTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.IdentityRoleTable
@@ -11,6 +12,7 @@ import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.ProfileTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.RoleTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.repository.toBlikiModel
 import dev.nixgeek.bliki.service.frameworks.data.exposed.repository.toIdentityModel
+import dev.nixgeek.bliki.service.frameworks.data.exposed.repository.toProfileModel
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.insertReturning
@@ -18,15 +20,7 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import ulid.ULID
 import kotlin.time.Clock
 import kotlin.time.Instant
-
-private const val FAKE_BCRYPT_PASSWORD_HASH = $$"{bcrypt}$2a$10$egsoWMzDrqR3aaE2oqpDJ.G9.ljiWVKmhH6Sbf0lFt583wW1SImkW"
-private const val FAKE_BLIKI_BASE_URI = "https://example.test/bliki"
-private const val FAKE_BLIKI_LANG = "en/US"
-private const val FAKE_BLIKI_RIGHTS = "Copyright 2026 nixgeek.dev"
-private const val FAKE_BLIKI_TITLE = "My Bliki"
-private const val FAKE_EMAIL_ADDRESS = "test@example.com"
-private const val FAKE_PROFILE_AFFILIATION = "Test Organization"
-private const val FAKE_PROFILE_FULL_NAME = "Test User"
+import dev.nixgeek.bliki.service.test.fixtures.Constants as LocalConstants
 
 fun insertBliki(
     db: Database,
@@ -40,10 +34,10 @@ fun insertBliki(
         BlikiTable
             .insertReturning {
                 it[BlikiTable.id] = blikiId.toString()
-                it[BlikiTable.title] = title ?: FAKE_BLIKI_TITLE
-                it[BlikiTable.rights] = FAKE_BLIKI_RIGHTS
-                it[BlikiTable.baseUri] = FAKE_BLIKI_BASE_URI
-                it[BlikiTable.lang] = FAKE_BLIKI_LANG
+                it[BlikiTable.title] = title ?: LocalConstants.Bliki.TITLE_01
+                it[BlikiTable.rights] = LocalConstants.Bliki.RIGHTS
+                it[BlikiTable.baseUri] = LocalConstants.Bliki.BASE_URI
+                it[BlikiTable.lang] = LocalConstants.Bliki.LANG
                 it[BlikiTable.authorId] = authorId.toString()
                 it[BlikiTable.generatorId] = generatorId.toString()
                 it[BlikiTable.updatedAt] = updatedAt ?: Clock.System.now()
@@ -72,8 +66,8 @@ fun insertIdentity(db: Database): ULID =
     insertIdentity(
         db = db,
         id = ULID.randomULID().toULID(),
-        email = FAKE_EMAIL_ADDRESS,
-        passwordHash = FAKE_BCRYPT_PASSWORD_HASH,
+        email = LocalConstants.Identity.EMAIL_01,
+        passwordHash = LocalConstants.Identity.HASH_01,
     ).id!!
 
 fun insertIdentity(db: Database, email: String): ULID =
@@ -81,7 +75,7 @@ fun insertIdentity(db: Database, email: String): ULID =
         db = db,
         id = ULID.randomULID().toULID(),
         email = email,
-        passwordHash = FAKE_BCRYPT_PASSWORD_HASH,
+        passwordHash = LocalConstants.Identity.HASH_02,
     ).id!!
 
 fun insertIdentity(
@@ -118,15 +112,34 @@ fun insertIdentity(
     }
 
 fun insertProfile(db: Database, identityId: ULID): ULID =
+    insertProfile(
+        db = db,
+        id = ULID.randomULID().toULID(),
+        identityId = identityId,
+        fullName = LocalConstants.Profile.NAME_01,
+        affiliation = LocalConstants.Profile.AFFILIATION_01,
+        created = null,
+    ).id!!
+
+fun insertProfile(
+    db: Database,
+    id: ULID,
+    identityId: ULID,
+    fullName: String,
+    affiliation: String,
+    created: Instant? = null,
+): Profile =
     transaction(db) {
-        val profileId = ULID.randomULID()
-        ProfileTable.insert {
-            it[ProfileTable.id] = profileId
-            it[ProfileTable.identityId] = identityId.toString()
-            it[ProfileTable.fullName] = FAKE_PROFILE_FULL_NAME
-            it[ProfileTable.affiliation] = FAKE_PROFILE_AFFILIATION
-        }
-        profileId.toULID()
+        ProfileTable
+            .insertReturning {
+                it[ProfileTable.id] = id.toString()
+                it[ProfileTable.identityId] = identityId.toString()
+                it[ProfileTable.fullName] = fullName
+                it[ProfileTable.affiliation] = affiliation
+                it[ProfileTable.createdAt] = created ?: Clock.System.now()
+                it[ProfileTable.updatedAt] = created ?: Clock.System.now()
+            }.single()
+            .toProfileModel()
     }
 
 fun insertRole(
