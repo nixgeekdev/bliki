@@ -8,7 +8,7 @@ data class Revision(
     val entryId: ULID,
     val authorId: ULID,
     val diff: String,
-    val summary: String,
+    val summary: String? = null,
     val event: EntryEvent = EntryEvent.CREATED,
     val createdAt: Instant?,
 )
