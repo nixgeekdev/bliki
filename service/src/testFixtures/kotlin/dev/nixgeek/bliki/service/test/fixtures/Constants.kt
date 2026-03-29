@@ -40,6 +40,38 @@ object Constants {
         const val AFFILIATION_03 = "Open Source Community"
     }
 
+    object Revision{
+        const val SUMMARY_01 = "Added footer"
+        const val SUMMARY_02 = "Updated body"
+        const val SUMMARY_03 = "Removed footer"
+        const val EVENT = "UPDATED"
+        const val DIFF_01 = """
+            --- original
+            +++ revised
+            @@ -1,2 +1,3 @@
+             Title
+             Body
+            +Footer
+        """
+        const val DIFF_02 = """
+            --- original
+            +++ revised
+            @@ -1,3 +1,3 @@
+             Title
+            -Original body
+            +Updated body
+             Footer
+        """
+        const val DIFF_03 = """
+            --- original
+            +++ revised
+            @@ -1,3 +1,2 @@
+             Title
+             Body
+            -Footer
+        """
+    }
+
     object Role {
         const val ROLE_01 = "ADMIN"
         const val LABEL_01 = "Administrator"

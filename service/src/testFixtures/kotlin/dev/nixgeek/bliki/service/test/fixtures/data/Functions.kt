@@ -2,17 +2,21 @@ package dev.nixgeek.bliki.service.test.fixtures.data
 
 import dev.nixgeek.bliki.lib.data.ulid.toULID
 import dev.nixgeek.bliki.service.domain.model.Bliki
+import dev.nixgeek.bliki.service.domain.model.EntryEvent
 import dev.nixgeek.bliki.service.domain.model.Identity
 import dev.nixgeek.bliki.service.domain.model.Profile
+import dev.nixgeek.bliki.service.domain.model.Revision
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.BlikiTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.GeneratorTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.IdentityRoleTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.IdentityTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.ProfileTable
+import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.RevisionTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.RoleTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.repository.toBlikiModel
 import dev.nixgeek.bliki.service.frameworks.data.exposed.repository.toIdentityModel
 import dev.nixgeek.bliki.service.frameworks.data.exposed.repository.toProfileModel
+import dev.nixgeek.bliki.service.frameworks.data.exposed.repository.toRevisionModel
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.insertReturning
@@ -140,6 +144,48 @@ fun insertProfile(
                 it[ProfileTable.updatedAt] = created ?: Clock.System.now()
             }.single()
             .toProfileModel()
+    }
+
+fun insertRevision(
+    db: Database,
+    id: ULID,
+    entryId: ULID,
+    authorId: ULID,
+): Revision =
+    insertRevision(
+        db = db,
+        id = id,
+        entryId = entryId,
+        authorId = authorId,
+        diff = LocalConstants.Revision.DIFF_01.trimIndent(),
+        summary = LocalConstants.Revision.SUMMARY_01,
+        event = LocalConstants.Revision.EVENT,
+        created = Clock.System.now(),
+    )
+
+fun insertRevision(
+    db: Database,
+    id: ULID,
+    entryId: ULID,
+    authorId: ULID,
+    diff: String? = null,
+    summary: String? = null,
+    event: String? = null,
+    created: Instant? = null,
+): Revision =
+    transaction(db) {
+        RevisionTable
+            .insertReturning {
+                it[RevisionTable.id] = id.toString()
+                it[RevisionTable.entryId] = entryId.toString()
+                it[RevisionTable.authorId] = authorId.toString()
+                it[RevisionTable.createdAt] = Clock.System.now()
+                it[RevisionTable.diff] = diff ?: LocalConstants.Revision.DIFF_01.trimIndent()
+                it[RevisionTable.summary] = summary ?: LocalConstants.Revision.SUMMARY_01
+                it[RevisionTable.event] = EntryEvent.valueOf(event ?: LocalConstants.Revision.EVENT)
+                it[RevisionTable.createdAt] = created ?: Clock.System.now()
+            }.single()
+            .toRevisionModel()
     }
 
 fun insertRole(
