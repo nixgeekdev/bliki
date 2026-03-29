@@ -40,7 +40,7 @@ object Constants {
         const val AFFILIATION_03 = "Open Source Community"
     }
 
-    object Revision{
+    object Revision {
         const val SUMMARY_01 = "Added footer"
         const val SUMMARY_02 = "Updated body"
         const val SUMMARY_03 = "Removed footer"

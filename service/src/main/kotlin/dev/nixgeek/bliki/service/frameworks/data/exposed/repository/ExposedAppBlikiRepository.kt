@@ -28,7 +28,6 @@ import ulid.ULID
 class ExposedAppBlikiRepository(
     override val dbProvider: DatabaseProvider,
 ) : AppBlikiRepository {
-
     /**
      * Fetches all Bliki entities from the database.
      *
