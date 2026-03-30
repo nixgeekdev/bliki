@@ -30,7 +30,7 @@ class DiffService : DiffApi<String> {
      * @param revision the revised list of Strings objects to be compared
      * @return a string representation of the unified diff between the two lists
      */
-    override suspend fun diff(original: List<String>, revision: List<String>): String =
+    override fun diff(original: List<String>, revision: List<String>): String =
         DiffUtils.diff(original, revision).let { patch ->
             UnifiedDiffUtils
                 .generateUnifiedDiff(
