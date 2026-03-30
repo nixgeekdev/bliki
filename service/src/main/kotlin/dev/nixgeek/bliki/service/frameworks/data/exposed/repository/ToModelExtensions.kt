@@ -2,6 +2,8 @@ package dev.nixgeek.bliki.service.frameworks.data.exposed.repository
 
 import dev.nixgeek.bliki.lib.data.ulid.toULID
 import dev.nixgeek.bliki.service.domain.model.Bliki
+import dev.nixgeek.bliki.service.domain.model.Entry
+import dev.nixgeek.bliki.service.domain.model.EntryContentType
 import dev.nixgeek.bliki.service.domain.model.Generator
 import dev.nixgeek.bliki.service.domain.model.Identity
 import dev.nixgeek.bliki.service.domain.model.IdentityRole
@@ -9,6 +11,7 @@ import dev.nixgeek.bliki.service.domain.model.Profile
 import dev.nixgeek.bliki.service.domain.model.Revision
 import dev.nixgeek.bliki.service.domain.model.Role
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.BlikiTable
+import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.EntryTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.GeneratorTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.IdentityTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.ProfileTable
@@ -30,6 +33,26 @@ internal fun ResultRow.toBlikiModel(): Bliki =
             authorId = row[BlikiTable.authorId].value.toULID(),
             generatorId = row[BlikiTable.generatorId].value.toULID(),
             updatedAt = row[BlikiTable.updatedAt],
+        )
+    }
+
+internal fun ResultRow.toEntryModel(): Entry =
+    let { row ->
+        Entry(
+            id = row[EntryTable.id].value.toULID(),
+            blikiId = row[EntryTable.blikiId].value.toULID(),
+            title = row[EntryTable.title],
+            slug = row[EntryTable.slug],
+            content = row[EntryTable.content],
+            summary = row[EntryTable.summary],
+            lang = row[EntryTable.lang],
+            contentType = EntryContentType.fromMimeType(row[EntryTable.contentType]) ?: EntryContentType.MARKDOWN,
+            authorId = row[EntryTable.authorId].value.toULID(),
+            visibility = row[EntryTable.visibility],
+            status = row[EntryTable.status],
+            publishedAt = row[EntryTable.publishedAt],
+            createdAt = row[EntryTable.createdAt],
+            updatedAt = row[EntryTable.updatedAt],
         )
     }
 
