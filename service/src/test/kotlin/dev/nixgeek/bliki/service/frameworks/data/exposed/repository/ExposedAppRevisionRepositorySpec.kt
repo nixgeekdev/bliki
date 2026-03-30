@@ -117,6 +117,22 @@ class ExposedAppRevisionRepositorySpec : FunSpec() {
 
         context("fetchById") {
             test("should return the matching revision when it exists") {
+                val revisionId = ULID.StatefulMonotonic().nextULID()
+                val identifiers = setupRevisionSimpleFixtures(db.requireDatabase())
+
+                insertRevision(
+                    db = db.requireDatabase(),
+                    id = revisionId,
+                    entryId = identifiers.entryId!!,
+                    authorId = identifiers.profileId!!,
+                )
+
+                val result = repository.fetchById(revisionId).block()
+
+                result?.id shouldBe revisionId
+                result?.summary shouldBe LocalConstants.Revision.SUMMARY_01
+                result?.diff shouldBe LocalConstants.Revision.DIFF_01.trimIndent()
+                result?.event?.name shouldBe LocalConstants.Revision.EVENT
             }
 
             test("should return null when the revision does not exist") {
@@ -127,6 +143,21 @@ class ExposedAppRevisionRepositorySpec : FunSpec() {
 
         context("fetchByEntryId") {
             test("should return all revisions associated with the entry id") {
+                val identifiers = setupRevisionSimpleFixtures(db.requireDatabase())
+
+                insertRevision(
+                    db = db.requireDatabase(),
+                    id = ULID.StatefulMonotonic().nextULID(),
+                    entryId = identifiers.entryId!!,
+                    authorId = identifiers.profileId!!,
+                )
+
+                val result = repository.fetchByEntryId(identifiers.entryId).collectList().block()!!
+
+                result shouldHaveSize 1
+                result.map { it.entryId } shouldBe listOf(identifiers.entryId)
+                result.map { it.authorId } shouldBe listOf(identifiers.profileId)
+                result.map { it.summary } shouldBe listOf(LocalConstants.Revision.SUMMARY_01)
             }
 
             test("should return empty list when the entry does not exist") {
@@ -137,6 +168,21 @@ class ExposedAppRevisionRepositorySpec : FunSpec() {
 
         context("fetchByAuthorId") {
             test("should return all revisions associated with the author id") {
+                val identifiers = setupRevisionSimpleFixtures(db.requireDatabase())
+
+                insertRevision(
+                    db = db.requireDatabase(),
+                    id = ULID.StatefulMonotonic().nextULID(),
+                    entryId = identifiers.entryId!!,
+                    authorId = identifiers.profileId!!,
+                )
+
+                val result = repository.fetchByAuthorId(identifiers.profileId).collectList().block()!!
+
+                result shouldHaveSize 1
+                result.map { it.entryId } shouldBe listOf(identifiers.entryId)
+                result.map { it.authorId } shouldBe listOf(identifiers.profileId)
+                result.map { it.summary } shouldBe listOf(LocalConstants.Revision.SUMMARY_01)
             }
 
             test("should return empty list when the author does not exist") {
