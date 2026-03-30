@@ -106,17 +106,17 @@ class ExposedAppRevisionRepositorySpec : FunSpec() {
 
                 result shouldHaveSize 3
                 result.map { it.id } shouldBe listOf(revisionId01, revisionId02, revisionId03)
-                result.map { it.summary } shouldBe listOf(
-                    LocalConstants.Revision.SUMMARY_01,
-                    LocalConstants.Revision.SUMMARY_02,
-                    LocalConstants.Revision.SUMMARY_03,
-                )
+                result.map { it.summary } shouldBe
+                    listOf(
+                        LocalConstants.Revision.SUMMARY_01,
+                        LocalConstants.Revision.SUMMARY_02,
+                        LocalConstants.Revision.SUMMARY_03,
+                    )
             }
         }
 
         context("fetchById") {
             test("should return the matching revision when it exists") {
-
             }
 
             test("should return null when the revision does not exist") {
@@ -127,7 +127,6 @@ class ExposedAppRevisionRepositorySpec : FunSpec() {
 
         context("fetchByEntryId") {
             test("should return all revisions associated with the entry id") {
-
             }
 
             test("should return empty list when the entry does not exist") {
@@ -138,7 +137,6 @@ class ExposedAppRevisionRepositorySpec : FunSpec() {
 
         context("fetchByAuthorId") {
             test("should return all revisions associated with the author id") {
-
             }
 
             test("should return empty list when the author does not exist") {

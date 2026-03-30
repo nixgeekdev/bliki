@@ -25,11 +25,12 @@ object EntryContributorTable : CompositeIdTable("entry_contributor") {
             onDelete = ReferenceOption.RESTRICT,
         ).entityId()
 
-    val profileId = reference(
-        name = "profile_id",
-        refColumn = ProfileTable.id,
-        onDelete = ReferenceOption.RESTRICT,
-    ).entityId()
+    val profileId =
+        reference(
+            name = "profile_id",
+            refColumn = ProfileTable.id,
+            onDelete = ReferenceOption.RESTRICT,
+        ).entityId()
 
     override val primaryKey = PrimaryKey(entryId, profileId)
 }

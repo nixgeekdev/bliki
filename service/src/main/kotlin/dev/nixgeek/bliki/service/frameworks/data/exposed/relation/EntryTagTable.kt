@@ -26,7 +26,7 @@ object EntryTagTable : CompositeIdTable("entry_tag") {
         reference(
             name = "entry_id",
             refColumn = EntryTable.id,
-            onDelete = ReferenceOption.RESTRICT
+            onDelete = ReferenceOption.RESTRICT,
         ).entityId()
 
     /**
@@ -37,7 +37,7 @@ object EntryTagTable : CompositeIdTable("entry_tag") {
         reference(
             name = "tag_id",
             refColumn = TagTable.id,
-            onDelete = ReferenceOption.RESTRICT
+            onDelete = ReferenceOption.RESTRICT,
         ).entityId()
 
     /**
