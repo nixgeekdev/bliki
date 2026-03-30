@@ -23,6 +23,10 @@ object Constants {
         const val TITLE_02 = "Getting Started"
         const val TITLE_03 = "Bliki in 5 Minutes"
 
+        const val SLUG_01 = "welcome-to-bliki"
+        const val SLUG_02 = "getting-started"
+        const val SLUG_03 = "bliki-in-5-minutes"
+
         const val CONTENT_01 = """
             # Welcome to Bliki
 
