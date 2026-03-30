@@ -41,8 +41,8 @@ class ExposedAdminRevisionRepository(
         txMono(DatabaseTarget.ADMIN) {
             RevisionTable
                 .upsertReturning(RevisionTable.id) {
-                    if (revision.id == null) {
-                        RevisionTable.id to revision.id
+                    if (revision.id != null) {
+                        it[RevisionTable.id] = revision.id.toString()
                     }
                     it[RevisionTable.entryId] = revision.entryId.toString()
                     it[RevisionTable.authorId] = revision.authorId.toString()
