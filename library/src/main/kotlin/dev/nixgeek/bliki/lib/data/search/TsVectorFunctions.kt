@@ -31,11 +31,18 @@ fun Table.tsvector(
 
                 append(
                     when (columns.size) {
-                        0 -> "''"
-                        1 -> renderTsvectorColumn(columns.first())
-                        else ->
+                        0 -> {
+                            "''"
+                        }
+
+                        1 -> {
+                            renderTsvectorColumn(columns.first())
+                        }
+
+                        else -> {
                             columns
                                 .joinToString(" || ' ' || ") { renderTsvectorColumn(it) }
+                        }
                     },
                 )
 
