@@ -22,6 +22,9 @@ import ulid.ULID
  * Mono wrappers for database transactions.
  *
  * @property dbProvider The database provider used to access the admin database
+ * @see AdminIdentityRepository
+ * @see IdentityTable
+ * @see Identity
  */
 @Component
 class ExposedAdminIdentityRepository(

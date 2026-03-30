@@ -1,5 +1,6 @@
 package dev.nixgeek.bliki.service.frameworks.data.exposed.relation
 
+import org.jetbrains.exposed.v1.core.ReferenceOption
 import org.jetbrains.exposed.v1.core.dao.id.CompositeIdTable
 
 /**
@@ -21,13 +22,23 @@ object EntryTagTable : CompositeIdTable("entry_tag") {
      * Foreign key reference to the entry in the entry-tag relationship.
      * Part of the composite primary key.
      */
-    val entryId = reference("entry_id", EntryTable.id).entityId()
+    val entryId =
+        reference(
+            name = "entry_id",
+            refColumn = EntryTable.id,
+            onDelete = ReferenceOption.RESTRICT,
+        ).entityId()
 
     /**
      * Foreign key reference to the tag in the entry-tag relationship.
      * Part of the composite primary key.
      */
-    val tagId = reference("tag_id", TagTable.id).entityId()
+    val tagId =
+        reference(
+            name = "tag_id",
+            refColumn = TagTable.id,
+            onDelete = ReferenceOption.RESTRICT,
+        ).entityId()
 
     /**
      * Composite primary key constraint ensuring each entry-tag pairing is unique.

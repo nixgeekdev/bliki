@@ -85,7 +85,7 @@ object BlikiTable : AbstractULIDTable("bliki") {
         reference(
             name = "author_id",
             refColumn = ProfileTable.id,
-            onDelete = ReferenceOption.RESTRICT,
+            onDelete = ReferenceOption.SET_NULL,
         )
 
     /**
@@ -99,7 +99,7 @@ object BlikiTable : AbstractULIDTable("bliki") {
         reference(
             name = "generator_id",
             refColumn = GeneratorTable.id,
-            onDelete = ReferenceOption.RESTRICT,
+            onDelete = ReferenceOption.SET_NULL,
         )
 
     /**

@@ -6,26 +6,70 @@ object Constants {
         const val TITLE_02 = "Another Bliki"
         const val TITLE_03 = "Yet Another Bliki"
         const val TITLE_04 = "Bliki 4"
+
         const val SUBTITLE = "A cross between a blog and a wiki"
         const val RIGHTS = "Copyright 2026 nixgeek.dev"
         const val BASE_URI = "https://example.test/bliki"
         const val LANG = "en/US"
     }
 
+    object Entry {
+        const val LANG = "en/US"
+        const val CONTENT_TYPE = "text/markdown"
+        const val VISIBILITY = "PUBLIC"
+        const val STATUS = "PUBLISHED"
+
+        const val TITLE_01 = "Welcome to Bliki"
+        const val TITLE_02 = "Getting Started"
+        const val TITLE_03 = "Bliki in 5 Minutes"
+
+        const val SLUG_01 = "welcome-to-bliki"
+        const val SLUG_02 = "getting-started"
+        const val SLUG_03 = "bliki-in-5-minutes"
+
+        const val CONTENT_01 = """
+            # Welcome to Bliki
+
+            This is a sample Bliki page.
+        """
+        const val CONTENT_02 = """
+            # Getting Started
+
+            Here's how you do things in the Bliki application:
+
+            1. Create a new Bliki
+            2. Write some content
+            3. Publish it!
+        """
+        const val CONTENT_03 = """
+            # Bliki in 5 Minutes
+
+            Follow these steps to get started with Bliki:
+
+            1. Sign up for an account
+            2. Create a new Bliki
+            3. Start writing
+            4. Publish your Bliki
+        """
+    }
+
     object Generator {
         const val NAME_01 = "Bliki Generator"
         const val NAME_02 = "Bliki Generator Pro"
         const val NAME_03 = "Bliki Generator Enterprise"
-        const val URI = "https://example.com/bliki-generator"
+
         const val VERSION_01 = "1.2.3"
         const val VERSION_02 = "3.2.1"
         const val VERSION_03 = "2.3.4"
+
+        const val URI = "https://example.com/bliki-generator"
     }
 
     object Identity {
         const val EMAIL_01 = "test@example.com"
         const val EMAIL_02 = "john.doe@example.com"
         const val EMAIL_03 = "jane.doe@example.com"
+
         const val HASH_01 = $$"{bcrypt}$2a$10$egsoWMzDrqR3aaE2oqpDJ.G9.ljiWVKmhH6Sbf0lFt583wW1SImkW"
         const val HASH_02 = $$"{bcrypt}$2a$10$9aB242Y0FJyxaKhuimUjPOUxq1qYmjtVihJRPa6hXL0nGvWMYyxka"
         const val HASH_03 = $$"{bcrypt}$2a$10$.Ghl.FxRyEpGQS51QKL4wedUa6pe/38fs6Gc9m9uC14MdDjEfMPsK"
@@ -35,19 +79,53 @@ object Constants {
         const val NAME_01 = "Bliki User"
         const val NAME_02 = "Bliki Admin"
         const val NAME_03 = "Bliki Contributor"
+
         const val AFFILIATION_01 = "Bliki Inc."
         const val AFFILIATION_02 = "NixGeek Dev Team"
         const val AFFILIATION_03 = "Open Source Community"
     }
 
+    object Revision {
+        const val EVENT = "UPDATED"
+
+        const val SUMMARY_01 = "Added footer"
+        const val SUMMARY_02 = "Updated body"
+        const val SUMMARY_03 = "Removed footer"
+
+        const val DIFF_01 = """
+            --- original
+            +++ revised
+            @@ -1,2 +1,3 @@
+             Title
+             Body
+            +Footer
+        """
+        const val DIFF_02 = """
+            --- original
+            +++ revised
+            @@ -1,3 +1,3 @@
+             Title
+            -Original body
+            +Updated body
+             Footer
+        """
+        const val DIFF_03 = """
+            --- original
+            +++ revised
+            @@ -1,3 +1,2 @@
+             Title
+             Body
+            -Footer
+        """
+    }
+
     object Role {
         const val ROLE_01 = "ADMIN"
-        const val LABEL_01 = "Administrator"
-
         const val ROLE_02 = "AUTHOR"
-        const val LABEL_02 = "Author"
-
         const val ROLE_03 = "EDITOR"
+
+        const val LABEL_01 = "Administrator"
+        const val LABEL_02 = "Author"
         const val LABEL_03 = "Editor"
     }
 }

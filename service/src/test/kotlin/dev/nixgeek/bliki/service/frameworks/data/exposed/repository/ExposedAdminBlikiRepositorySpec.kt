@@ -9,9 +9,7 @@ import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.GeneratorTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.IdentityTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.ProfileTable
 import dev.nixgeek.bliki.service.test.fixtures.data.insertBliki
-import dev.nixgeek.bliki.service.test.fixtures.data.insertGenerator
-import dev.nixgeek.bliki.service.test.fixtures.data.insertIdentity
-import dev.nixgeek.bliki.service.test.fixtures.data.insertProfile
+import dev.nixgeek.bliki.service.test.fixtures.data.setupBlikiSimpleFixtures
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -63,26 +61,15 @@ class ExposedAdminBlikiRepositorySpec : FunSpec() {
 
         context("save") {
             test("should insert a new bliki when the id is provided") {
-                val blikiId = ULID.StatefulMonotonic().nextULID()
-                val generatorId = ULID.StatefulMonotonic().nextULID()
-                val identityId = insertIdentity(db.requireDatabase())
-                val profileId = insertProfile(db.requireDatabase(), identityId)
-
-                insertGenerator(
-                    db = db.requireDatabase(),
-                    id = generatorId,
-                    name = LocalConstants.Generator.NAME_03,
-                    version = LocalConstants.Generator.VERSION_03,
-                    uri = LocalConstants.Generator.URI,
-                )
+                val identifiers = setupBlikiSimpleFixtures(db.requireDatabase())
 
                 val result =
                     repository
                         .save(
                             Bliki(
-                                id = blikiId,
-                                generatorId = generatorId,
-                                authorId = profileId,
+                                id = identifiers.blikiId,
+                                generatorId = identifiers.generatorId!!,
+                                authorId = identifiers.profileId!!,
                                 title = LocalConstants.Bliki.TITLE_01,
                                 rights = LocalConstants.Bliki.RIGHTS,
                                 baseUri = LocalConstants.Bliki.BASE_URI,
@@ -91,13 +78,13 @@ class ExposedAdminBlikiRepositorySpec : FunSpec() {
                             ),
                         ).block()!!
 
-                result.id shouldBe blikiId
+                result.id shouldBe identifiers.blikiId
                 result.title shouldBe LocalConstants.Bliki.TITLE_01
                 result.rights shouldBe LocalConstants.Bliki.RIGHTS
                 result.baseUri shouldBe LocalConstants.Bliki.BASE_URI
                 result.lang shouldBe LocalConstants.Bliki.LANG
-                result.generatorId shouldBe generatorId
-                result.authorId shouldBe profileId
+                result.generatorId shouldBe identifiers.generatorId
+                result.authorId shouldBe identifiers.profileId
 
                 val persisted =
                     transaction(db.requireDatabase()) {
@@ -112,29 +99,19 @@ class ExposedAdminBlikiRepositorySpec : FunSpec() {
                 persisted.rights shouldBe LocalConstants.Bliki.RIGHTS
                 persisted.baseUri shouldBe LocalConstants.Bliki.BASE_URI
                 persisted.lang shouldBe LocalConstants.Bliki.LANG
-                persisted.generatorId shouldBe generatorId
-                persisted.authorId shouldBe profileId
+                persisted.generatorId shouldBe identifiers.generatorId
+                persisted.authorId shouldBe identifiers.profileId
             }
 
             test("should insert a new bliki when the id is null") {
-                val generatorId = ULID.StatefulMonotonic().nextULID()
-                val identityId = insertIdentity(db.requireDatabase())
-                val profileId = insertProfile(db.requireDatabase(), identityId)
-
-                insertGenerator(
-                    db = db.requireDatabase(),
-                    id = generatorId,
-                    name = LocalConstants.Generator.NAME_01,
-                    version = LocalConstants.Generator.VERSION_01,
-                    uri = LocalConstants.Generator.URI,
-                )
+                val identifiers = setupBlikiSimpleFixtures(db.requireDatabase())
 
                 val result =
                     repository
                         .save(
                             Bliki(
-                                generatorId = generatorId,
-                                authorId = profileId,
+                                generatorId = identifiers.generatorId!!,
+                                authorId = identifiers.profileId!!,
                                 title = LocalConstants.Bliki.TITLE_02,
                                 rights = LocalConstants.Bliki.RIGHTS,
                                 baseUri = LocalConstants.Bliki.BASE_URI,
@@ -148,8 +125,8 @@ class ExposedAdminBlikiRepositorySpec : FunSpec() {
                 result.rights shouldBe LocalConstants.Bliki.RIGHTS
                 result.baseUri shouldBe LocalConstants.Bliki.BASE_URI
                 result.lang shouldBe LocalConstants.Bliki.LANG
-                result.generatorId shouldBe generatorId
-                result.authorId shouldBe profileId
+                result.generatorId shouldBe identifiers.generatorId
+                result.authorId shouldBe identifiers.profileId
 
                 val persisted =
                     transaction(db.requireDatabase()) {
@@ -164,31 +141,20 @@ class ExposedAdminBlikiRepositorySpec : FunSpec() {
                 persisted.rights shouldBe LocalConstants.Bliki.RIGHTS
                 persisted.baseUri shouldBe LocalConstants.Bliki.BASE_URI
                 persisted.lang shouldBe LocalConstants.Bliki.LANG
-                persisted.generatorId shouldBe generatorId
-                persisted.authorId shouldBe profileId
+                persisted.generatorId shouldBe identifiers.generatorId
+                persisted.authorId shouldBe identifiers.profileId
             }
 
             test("should update an existing bliki when the id already exists") {
-                val blikiId = ULID.StatefulMonotonic().nextULID()
-                val generatorId = ULID.StatefulMonotonic().nextULID()
-                val identityId = insertIdentity(db.requireDatabase())
-                val profileId = insertProfile(db.requireDatabase(), identityId)
+                val identifiers = setupBlikiSimpleFixtures(db.requireDatabase())
                 val originalInstant = Instant.parse("2026-01-01T00:00:00.000Z")
-
-                insertGenerator(
-                    db = db.requireDatabase(),
-                    id = generatorId,
-                    name = LocalConstants.Generator.NAME_02,
-                    version = LocalConstants.Generator.VERSION_02,
-                    uri = LocalConstants.Generator.URI,
-                )
 
                 val existing =
                     insertBliki(
                         db = db.requireDatabase(),
-                        blikiId = blikiId,
-                        generatorId = generatorId,
-                        authorId = profileId,
+                        blikiId = identifiers.blikiId!!,
+                        generatorId = identifiers.generatorId!!,
+                        authorId = identifiers.profileId!!,
                         title = LocalConstants.Bliki.TITLE_03,
                         updatedAt = originalInstant,
                     )
@@ -214,35 +180,24 @@ class ExposedAdminBlikiRepositorySpec : FunSpec() {
 
         context("delete") {
             test("should delete and return the matching bliki when it exists") {
-                val blikiId = ULID.StatefulMonotonic().nextULID()
-                val generatorId = ULID.StatefulMonotonic().nextULID()
-                val identityId = insertIdentity(db.requireDatabase())
-                val profileId = insertProfile(db.requireDatabase(), identityId)
-
-                insertGenerator(
-                    db = db.requireDatabase(),
-                    id = generatorId,
-                    name = LocalConstants.Generator.NAME_01,
-                    version = LocalConstants.Generator.VERSION_01,
-                    uri = LocalConstants.Generator.URI,
-                )
+                val identifiers = setupBlikiSimpleFixtures(db.requireDatabase())
 
                 insertBliki(
                     db = db.requireDatabase(),
-                    blikiId = blikiId,
-                    generatorId = generatorId,
-                    authorId = profileId,
+                    blikiId = identifiers.blikiId!!,
+                    generatorId = identifiers.generatorId!!,
+                    authorId = identifiers.profileId!!,
                 )
 
-                val result = repository.delete(blikiId).block()!!
+                val result = repository.delete(identifiers.blikiId).block()!!
 
-                result.id shouldBe blikiId
+                result.id shouldBe identifiers.blikiId
                 result.title shouldBe "My Bliki"
                 result.rights shouldBe "Copyright 2026 nixgeek.dev"
                 result.baseUri shouldBe "https://example.test/bliki"
                 result.lang shouldBe "en/US"
-                result.generatorId shouldBe generatorId
-                result.authorId shouldBe profileId
+                result.generatorId shouldBe identifiers.generatorId
+                result.authorId shouldBe identifiers.profileId
 
                 val persisted =
                     transaction(db.requireDatabase()) {

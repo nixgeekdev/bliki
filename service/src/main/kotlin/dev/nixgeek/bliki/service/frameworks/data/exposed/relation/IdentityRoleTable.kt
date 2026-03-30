@@ -1,5 +1,7 @@
 package dev.nixgeek.bliki.service.frameworks.data.exposed.relation
 
+import dev.nixgeek.bliki.service.domain.repository.AdminIdentitySecurityRepository
+import org.jetbrains.exposed.v1.core.ReferenceOption
 import org.jetbrains.exposed.v1.core.dao.id.CompositeIdTable
 
 /**
@@ -21,13 +23,23 @@ object IdentityRoleTable : CompositeIdTable("identity_roles") {
      * Foreign key reference to the identity in the [IdentityTable].
      * Part of the composite primary key.
      */
-    val identityId = reference("identity_id", IdentityTable.id)
+    val identityId =
+        reference(
+            name = "identity_id",
+            refColumn = IdentityTable.id,
+            onDelete = ReferenceOption.RESTRICT,
+        )
 
     /**
      * Foreign key reference to the role in the [RoleTable].
      * Part of the composite primary key.
      */
-    val roleId = reference("role_id", RoleTable.id)
+    val roleId =
+        reference(
+            name = "role_id",
+            refColumn = RoleTable.id,
+            onDelete = ReferenceOption.RESTRICT,
+        )
 
     /**
      * Composite primary key consisting of both [identityId] and [roleId].

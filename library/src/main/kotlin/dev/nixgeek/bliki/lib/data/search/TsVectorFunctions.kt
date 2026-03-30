@@ -8,8 +8,50 @@ import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.stringLiteral
 
-fun Table.tsvector(name: String): Column<String> =
+fun Table.tsvector(
+    name: String,
+    language: String? = "english",
+    vararg columns: Column<*>,
+): Column<String> =
     registerColumn(name, TsVectorColumnType())
+        .databaseGenerated()
+        .withDefinition(
+            buildString {
+                append("GENERATED ALWAYS AS")
+                append(" ")
+                append("(")
+                append("to_tsvector")
+                append("(")
+
+                val config = language?.takeIf { it.isNotBlank() } ?: "simple"
+                append("'$config'")
+
+                append(",")
+                append(" ")
+
+                append(
+                    when (columns.size) {
+                        0 -> {
+                            "''"
+                        }
+
+                        1 -> {
+                            renderTsvectorColumn(columns.first())
+                        }
+
+                        else -> {
+                            columns
+                                .joinToString(" || ' ' || ") { renderTsvectorColumn(it) }
+                        }
+                    },
+                )
+
+                append(")")
+                append(")")
+                append(" ")
+                append("STORED")
+            },
+        )
 
 fun plainToTsQuery(
     config: String,
@@ -48,3 +90,6 @@ fun tsRank(
         vector,
         query,
     )
+
+internal fun renderTsvectorColumn(column: Column<*>): String =
+    "coalesce(${column.name}::text, '')"

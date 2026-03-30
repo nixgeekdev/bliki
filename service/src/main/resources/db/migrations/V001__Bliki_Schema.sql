@@ -76,7 +76,7 @@ create table if not exists roles
 create table if not exists profile
 (
     id          ulid primary key   default gen_monotonic_ulid(),
-    identity_id ulid      not null references "identity" on delete restrict,
+    identity_id ulid      not null references "identity" on delete set null,
     full_name   text      not null,
     affiliation text      null, -- company or institution
     created_at  timestamp null default now(),
@@ -103,22 +103,22 @@ create table if not exists bliki
     icon_uri     text      null,
     logo_uri     text      null,
     lang         text      not null,
-    author_id    ulid      not null references profile on delete restrict,
-    generator_id ulid      not null references generator on delete restrict,
+    author_id    ulid      not null references profile on delete set null,
+    generator_id ulid      not null references generator on delete set null,
     updated_at   timestamp null default now()
 );
 
 create table if not exists entry
 (
     id           ulid primary key            default gen_monotonic_ulid(),
-    bliki_id     ulid               not null references bliki on delete restrict,
+    bliki_id     ulid               not null references bliki on delete set null,
     title        text               not null,
     slug         varchar(128)       not null unique,
     content      text               not null,
     summary      text               null,
     lang         text               not null,
     content_type entry_content_type not null,
-    author_id    ulid               not null references profile on delete restrict,
+    author_id    ulid               not null references profile on delete set null,
     visibility   entry_visibility   not null default 'PRIVATE',
     status       entry_status       not null default 'DRAFT',
     published_at timestamp          null,
@@ -144,8 +144,8 @@ create table if not exists tag
 create table if not exists revision
 (
     id         ulid primary key     default gen_monotonic_ulid(),
-    entry_id   ulid        not null references entry on delete restrict,
-    author_id  ulid        not null references profile on delete restrict,
+    entry_id   ulid        not null references entry on delete set null,
+    author_id  ulid        not null references profile on delete set null,
     diff       text        not null,
     summary    text        null,
     event      entry_event not null default 'CREATED',

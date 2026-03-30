@@ -46,7 +46,7 @@ object EntryTable : AbstractULIDTable("entry") {
         reference(
             name = "bliki_id",
             refColumn = BlikiTable.id,
-            onDelete = ReferenceOption.RESTRICT,
+            onDelete = ReferenceOption.SET_NULL,
         )
 
     /** The title/heading of the blog entry. */
@@ -83,7 +83,7 @@ object EntryTable : AbstractULIDTable("entry") {
         reference(
             name = "author_id",
             refColumn = ProfileTable.id,
-            onDelete = ReferenceOption.RESTRICT,
+            onDelete = ReferenceOption.SET_NULL,
         )
 
     /**
@@ -121,7 +121,7 @@ object EntryTable : AbstractULIDTable("entry") {
      * PostgreSQL tsvector column for full-text search functionality.
      * Automatically generated and maintained by the database via triggers.
      */
-    val searchVector = tsvector("search_vector").databaseGenerated()
+    val searchVector = tsvector("search_vector", "english", title, content)
 
     init {
         check("chk_entry_slug_not_empty") {
