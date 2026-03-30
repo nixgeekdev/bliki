@@ -121,7 +121,7 @@ object EntryTable : AbstractULIDTable("entry") {
      * PostgreSQL tsvector column for full-text search functionality.
      * Automatically generated and maintained by the database via triggers.
      */
-    val searchVector = tsvector("search_vector").databaseGenerated()
+    val searchVector = tsvector("search_vector")
 
     init {
         check("chk_entry_slug_not_empty") {
