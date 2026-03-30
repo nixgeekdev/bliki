@@ -296,18 +296,8 @@ internal fun setupBlikiCustomFixtures(
     )
 }
 
-internal fun setupRevisionSimpleFixtures(db: Database): Identifiers =
-    setupRevisionCustomFixtures(
-        db = db,
-        revisionId = ULID.StatefulMonotonic().nextULID(),
-        entryId = ULID.StatefulMonotonic().nextULID(),
-    )
-
-internal fun setupRevisionCustomFixtures(
-    db: Database,
-    revisionId: ULID,
-    entryId: ULID,
-): Identifiers {
+internal fun setupRevisionSimpleFixtures(db: Database): Identifiers {
+    val entryId = ULID.StatefulMonotonic().nextULID()
     val blikiId = ULID.StatefulMonotonic().nextULID()
     val generatorId = ULID.StatefulMonotonic().nextULID()
     val identityId = insertIdentity(db)
@@ -329,9 +319,18 @@ internal fun setupRevisionCustomFixtures(
         title = LocalConstants.Bliki.TITLE_01,
     )
 
+    insertEntry(
+        db = db,
+        id = entryId,
+        blikiId = blikiId,
+        authorId = profileId,
+        title = LocalConstants.Entry.TITLE_01,
+        slug = LocalConstants.Entry.SLUG_01,
+        content = LocalConstants.Entry.CONTENT_01,
+    )
+
     return Identifiers(
         entryId = entryId,
-        revisionId = revisionId,
         blikiId = blikiId,
         generatorId = generatorId,
         profileId = profileId,
