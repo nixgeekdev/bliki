@@ -24,15 +24,16 @@ private val log = KotlinLogging.logger(ApplicationConfiguration::class.java.cano
 @Configuration
 @EnableConfigurationProperties(value = [ApplicationProperties::class])
 class ApplicationConfiguration {
-    companion object{
-        private val markdownExtensions = listOf(
-            AutolinkExtension.create(),
-            HeadingAnchorExtension.create(),
-            ImageAttributesExtension.create(),
-            StrikethroughExtension.create(),
-            TablesExtension.create(),
-            TaskListItemsExtension.create(),
-        )
+    companion object {
+        private val markdownExtensions =
+            listOf(
+                AutolinkExtension.create(),
+                HeadingAnchorExtension.create(),
+                ImageAttributesExtension.create(),
+                StrikethroughExtension.create(),
+                TablesExtension.create(),
+                TaskListItemsExtension.create(),
+            )
     }
 
     init {

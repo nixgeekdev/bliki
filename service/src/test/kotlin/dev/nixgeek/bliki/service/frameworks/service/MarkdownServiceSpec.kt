@@ -50,7 +50,8 @@ class MarkdownServiceSpec : FunSpec({
         val renderer = HtmlRenderer.builder().build()
         val service = MarkdownService(parser, renderer)
 
-        val markdown = """
+        val markdown =
+            """
             # Main Title
 
             This is **bold** and *italic* text.
@@ -65,7 +66,7 @@ class MarkdownServiceSpec : FunSpec({
             ```kotlin
             val x = 42
             ```
-        """.trimIndent()
+            """.trimIndent()
 
         val html = service.render(service.parse(markdown))
 
