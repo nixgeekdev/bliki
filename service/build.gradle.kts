@@ -37,6 +37,7 @@ dependencies {
     listOf(
         projects.library,
         libs.bundles.kotlin,
+        libs.bundles.commonmark,
         libs.bundles.coroutines,
         libs.bundles.database,
         libs.bundles.jackson,
