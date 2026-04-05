@@ -40,8 +40,9 @@ jobs:
       - name: Run build + tests
         run: ./gradlew build --parallel -Dorg.gradle.workers.max=5
 
-#      - name: Publish Test Results
-#        uses: EnricoMi/publish-unit-test-result-action@v2.23.0
-#        if: (!cancelled())
-#        with:
-#          files: '**/build/test-results/**/*.xml'
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2.23.0
+        if: (!cancelled())
+        with:
+          files: '**/build/test-results/**/*.xml'
+          check_name: "🚀 Unit Test Results"
