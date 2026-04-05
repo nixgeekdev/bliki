@@ -16,6 +16,6 @@ data class Entry(
     val visibility: EntryVisibility = EntryVisibility.PRIVATE,
     val status: EntryStatus = EntryStatus.DRAFT,
     val publishedAt: Instant? = null,
-    val createdAt: Instant?,
-    val updatedAt: Instant?,
+    val createdAt: Instant? = null,
+    val updatedAt: Instant? = null,
 )

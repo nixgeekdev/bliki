@@ -10,5 +10,5 @@ data class Revision(
     val diff: String,
     val summary: String? = null,
     val event: EntryEvent = EntryEvent.CREATED,
-    val createdAt: Instant?,
+    val createdAt: Instant? = null,
 )

@@ -12,8 +12,8 @@ data class Identity(
     val id: ULID? = null,
     val email: String,
     val passwordHash: String,
-    val createdAt: Instant?,
-    val updatedAt: Instant?,
+    val createdAt: Instant? = null,
+    val updatedAt: Instant? = null,
 ) {
     fun toPublicIdentity(): PublicIdentity =
         PublicIdentity(
