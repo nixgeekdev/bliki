@@ -14,5 +14,5 @@ interface AppRolesRepository : ReactorContextAwareRepository {
 
     fun fetchByIdentityId(identityId: ULID): Flux<Role>
 
-    fun fetchIdentitiesByRole(role: String): Flux<Identity>
+    fun fetchIdentitiesByRoleId(roleId: ULID): Flux<Identity>
 }

@@ -26,7 +26,9 @@ import ulid.ULID
  * @property dbProvider The database provider used for transaction management
  */
 @Component
-class ExposedAppRolesRepository(override val dbProvider: DatabaseProvider) : AppRolesRepository {
+class ExposedAppRolesRepository(
+    override val dbProvider: DatabaseProvider,
+) : AppRolesRepository {
     /**
      * Fetches all roles from the database.
      *
@@ -72,16 +74,15 @@ class ExposedAppRolesRepository(override val dbProvider: DatabaseProvider) : App
     /**
      * Fetches all identities that have been assigned a specific role.
      *
-     * @param role The role name to search for
+     * @param roleId The role id to search for
      * @return A [Flux] emitting all [Identity] entities that have the specified role
      */
-    override fun fetchIdentitiesByRole(role: String): Flux<Identity> =
+    override fun fetchIdentitiesByRoleId(roleId: ULID): Flux<Identity> =
         txFlux(DatabaseTarget.APP) {
-            RoleTable
-                .join(IdentityRoleTable, JoinType.INNER, RoleTable.id, IdentityRoleTable.roleId)
+            IdentityRoleTable
                 .join(IdentityTable, JoinType.INNER, IdentityRoleTable.identityId, IdentityTable.id)
                 .selectAll()
-                .where { RoleTable.role eq role }
+                .where { IdentityRoleTable.roleId eq roleId.toString() }
                 .map { it.toIdentityModel() }
         }
 }

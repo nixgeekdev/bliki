@@ -29,17 +29,11 @@ class FakeAppRolesRepository(
                 .mapNotNull { cache[it.first] }
         }
 
-    override fun fetchIdentitiesByRole(role: String): Flux<Identity> =
+    override fun fetchIdentitiesByRoleId(roleId: ULID): Flux<Identity> =
         blockingFlux {
-            // Find the role ID from cache by role name
-            val roleId = cache.values.firstOrNull { it.role.name == role }?.id
-
-            // If role exists, find all identities mapped to that role
-            roleId?.let { rId ->
-                roleIdToIdentityId.values
-                    .filter { it.first == rId }
-                    .mapNotNull { identities[it.second] }
-            } ?: emptyList()
+            roleIdToIdentityId.values
+                .filter { it.first == roleId }
+                .mapNotNull { identities[it.second] }
         }
 
     override fun create(record: Role): Role {
