@@ -57,12 +57,12 @@ class ExposedAppRolesRepositorySpec : FunSpec() {
 
         context("fetchAll") {
             test("should return all roles") {
-                val identifiers = setupRoleMultipleFixtures(db.requireDatabase())
+                val roleIds = setupRoleMultipleFixtures(db.requireDatabase()).roles
 
                 val result = repository.fetchAll().collectList().block()!!
 
                 result shouldHaveSize 3
-                result.map { it.id } shouldBe identifiers.roles.map { it }
+                result.map { it.id.toString() } shouldBe roleIds.map { it.toString() }
             }
         }
 
