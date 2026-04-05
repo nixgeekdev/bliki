@@ -9,6 +9,7 @@ import dev.nixgeek.bliki.service.domain.model.EntryVisibility
 import dev.nixgeek.bliki.service.domain.model.Identity
 import dev.nixgeek.bliki.service.domain.model.Profile
 import dev.nixgeek.bliki.service.domain.model.Revision
+import dev.nixgeek.bliki.service.domain.model.Role
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.BlikiTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.EntryTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.GeneratorTable
@@ -22,7 +23,9 @@ import dev.nixgeek.bliki.service.frameworks.data.exposed.repository.toEntryModel
 import dev.nixgeek.bliki.service.frameworks.data.exposed.repository.toIdentityModel
 import dev.nixgeek.bliki.service.frameworks.data.exposed.repository.toProfileModel
 import dev.nixgeek.bliki.service.frameworks.data.exposed.repository.toRevisionModel
+import dev.nixgeek.bliki.service.frameworks.data.exposed.repository.toRoleModel
 import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.batchInsert
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.insertReturning
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -239,15 +242,16 @@ internal fun insertRole(
     id: ULID,
     role: String,
     label: String,
-) {
+): Role =
     transaction(db) {
-        RoleTable.insert {
-            it[RoleTable.id] = id.toString()
-            it[RoleTable.role] = role
-            it[RoleTable.label] = label
-        }
+        RoleTable
+            .insertReturning {
+                it[RoleTable.id] = id.toString()
+                it[RoleTable.role] = role
+                it[RoleTable.label] = label
+            }.single()
+            .toRoleModel()
     }
-}
 
 internal fun assignRole(
     db: Database,
@@ -388,3 +392,51 @@ internal fun setupRevisionSimpleFixtures(db: Database): Identifiers {
     )
 }
 
+internal fun setupRoleSimpleFixtures(db: Database): Identifiers {
+    val role = insertRole(
+        db = db,
+        id = ULID.StatefulMonotonic().nextULID(),
+        role = LocalConstants.Role.ROLE_01,
+        label = LocalConstants.Role.LABEL_01,
+    )
+    return Identifiers(
+        roleId = role.id,
+    )
+}
+
+internal fun setupRoleMultipleFixtures(db: Database): Identifiers {
+    val role01 = insertRole(
+        db = db,
+        id = ULID.StatefulMonotonic().nextULID(),
+        role = LocalConstants.Role.ROLE_01,
+        label = LocalConstants.Role.LABEL_01,
+    )
+    val role02 = insertRole(
+        db = db,
+        id = ULID.StatefulMonotonic().nextULID(),
+        role = LocalConstants.Role.ROLE_02,
+        label = LocalConstants.Role.LABEL_02,
+    )
+    val role03 = insertRole(
+        db = db,
+        id = ULID.StatefulMonotonic().nextULID(),
+        role = LocalConstants.Role.ROLE_03,
+        label = LocalConstants.Role.LABEL_03,
+    )
+    return Identifiers(
+        roles = listOf(role01.id!!, role02.id!!, role03.id!!)
+    )
+}
+
+internal fun assignRolesToIdentity(
+    db: Database,
+    identityId: ULID,
+    roles: List<ULID>,
+) {
+    transaction(db) {
+        IdentityRoleTable.batchInsert(roles) { roleId ->
+            this[IdentityRoleTable.identityId] = identityId.toString()
+            this[IdentityRoleTable.roleId] = roleId.toString()
+        }
+    }
+}
