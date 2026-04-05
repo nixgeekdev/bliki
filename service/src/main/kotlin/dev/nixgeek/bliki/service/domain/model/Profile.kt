@@ -8,8 +8,8 @@ data class Profile(
     val identityId: ULID,
     val fullName: String,
     val affiliation: String? = null,
-    val createdAt: Instant?,
-    val updatedAt: Instant?,
+    val createdAt: Instant? = null,
+    val updatedAt: Instant? = null,
 ) {
     fun toPublicProfile(): PublicProfile =
         PublicProfile(

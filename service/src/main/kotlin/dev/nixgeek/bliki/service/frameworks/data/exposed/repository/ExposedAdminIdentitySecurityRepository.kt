@@ -90,7 +90,7 @@ class ExposedAdminIdentitySecurityRepository(
      * @return A [Mono] emitting the [SecureIdentity] if found, or an empty Mono if no identity
      *         exists with the specified email address
      */
-    override fun findByEmail(email: String): Mono<SecureIdentity> =
+    override fun fetchByEmail(email: String): Mono<SecureIdentity> =
         txMono(DatabaseTarget.ADMIN) {
             IdentityTable
                 .selectAll()
@@ -116,7 +116,7 @@ class ExposedAdminIdentitySecurityRepository(
      * @return A [Flux] emitting all [SecureRole] objects assigned to the identity, or an empty
      *         Flux if the identity has no roles assigned
      */
-    override fun findRolesByIdentityId(identityId: ULID): Flux<SecureRole> =
+    override fun fetchRolesByIdentityId(identityId: ULID): Flux<SecureRole> =
         txFlux(DatabaseTarget.ADMIN) {
             IdentityTable
                 .join(IdentityRoleTable, JoinType.INNER, IdentityTable.id, IdentityRoleTable.identityId)

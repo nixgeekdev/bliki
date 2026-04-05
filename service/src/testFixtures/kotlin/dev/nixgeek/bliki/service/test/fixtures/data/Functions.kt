@@ -9,6 +9,7 @@ import dev.nixgeek.bliki.service.domain.model.EntryVisibility
 import dev.nixgeek.bliki.service.domain.model.Identity
 import dev.nixgeek.bliki.service.domain.model.Profile
 import dev.nixgeek.bliki.service.domain.model.Revision
+import dev.nixgeek.bliki.service.domain.model.Role
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.BlikiTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.EntryTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.GeneratorTable
@@ -22,7 +23,9 @@ import dev.nixgeek.bliki.service.frameworks.data.exposed.repository.toEntryModel
 import dev.nixgeek.bliki.service.frameworks.data.exposed.repository.toIdentityModel
 import dev.nixgeek.bliki.service.frameworks.data.exposed.repository.toProfileModel
 import dev.nixgeek.bliki.service.frameworks.data.exposed.repository.toRevisionModel
+import dev.nixgeek.bliki.service.frameworks.data.exposed.repository.toRoleModel
 import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.batchInsert
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.insertReturning
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -36,9 +39,11 @@ internal data class Identifiers(
     val entryId: ULID? = null,
     val generatorId: ULID? = null,
     val identityId: ULID? = null,
+    val identities: List<ULID> = emptyList(),
     val profileId: ULID? = null,
     val revisionId: ULID? = null,
     val roleId: ULID? = null,
+    val roles: List<ULID> = emptyList(),
     val tagId: ULID? = null,
 )
 
@@ -238,15 +243,16 @@ internal fun insertRole(
     id: ULID,
     role: String,
     label: String,
-) {
+): Role =
     transaction(db) {
-        RoleTable.insert {
-            it[RoleTable.id] = id.toString()
-            it[RoleTable.role] = role
-            it[RoleTable.label] = label
-        }
+        RoleTable
+            .insertReturning {
+                it[RoleTable.id] = id.toString()
+                it[RoleTable.role] = role
+                it[RoleTable.label] = label
+            }.single()
+            .toRoleModel()
     }
-}
 
 internal fun assignRole(
     db: Database,
@@ -296,6 +302,55 @@ internal fun setupBlikiCustomFixtures(
     )
 }
 
+internal fun setupFindRolesByIdentitySimpleFixtures(
+    db: Database,
+    firstIdentityId: ULID,
+    secondIdentityId: ULID,
+): Identifiers {
+    val adminRoleId = ULID.StatefulMonotonic().nextULID()
+    val authorRoleId = ULID.StatefulMonotonic().nextULID()
+    val editorRoleId = ULID.StatefulMonotonic().nextULID()
+
+    insertRole(
+        db = db,
+        id = adminRoleId,
+        role = LocalConstants.Role.ROLE_01,
+        label = LocalConstants.Role.LABEL_01,
+    )
+    insertRole(
+        db = db,
+        id = authorRoleId,
+        role = LocalConstants.Role.ROLE_02,
+        label = LocalConstants.Role.LABEL_02,
+    )
+    insertRole(
+        db = db,
+        id = editorRoleId,
+        role = LocalConstants.Role.ROLE_03,
+        label = LocalConstants.Role.LABEL_03,
+    )
+
+    assignRole(
+        db = db,
+        identityId = firstIdentityId,
+        roleId = adminRoleId,
+    )
+    assignRole(
+        db = db,
+        identityId = firstIdentityId,
+        roleId = authorRoleId,
+    )
+    assignRole(
+        db = db,
+        identityId = secondIdentityId,
+        roleId = editorRoleId,
+    )
+
+    return Identifiers(
+        roles = listOf(adminRoleId, authorRoleId, editorRoleId),
+    )
+}
+
 internal fun setupRevisionSimpleFixtures(db: Database): Identifiers {
     val entryId = ULID.StatefulMonotonic().nextULID()
     val blikiId = ULID.StatefulMonotonic().nextULID()
@@ -336,4 +391,85 @@ internal fun setupRevisionSimpleFixtures(db: Database): Identifiers {
         profileId = profileId,
         identityId = identityId,
     )
+}
+
+internal fun setupRoleSimpleFixtures(db: Database): Identifiers {
+    val role =
+        insertRole(
+            db = db,
+            id = ULID.StatefulMonotonic().nextULID(),
+            role = LocalConstants.Role.ROLE_01,
+            label = LocalConstants.Role.LABEL_01,
+        )
+    return Identifiers(
+        roleId = role.id,
+    )
+}
+
+internal fun setupRoleMultipleFixtures(db: Database): Identifiers {
+    val role01 =
+        insertRole(
+            db = db,
+            id = ULID.StatefulMonotonic().nextULID(),
+            role = LocalConstants.Role.ROLE_01,
+            label = LocalConstants.Role.LABEL_01,
+        )
+    val role02 =
+        insertRole(
+            db = db,
+            id = ULID.StatefulMonotonic().nextULID(),
+            role = LocalConstants.Role.ROLE_02,
+            label = LocalConstants.Role.LABEL_02,
+        )
+    val role03 =
+        insertRole(
+            db = db,
+            id = ULID.StatefulMonotonic().nextULID(),
+            role = LocalConstants.Role.ROLE_03,
+            label = LocalConstants.Role.LABEL_03,
+        )
+    return Identifiers(
+        roles = listOf(role01.id!!, role02.id!!, role03.id!!),
+    )
+}
+
+internal fun setupRoleMultipleIdentitiesFixtures(db: Database): Identifiers {
+    val identityId01 =
+        insertIdentity(
+            db = db,
+            id = ULID.randomULID().toULID(),
+            email = LocalConstants.Identity.EMAIL_01,
+            passwordHash = LocalConstants.Identity.HASH_01,
+        ).id!!
+    val identityId02 =
+        insertIdentity(
+            db = db,
+            id = ULID.randomULID().toULID(),
+            email = LocalConstants.Identity.EMAIL_02,
+            passwordHash = LocalConstants.Identity.HASH_02,
+        ).id!!
+    val identityId03 =
+        insertIdentity(
+            db = db,
+            id = ULID.randomULID().toULID(),
+            email = LocalConstants.Identity.EMAIL_03,
+            passwordHash = LocalConstants.Identity.HASH_03,
+        ).id!!
+
+    return Identifiers(
+        identities = listOf(identityId01, identityId02, identityId03),
+    )
+}
+
+internal fun assignRolesToIdentity(
+    db: Database,
+    identityId: ULID,
+    roles: List<ULID>,
+) {
+    transaction(db) {
+        IdentityRoleTable.batchInsert(roles) { roleId ->
+            this[IdentityRoleTable.identityId] = identityId.toString()
+            this[IdentityRoleTable.roleId] = roleId.toString()
+        }
+    }
 }

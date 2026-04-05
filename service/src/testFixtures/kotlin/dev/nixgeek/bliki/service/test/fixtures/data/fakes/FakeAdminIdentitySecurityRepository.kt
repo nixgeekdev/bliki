@@ -16,10 +16,10 @@ class FakeAdminIdentitySecurityRepository(
     internal val identityIdToRoleId: ConcurrentHashMap<String, Pair<ULID, ULID>> = ConcurrentHashMap()
     internal val roles: ConcurrentHashMap<ULID, SecureRole> = ConcurrentHashMap()
 
-    override fun findByEmail(email: String): Mono<SecureIdentity> =
+    override fun fetchByEmail(email: String): Mono<SecureIdentity> =
         blockingMono { cache.values.firstOrNull { it.email == email } }
 
-    override fun findRolesByIdentityId(identityId: ULID): Flux<SecureRole> =
+    override fun fetchRolesByIdentityId(identityId: ULID): Flux<SecureRole> =
         blockingFlux {
             roles.values.filter { role ->
                 role.id in

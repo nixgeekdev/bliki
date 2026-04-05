@@ -7,8 +7,8 @@ data class Role(
     val id: ULID? = null,
     val role: IdentityRole,
     val label: String,
-    val createdAt: Instant?,
-    val updatedAt: Instant?,
+    val createdAt: Instant? = null,
+    val updatedAt: Instant? = null,
 ) {
     fun toPublicRole(): PublicRole =
         PublicRole(

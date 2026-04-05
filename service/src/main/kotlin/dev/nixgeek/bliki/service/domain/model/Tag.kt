@@ -10,8 +10,8 @@ data class Tag(
     val slug: String,
     val label: String? = null,
     val scheme: TagScheme? = null,
-    val createdAt: Instant?,
-    val updatedAt: Instant?,
+    val createdAt: Instant? = null,
+    val updatedAt: Instant? = null,
 ) {
     fun toPublicTag(): PublicTag =
         PublicTag(

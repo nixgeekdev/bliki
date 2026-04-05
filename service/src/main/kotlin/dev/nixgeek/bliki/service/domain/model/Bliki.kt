@@ -14,5 +14,5 @@ data class Bliki(
     val lang: String,
     val authorId: ULID,
     val generatorId: ULID,
-    val updatedAt: Instant?,
+    val updatedAt: Instant? = null,
 )
