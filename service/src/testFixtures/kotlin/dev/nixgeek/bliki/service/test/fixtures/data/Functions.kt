@@ -394,63 +394,70 @@ internal fun setupRevisionSimpleFixtures(db: Database): Identifiers {
 }
 
 internal fun setupRoleSimpleFixtures(db: Database): Identifiers {
-    val role = insertRole(
-        db = db,
-        id = ULID.StatefulMonotonic().nextULID(),
-        role = LocalConstants.Role.ROLE_01,
-        label = LocalConstants.Role.LABEL_01,
-    )
+    val role =
+        insertRole(
+            db = db,
+            id = ULID.StatefulMonotonic().nextULID(),
+            role = LocalConstants.Role.ROLE_01,
+            label = LocalConstants.Role.LABEL_01,
+        )
     return Identifiers(
         roleId = role.id,
     )
 }
 
 internal fun setupRoleMultipleFixtures(db: Database): Identifiers {
-    val role01 = insertRole(
-        db = db,
-        id = ULID.StatefulMonotonic().nextULID(),
-        role = LocalConstants.Role.ROLE_01,
-        label = LocalConstants.Role.LABEL_01,
-    )
-    val role02 = insertRole(
-        db = db,
-        id = ULID.StatefulMonotonic().nextULID(),
-        role = LocalConstants.Role.ROLE_02,
-        label = LocalConstants.Role.LABEL_02,
-    )
-    val role03 = insertRole(
-        db = db,
-        id = ULID.StatefulMonotonic().nextULID(),
-        role = LocalConstants.Role.ROLE_03,
-        label = LocalConstants.Role.LABEL_03,
-    )
+    val role01 =
+        insertRole(
+            db = db,
+            id = ULID.StatefulMonotonic().nextULID(),
+            role = LocalConstants.Role.ROLE_01,
+            label = LocalConstants.Role.LABEL_01,
+        )
+    val role02 =
+        insertRole(
+            db = db,
+            id = ULID.StatefulMonotonic().nextULID(),
+            role = LocalConstants.Role.ROLE_02,
+            label = LocalConstants.Role.LABEL_02,
+        )
+    val role03 =
+        insertRole(
+            db = db,
+            id = ULID.StatefulMonotonic().nextULID(),
+            role = LocalConstants.Role.ROLE_03,
+            label = LocalConstants.Role.LABEL_03,
+        )
     return Identifiers(
-        roles = listOf(role01.id!!, role02.id!!, role03.id!!)
+        roles = listOf(role01.id!!, role02.id!!, role03.id!!),
     )
 }
 
 internal fun setupRoleMultipleIdentitiesFixtures(db: Database): Identifiers {
-    val identityId01 = insertIdentity(
-        db = db,
-        id = ULID.randomULID().toULID(),
-        email = LocalConstants.Identity.EMAIL_01,
-        passwordHash = LocalConstants.Identity.HASH_01,
-    ).id!!
-    val identityId02 = insertIdentity(
-        db = db,
-        id = ULID.randomULID().toULID(),
-        email = LocalConstants.Identity.EMAIL_02,
-        passwordHash = LocalConstants.Identity.HASH_02,
-    ).id!!
-    val identityId03 = insertIdentity(
-        db = db,
-        id = ULID.randomULID().toULID(),
-        email = LocalConstants.Identity.EMAIL_03,
-        passwordHash = LocalConstants.Identity.HASH_03,
-    ).id!!
+    val identityId01 =
+        insertIdentity(
+            db = db,
+            id = ULID.randomULID().toULID(),
+            email = LocalConstants.Identity.EMAIL_01,
+            passwordHash = LocalConstants.Identity.HASH_01,
+        ).id!!
+    val identityId02 =
+        insertIdentity(
+            db = db,
+            id = ULID.randomULID().toULID(),
+            email = LocalConstants.Identity.EMAIL_02,
+            passwordHash = LocalConstants.Identity.HASH_02,
+        ).id!!
+    val identityId03 =
+        insertIdentity(
+            db = db,
+            id = ULID.randomULID().toULID(),
+            email = LocalConstants.Identity.EMAIL_03,
+            passwordHash = LocalConstants.Identity.HASH_03,
+        ).id!!
 
     return Identifiers(
-        identities = listOf(identityId01, identityId02, identityId03)
+        identities = listOf(identityId01, identityId02, identityId03),
     )
 }
 

@@ -70,7 +70,7 @@ class ExposedAdminRolesRepository(
      */
     override fun assignRolesToIdentity(
         roleIds: List<ULID>,
-        identityId: ULID
+        identityId: ULID,
     ): Mono<Identity> =
         txMono(DatabaseTarget.ADMIN) {
             val distinctRoleIds = roleIds.distinct()
@@ -122,7 +122,7 @@ class ExposedAdminRolesRepository(
      */
     override fun removeRolesFromIdentity(
         roleIds: List<ULID>,
-        identityId: ULID
+        identityId: ULID,
     ): Mono<Identity> =
         txMono(DatabaseTarget.ADMIN) {
             val distinctRoleIds = roleIds.distinct()

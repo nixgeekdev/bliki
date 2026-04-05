@@ -28,7 +28,7 @@ class FakeAdminRolesRepository(
                     role = role.role,
                     label = role.label,
                     createdAt = role.createdAt ?: now,
-                    updatedAt = now
+                    updatedAt = now,
                 ) ?: role.copy(
                     id = key,
                     updatedAt = now,
@@ -40,7 +40,7 @@ class FakeAdminRolesRepository(
 
     override fun assignRolesToIdentity(
         roleIds: List<ULID>,
-        identityId: ULID
+        identityId: ULID,
     ): Mono<Identity> =
         blockingMono {
             roleIds.distinct().forEach { roleId ->
@@ -58,7 +58,7 @@ class FakeAdminRolesRepository(
 
     override fun removeRolesFromIdentity(
         roleIds: List<ULID>,
-        identityId: ULID
+        identityId: ULID,
     ): Mono<Identity> =
         blockingMono {
             roleIds.distinct().forEach { roleId ->

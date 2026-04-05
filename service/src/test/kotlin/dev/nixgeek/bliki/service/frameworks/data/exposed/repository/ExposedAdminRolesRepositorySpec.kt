@@ -180,8 +180,8 @@ class ExposedAdminRolesRepositorySpec : FunSpec() {
                     }
 
                 persisted.size shouldBe 2
-                persisted.map { it.first.toString() }.toSet() shouldBe setOf(identityId.toString())
-                persisted.map { it.second.toString() } shouldBe roleIds.map { it.toString() }
+                persisted.map { it.first }.toSet() shouldBe setOf(identityId.toString())
+                persisted.map { it.second } shouldBe roleIds.map { it.toString() }
             }
         }
 
@@ -246,8 +246,8 @@ class ExposedAdminRolesRepositorySpec : FunSpec() {
                     }
 
                 persisted.size shouldBe remainingRoleIds.size
-                persisted.map { it.first.toString() }.toSet() shouldBe setOf(identityId.toString())
-                persisted.map { it.second.toString() } shouldBe remainingRoleIds.map { it.toString() }
+                persisted.map { it.first }.toSet() shouldBe setOf(identityId.toString())
+                persisted.map { it.second } shouldBe remainingRoleIds.map { it.toString() }
             }
         }
 
