@@ -88,6 +88,28 @@ class ExposedAdminRolesRepository(
         }
 
     /**
+     * Removes all roles from an identity.
+     *
+     * Deletes all role associations for the specified identity, effectively revoking
+     * all permissions. Returns the updated identity after all roles have been removed.
+     *
+     * @param identityId The ID of the identity from which all roles will be removed
+     * @return A [Mono] emitting the updated identity with no role assignments
+     */
+    override fun removeAllRolesFromIdentity(identityId: ULID): Mono<Identity> =
+        txMono(DatabaseTarget.ADMIN) {
+            IdentityRoleTable.deleteWhere {
+                IdentityRoleTable.identityId eq identityId.toString()
+            }
+
+            IdentityTable
+                .selectAll()
+                .where { IdentityTable.id eq identityId.toString() }
+                .single()
+                .toIdentityModel()
+        }
+
+    /**
      * Removes multiple roles from an identity.
      *
      * Deletes the associations between the specified roles and identity. Duplicate role IDs

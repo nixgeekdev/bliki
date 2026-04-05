@@ -11,6 +11,8 @@ interface AdminRolesRepository : ReactorContextAwareRepository {
 
     fun assignRolesToIdentity(roleIds: List<ULID>, identityId: ULID): Mono<Identity>
 
+    fun removeAllRolesFromIdentity(identityId: ULID): Mono<Identity>
+
     fun removeRolesFromIdentity(roleIds: List<ULID>, identityId: ULID): Mono<Identity>
 
     fun delete(id: ULID): Mono<Role>

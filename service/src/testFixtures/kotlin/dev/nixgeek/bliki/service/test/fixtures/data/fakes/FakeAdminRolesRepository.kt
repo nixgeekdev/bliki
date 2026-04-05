@@ -50,6 +50,12 @@ class FakeAdminRolesRepository(
             identities[identityId]
         }
 
+    override fun removeAllRolesFromIdentity(identityId: ULID): Mono<Identity> =
+        blockingMono {
+            roleIdToIdentityId.keys.removeIf { it.endsWith(":$identityId") }
+            identities[identityId]
+        }
+
     override fun removeRolesFromIdentity(
         roleIds: List<ULID>,
         identityId: ULID
