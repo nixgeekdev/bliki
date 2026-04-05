@@ -8,7 +8,7 @@ import reactor.core.publisher.Mono
 import ulid.ULID
 
 interface AdminIdentitySecurityRepository : ReactorContextAwareRepository {
-    fun findByEmail(email: String): Mono<SecureIdentity>
+    fun fetchByEmail(email: String): Mono<SecureIdentity>
 
-    fun findRolesByIdentityId(identityId: ULID): Flux<SecureRole>
+    fun fetchRolesByIdentityId(identityId: ULID): Flux<SecureRole>
 }

@@ -6,9 +6,8 @@ import dev.nixgeek.bliki.lib.test.fixtures.containers.installSharedSpecDatabase
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.IdentityRoleTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.IdentityTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.RoleTable
-import dev.nixgeek.bliki.service.test.fixtures.data.assignRole
 import dev.nixgeek.bliki.service.test.fixtures.data.insertIdentity
-import dev.nixgeek.bliki.service.test.fixtures.data.insertRole
+import dev.nixgeek.bliki.service.test.fixtures.data.setupFindRolesByIdentitySimpleFixtures
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
@@ -60,7 +59,7 @@ class ExposedAdminIdentitySecurityRepositorySpec : FunSpec() {
                     passwordHash = LocalConstants.Identity.HASH_02,
                 )
 
-                val result = repository.findByEmail(LocalConstants.Identity.EMAIL_02).block()
+                val result = repository.fetchByEmail(LocalConstants.Identity.EMAIL_02).block()
 
                 result?.id shouldBe identityId
                 result?.email shouldBe LocalConstants.Identity.EMAIL_02
@@ -68,7 +67,7 @@ class ExposedAdminIdentitySecurityRepositorySpec : FunSpec() {
             }
 
             test("should return null when the identity does not exist") {
-                val result = repository.findByEmail("missing@example.test").block()
+                val result = repository.fetchByEmail("missing@example.test").block()
                 result shouldBe null
             }
         }
@@ -77,10 +76,6 @@ class ExposedAdminIdentitySecurityRepositorySpec : FunSpec() {
             test("should return all roles assigned to the identity") {
                 val identityId = ULID.StatefulMonotonic().nextULID()
                 val otherIdentityId = ULID.StatefulMonotonic().nextULID()
-
-                val adminRoleId = ULID.StatefulMonotonic().nextULID()
-                val authorRoleId = ULID.StatefulMonotonic().nextULID()
-                val editorRoleId = ULID.StatefulMonotonic().nextULID()
 
                 insertIdentity(
                     db = db.requireDatabase(),
@@ -95,42 +90,13 @@ class ExposedAdminIdentitySecurityRepositorySpec : FunSpec() {
                     passwordHash = LocalConstants.Identity.HASH_02,
                 )
 
-                insertRole(
+                setupFindRolesByIdentitySimpleFixtures(
                     db = db.requireDatabase(),
-                    id = adminRoleId,
-                    role = LocalConstants.Role.ROLE_01,
-                    label = LocalConstants.Role.LABEL_01,
-                )
-                insertRole(
-                    db = db.requireDatabase(),
-                    id = authorRoleId,
-                    role = LocalConstants.Role.ROLE_02,
-                    label = LocalConstants.Role.LABEL_02,
-                )
-                insertRole(
-                    db = db.requireDatabase(),
-                    id = editorRoleId,
-                    role = LocalConstants.Role.ROLE_03,
-                    label = LocalConstants.Role.LABEL_03,
+                    firstIdentityId = identityId,
+                    secondIdentityId = otherIdentityId,
                 )
 
-                assignRole(
-                    db = db.requireDatabase(),
-                    identityId = identityId,
-                    roleId = adminRoleId,
-                )
-                assignRole(
-                    db = db.requireDatabase(),
-                    identityId = identityId,
-                    roleId = authorRoleId,
-                )
-                assignRole(
-                    db = db.requireDatabase(),
-                    identityId = otherIdentityId,
-                    roleId = editorRoleId,
-                )
-
-                val result = repository.findRolesByIdentityId(identityId).collectList().block()!!
+                val result = repository.fetchRolesByIdentityId(identityId).collectList().block()!!
 
                 result shouldHaveSize 2
                 result.map { it.role.name } shouldBe listOf(LocalConstants.Role.ROLE_01, LocalConstants.Role.ROLE_02)
@@ -146,7 +112,7 @@ class ExposedAdminIdentitySecurityRepositorySpec : FunSpec() {
                     passwordHash = LocalConstants.Identity.HASH_03,
                 )
 
-                val result = repository.findRolesByIdentityId(identityId).collectList().block()!!
+                val result = repository.fetchRolesByIdentityId(identityId).collectList().block()!!
                 result shouldHaveSize 0
             }
         }

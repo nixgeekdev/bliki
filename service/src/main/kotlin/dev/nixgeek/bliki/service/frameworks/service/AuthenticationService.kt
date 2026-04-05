@@ -39,14 +39,14 @@ class AuthenticationService(
      */
     override fun authenticate(email: String, rawPassword: String): Mono<AuthenticatedIdentity> =
         identitySecRepository
-            .findByEmail(email)
+            .fetchByEmail(email)
             .switchIfEmpty(Mono.error(BadCredentialsException("Invalid credentials")))
             .flatMap { identity ->
                 if (!passwordEncoder.matches(rawPassword, identity.passwordHash)) {
                     Mono.error(BadCredentialsException("Invalid credentials"))
                 } else {
                     identitySecRepository
-                        .findRolesByIdentityId(identity.id)
+                        .fetchRolesByIdentityId(identity.id)
                         .map { it.role.name }
                         .collectList()
                         .map { roles ->

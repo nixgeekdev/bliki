@@ -39,6 +39,7 @@ internal data class Identifiers(
     val profileId: ULID? = null,
     val revisionId: ULID? = null,
     val roleId: ULID? = null,
+    val roles: List<ULID> = emptyList(),
     val tagId: ULID? = null,
 )
 
@@ -296,6 +297,55 @@ internal fun setupBlikiCustomFixtures(
     )
 }
 
+internal fun setupFindRolesByIdentitySimpleFixtures(
+    db: Database,
+    firstIdentityId: ULID,
+    secondIdentityId: ULID,
+): Identifiers {
+    val adminRoleId = ULID.StatefulMonotonic().nextULID()
+    val authorRoleId = ULID.StatefulMonotonic().nextULID()
+    val editorRoleId = ULID.StatefulMonotonic().nextULID()
+
+    insertRole(
+        db = db,
+        id = adminRoleId,
+        role = LocalConstants.Role.ROLE_01,
+        label = LocalConstants.Role.LABEL_01,
+    )
+    insertRole(
+        db = db,
+        id = authorRoleId,
+        role = LocalConstants.Role.ROLE_02,
+        label = LocalConstants.Role.LABEL_02,
+    )
+    insertRole(
+        db = db,
+        id = editorRoleId,
+        role = LocalConstants.Role.ROLE_03,
+        label = LocalConstants.Role.LABEL_03,
+    )
+
+    assignRole(
+        db = db,
+        identityId = firstIdentityId,
+        roleId = adminRoleId,
+    )
+    assignRole(
+        db = db,
+        identityId = firstIdentityId,
+        roleId = authorRoleId,
+    )
+    assignRole(
+        db = db,
+        identityId = secondIdentityId,
+        roleId = editorRoleId,
+    )
+
+    return Identifiers(
+        roles = listOf(adminRoleId, authorRoleId, editorRoleId),
+    )
+}
+
 internal fun setupRevisionSimpleFixtures(db: Database): Identifiers {
     val entryId = ULID.StatefulMonotonic().nextULID()
     val blikiId = ULID.StatefulMonotonic().nextULID()
@@ -337,3 +387,4 @@ internal fun setupRevisionSimpleFixtures(db: Database): Identifiers {
         identityId = identityId,
     )
 }
+
