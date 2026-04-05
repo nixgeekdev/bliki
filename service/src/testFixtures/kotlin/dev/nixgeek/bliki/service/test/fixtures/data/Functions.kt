@@ -39,6 +39,7 @@ internal data class Identifiers(
     val entryId: ULID? = null,
     val generatorId: ULID? = null,
     val identityId: ULID? = null,
+    val identities: List<ULID> = emptyList(),
     val profileId: ULID? = null,
     val revisionId: ULID? = null,
     val roleId: ULID? = null,
@@ -425,6 +426,31 @@ internal fun setupRoleMultipleFixtures(db: Database): Identifiers {
     )
     return Identifiers(
         roles = listOf(role01.id!!, role02.id!!, role03.id!!)
+    )
+}
+
+internal fun setupRoleMultipleIdentitiesFixtures(db: Database): Identifiers {
+    val identityId01 = insertIdentity(
+        db = db,
+        id = ULID.randomULID().toULID(),
+        email = LocalConstants.Identity.EMAIL_01,
+        passwordHash = LocalConstants.Identity.HASH_01,
+    ).id!!
+    val identityId02 = insertIdentity(
+        db = db,
+        id = ULID.randomULID().toULID(),
+        email = LocalConstants.Identity.EMAIL_02,
+        passwordHash = LocalConstants.Identity.HASH_02,
+    ).id!!
+    val identityId03 = insertIdentity(
+        db = db,
+        id = ULID.randomULID().toULID(),
+        email = LocalConstants.Identity.EMAIL_03,
+        passwordHash = LocalConstants.Identity.HASH_03,
+    ).id!!
+
+    return Identifiers(
+        identities = listOf(identityId01, identityId02, identityId03)
     )
 }
 

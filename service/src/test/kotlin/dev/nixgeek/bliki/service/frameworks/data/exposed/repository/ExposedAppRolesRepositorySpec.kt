@@ -11,6 +11,7 @@ import dev.nixgeek.bliki.service.test.fixtures.data.assignRolesToIdentity
 import dev.nixgeek.bliki.service.test.fixtures.data.insertIdentity
 import dev.nixgeek.bliki.service.test.fixtures.data.insertRole
 import dev.nixgeek.bliki.service.test.fixtures.data.setupRoleMultipleFixtures
+import dev.nixgeek.bliki.service.test.fixtures.data.setupRoleMultipleIdentitiesFixtures
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
@@ -107,6 +108,20 @@ class ExposedAppRolesRepositorySpec : FunSpec() {
 
         context("fetchIdentitiesByRoleId") {
             test("should return the matching identities when they exists") {
+                val roleIds = setupRoleMultipleFixtures(db.requireDatabase()).roles
+                val identityIds = setupRoleMultipleIdentitiesFixtures(db.requireDatabase()).identities
+                identityIds.forEachIndexed { index, identityId ->
+                    assignRolesToIdentity(db.requireDatabase(), identityId, roleIds.subList(0, index + 1))
+                }
+
+                val result01 = repository.fetchIdentitiesByRoleId(roleIds[0]).collectList().block()!!
+                result01.map { it.id } shouldBe identityIds.subList(0, 3)
+
+                val result02 = repository.fetchIdentitiesByRoleId(roleIds[1]).collectList().block()!!
+                result02.map { it.id } shouldBe identityIds.subList(1, 3)
+
+                val result03 = repository.fetchIdentitiesByRoleId(roleIds[2]).collectList().block()!!
+                result03.map { it.id } shouldBe identityIds.subList(2, 3)
             }
 
             test("should return an empty list when no identities exist") {
