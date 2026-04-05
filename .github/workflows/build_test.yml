@@ -45,3 +45,4 @@ jobs:
         if: (!cancelled())
         with:
           files: '**/build/test-results/**/*.xml'
+          check-name: "🚀 Unit Test Results"
