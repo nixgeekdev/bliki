@@ -23,7 +23,7 @@ import dev.nixgeek.bliki.service.test.fixtures.Constants as LocalConstants
 
 @Suppress("ReactiveStreamsUnusedPublisher")
 @ActiveProfiles(SharedConstants.TestContainers.ACTIVE_PROFILE)
-class ExposedIdentitySecurityRepositorySpec : FunSpec() {
+class ExposedAdminIdentitySecurityRepositorySpec : FunSpec() {
     private val db =
         installSharedSpecDatabase(
             arrayOf(
