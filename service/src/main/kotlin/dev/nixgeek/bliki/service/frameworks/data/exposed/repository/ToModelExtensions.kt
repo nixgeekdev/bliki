@@ -10,6 +10,7 @@ import dev.nixgeek.bliki.service.domain.model.IdentityRole
 import dev.nixgeek.bliki.service.domain.model.Profile
 import dev.nixgeek.bliki.service.domain.model.Revision
 import dev.nixgeek.bliki.service.domain.model.Role
+import dev.nixgeek.bliki.service.domain.model.Tag
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.BlikiTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.EntryTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.GeneratorTable
@@ -17,6 +18,7 @@ import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.IdentityTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.ProfileTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.RevisionTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.RoleTable
+import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.TagTable
 import org.jetbrains.exposed.v1.core.ResultRow
 
 internal fun ResultRow.toBlikiModel(): Bliki =
@@ -112,5 +114,17 @@ internal fun ResultRow.toRoleModel(): Role =
             label = row[RoleTable.label],
             createdAt = row[RoleTable.createdAt],
             updatedAt = row[RoleTable.updatedAt],
+        )
+    }
+
+internal fun ResultRow.toTagModel(): Tag =
+    let { row ->
+        Tag(
+            id = row[TagTable.id].value.toULID(),
+            parentId = row[TagTable.parentId]?.value?.toULID(),
+            term = row[TagTable.term],
+            slug = row[TagTable.slug],
+            createdAt = row[TagTable.createdAt],
+            updatedAt = row[TagTable.updatedAt],
         )
     }
