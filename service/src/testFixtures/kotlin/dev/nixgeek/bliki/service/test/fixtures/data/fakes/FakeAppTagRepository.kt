@@ -3,6 +3,7 @@ package dev.nixgeek.bliki.service.test.fixtures.data.fakes
 import dev.nixgeek.bliki.lib.data.DatabaseProvider
 import dev.nixgeek.bliki.lib.test.fixtures.data.fakes.AbstractFakeTestRepository
 import dev.nixgeek.bliki.service.domain.model.Tag
+import dev.nixgeek.bliki.service.domain.model.TagNode
 import dev.nixgeek.bliki.service.domain.repository.AppTagRepository
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -23,11 +24,15 @@ class FakeAppTagRepository(
         TODO("Not yet implemented")
     }
 
-    override fun fetchParent(id: ULID): Mono<Tag> {
+    override fun fetchParent(parentId: ULID): Mono<Tag> {
         TODO("Not yet implemented")
     }
 
     override fun fetchDescendants(rootId: ULID): Flux<Tag> {
+        TODO("Not yet implemented")
+    }
+
+    override fun fetchDescendantTree(rootId: ULID): Mono<TagNode> {
         TODO("Not yet implemented")
     }
 
