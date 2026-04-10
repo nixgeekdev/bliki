@@ -19,6 +19,7 @@ import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.ProfileTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.RevisionTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.RoleTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.TagTable
+import org.jetbrains.exposed.v1.core.Alias
 import org.jetbrains.exposed.v1.core.ResultRow
 
 internal fun ResultRow.toBlikiModel(): Bliki =
@@ -126,5 +127,17 @@ internal fun ResultRow.toTagModel(): Tag =
             slug = row[TagTable.slug],
             createdAt = row[TagTable.createdAt],
             updatedAt = row[TagTable.updatedAt],
+        )
+    }
+
+internal fun ResultRow.toTagModel(alias: Alias<*>): Tag =
+    let { row ->
+        Tag(
+            id = row[alias[TagTable.id]].value.toULID(),
+            parentId = row[alias[TagTable.parentId]]?.value?.toULID(),
+            term = row[alias[TagTable.term]],
+            slug = row[alias[TagTable.slug]],
+            createdAt = row[alias[TagTable.createdAt]],
+            updatedAt = row[alias[TagTable.updatedAt]],
         )
     }
