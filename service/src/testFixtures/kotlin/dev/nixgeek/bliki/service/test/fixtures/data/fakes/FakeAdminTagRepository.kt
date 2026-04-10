@@ -40,12 +40,26 @@ class FakeAdminTagRepository(
 
     override fun assignParent(id: ULID, parentId: ULID): Mono<Tag> =
         blockingMono {
-            TODO("Not yet implemented")
+            val tag = cache[id] ?: throw NoSuchElementException("Tag with id $id not found")
+            val now = Clock.System.now()
+            val updated = tag.copy(
+                parentId = parentId,
+                updatedAt = now,
+            )
+            cache[id] = updated
+            updated
         }
 
     override fun removeParent(id: ULID): Mono<Tag> =
         blockingMono {
-            TODO("Not yet implemented")
+            val tag = cache[id] ?: throw NoSuchElementException("Tag with id $id not found")
+            val now = Clock.System.now()
+            val updated = tag.copy(
+                parentId = null,
+                updatedAt = now,
+            )
+            cache[id] = updated
+            updated
         }
 
     override fun create(record: Tag): Tag {
