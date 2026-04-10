@@ -1,6 +1,7 @@
 package dev.nixgeek.bliki.service.test.fixtures.data
 
 import dev.nixgeek.bliki.lib.data.ulid.toULID
+import dev.nixgeek.bliki.lib.slug.slugify
 import dev.nixgeek.bliki.service.domain.model.Bliki
 import dev.nixgeek.bliki.service.domain.model.Entry
 import dev.nixgeek.bliki.service.domain.model.EntryEvent
@@ -10,6 +11,7 @@ import dev.nixgeek.bliki.service.domain.model.Identity
 import dev.nixgeek.bliki.service.domain.model.Profile
 import dev.nixgeek.bliki.service.domain.model.Revision
 import dev.nixgeek.bliki.service.domain.model.Role
+import dev.nixgeek.bliki.service.domain.model.Tag
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.BlikiTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.EntryTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.GeneratorTable
@@ -18,12 +20,14 @@ import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.IdentityTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.ProfileTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.RevisionTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.RoleTable
+import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.TagTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.repository.toBlikiModel
 import dev.nixgeek.bliki.service.frameworks.data.exposed.repository.toEntryModel
 import dev.nixgeek.bliki.service.frameworks.data.exposed.repository.toIdentityModel
 import dev.nixgeek.bliki.service.frameworks.data.exposed.repository.toProfileModel
 import dev.nixgeek.bliki.service.frameworks.data.exposed.repository.toRevisionModel
 import dev.nixgeek.bliki.service.frameworks.data.exposed.repository.toRoleModel
+import dev.nixgeek.bliki.service.frameworks.data.exposed.repository.toTagModel
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.batchInsert
 import org.jetbrains.exposed.v1.jdbc.insert
@@ -45,6 +49,7 @@ internal data class Identifiers(
     val roleId: ULID? = null,
     val roles: List<ULID> = emptyList(),
     val tagId: ULID? = null,
+    val tags: List<ULID> = emptyList(),
 )
 
 internal fun insertBliki(
@@ -267,6 +272,28 @@ internal fun assignRole(
     }
 }
 
+internal fun insertTag(
+    db: Database,
+    id: ULID? = null,
+    parentId: ULID? = null,
+    term: String? = null,
+    slug: String? = null,
+    created: Instant? = null,
+): Tag =
+    transaction(db) {
+        TagTable
+            .insertReturning {
+                it[TagTable.id] = id?.toString() ?: LocalConstants.Tag.TAG_ID_01
+                it[TagTable.parentId] = parentId?.toString()
+                it[TagTable.term] = term ?: LocalConstants.Tag.TAG_01
+                it[TagTable.slug] = slug ?: LocalConstants.Tag.TAG_01.slugify()
+                it[TagTable.label] = term ?: LocalConstants.Tag.TAG_01
+                it[TagTable.createdAt] = created ?: Clock.System.now()
+                it[TagTable.updatedAt] = created ?: Clock.System.now()
+            }.single()
+            .toTagModel()
+    }
+
 internal fun setupBlikiSimpleFixtures(db: Database): Identifiers =
     setupBlikiCustomFixtures(
         db = db,
@@ -473,3 +500,33 @@ internal fun assignRolesToIdentity(
         }
     }
 }
+
+internal fun setupTagMultipleFixtures(db: Database): Identifiers =
+    transaction(db) {
+        val parentTagIds =
+            TagTable
+                .batchInsert(LocalConstants.Tag.tagsWithoutParents) { (tagId, _, term) ->
+                    this[TagTable.id] = tagId.toString()
+                    this[TagTable.term] = term
+                    this[TagTable.slug] = term.slugify()
+                    this[TagTable.label] = term
+                    this[TagTable.createdAt] = Clock.System.now()
+                    this[TagTable.updatedAt] = Clock.System.now()
+                }.map { it.toTagModel().id!! }
+
+        val childrenTagIds =
+            TagTable
+                .batchInsert(LocalConstants.Tag.tagsWithParents) { (tagId, parentId, term) ->
+                    this[TagTable.id] = tagId.toString()
+                    this[TagTable.parentId] = parentId.toString()
+                    this[TagTable.term] = term
+                    this[TagTable.slug] = term.slugify()
+                    this[TagTable.label] = term
+                    this[TagTable.createdAt] = Clock.System.now()
+                    this[TagTable.updatedAt] = Clock.System.now()
+                }.map { it.toTagModel().id!! }
+
+        Identifiers(
+            tags = parentTagIds + childrenTagIds,
+        )
+    }
