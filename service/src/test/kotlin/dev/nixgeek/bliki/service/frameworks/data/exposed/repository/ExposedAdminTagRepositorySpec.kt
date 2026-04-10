@@ -33,5 +33,47 @@ class ExposedAdminTagRepositorySpec : FunSpec() {
                 TagTable.deleteAll()
             }
         }
+
+        context("save") {
+            test("should insert a new tag when the id is provided") {
+
+            }
+
+            test("should insert a new tag when the id is null") {
+
+            }
+
+            test("should update an existing tag when the id is provided") {
+
+            }
+        }
+
+        context("delete") {
+            test("should delete and return the matching tag when it exists") {
+
+            }
+
+            test("should return null when the tag does not exist") {
+
+            }
+        }
+
+        context("parent") {
+            test("should assign the parent tag when both child and parent exist") {
+
+            }
+
+            test("should throw when the parent tag does not exist") {
+
+            }
+
+            test("should set parent id to null for the provided tag") {
+
+            }
+
+            test("should set children parent id to null when the parent tag is deleted") {
+                // ref integrity - `on delete set null`
+            }
+        }
     }
 }
