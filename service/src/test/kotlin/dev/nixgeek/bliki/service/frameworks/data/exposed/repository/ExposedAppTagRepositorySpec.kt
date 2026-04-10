@@ -145,6 +145,8 @@ class ExposedAppTagRepositorySpec : FunSpec() {
 
         context("fetchDescendantTree") {
             test("should return tree root node when tag has descendants") {
+                // this is now the version that does a single trip to the DB using
+                // a propared statement
                 setupTagMultipleFixtures(db.requireDatabase())
 
                 val result = repository.fetchDescendantTree(LocalConstants.Tag.TAG_ID_03.toULID()).block()
@@ -171,38 +173,6 @@ class ExposedAppTagRepositorySpec : FunSpec() {
             test("should return null when tag has no descendants") {
                 setupTagMultipleFixtures(db.requireDatabase())
                 val result = repository.fetchDescendantTree(LocalConstants.Tag.TAG_ID_08.toULID()).block()!!
-                result.children shouldHaveSize 0
-                result.tag shouldNotBe null
-                result.tag.term shouldBe LocalConstants.Tag.TAG_08
-            }
-
-            test("should return tree root node when tag has descendants - using single query") {
-                setupTagMultipleFixtures(db.requireDatabase())
-
-                val result = repository.fetchDescendantTreeSingleTrip(LocalConstants.Tag.TAG_ID_03.toULID()).block()
-
-                result shouldNotBe null
-                result?.tag?.term shouldBe LocalConstants.Tag.TAG_03
-
-                var nodeCount = 0
-                val queue = ArrayDeque<TagNode>()
-                result?.let { queue.add(it) }
-
-                while (queue.isNotEmpty()) {
-                    val current = queue.removeFirst()
-                    nodeCount++
-
-                    current.children.forEach { child ->
-                        child.let { queue.add(it) }
-                    }
-                }
-
-                nodeCount shouldBe 5
-            }
-
-            test("should return null when tag has no descendants - using single query") {
-                setupTagMultipleFixtures(db.requireDatabase())
-                val result = repository.fetchDescendantTreeSingleTrip(LocalConstants.Tag.TAG_ID_08.toULID()).block()!!
                 result.children shouldHaveSize 0
                 result.tag shouldNotBe null
                 result.tag.term shouldBe LocalConstants.Tag.TAG_08
