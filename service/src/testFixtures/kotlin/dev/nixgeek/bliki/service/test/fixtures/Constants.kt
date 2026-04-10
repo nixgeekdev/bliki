@@ -143,35 +143,40 @@ object Constants {
         const val TAG_09 = "cloud"
         const val TAG_10 = "architecture"
 
-        const val TAG_ID_01 = "01KNGC0BTCP30ZHBTEE6GAFG2M"
-        const val TAG_ID_02 = "01KNPS404A77BAH4GSWER54JFQ"
-        const val TAG_ID_03 = "01KNPS49JEPNK6QK928EC1HXR8"
-        const val TAG_ID_04 = "01KNPS4KQY269H3KZD69YE5KA9"
-        const val TAG_ID_05 = "01KNPS4X4YC6CVHHEEAJS99V39"
-        const val TAG_ID_06 = "01KNPS54SPM482F1V2MJVY4E8D"
-        const val TAG_ID_07 = "01KNPS5CD6HKVPR18G906MT0Z1"
-        const val TAG_ID_08 = "01KNPS5MVETD74BD5NYCZVWY9Y"
-        const val TAG_ID_09 = "01KNPS5XQ6PS3KPZD4XJY730GE"
-        const val TAG_ID_10 = "01KNPS64WEQT15FSXJ0P0FD1DC"
+        const val TAG_ID_01 = "01KNGC0BTCP30ZHBTEE6GAFG2M" // code
+        const val TAG_ID_02 = "01KNPS404A77BAH4GSWER54JFQ" // database
+        const val TAG_ID_03 = "01KNPS49JEPNK6QK928EC1HXR8" // system
+        const val TAG_ID_04 = "01KNPS4KQY269H3KZD69YE5KA9" // security
+        const val TAG_ID_05 = "01KNPS4X4YC6CVHHEEAJS99V39" // performance
+        const val TAG_ID_06 = "01KNPS54SPM482F1V2MJVY4E8D" // testing
+        const val TAG_ID_07 = "01KNPS5CD6HKVPR18G906MT0Z1" // documentation
+        const val TAG_ID_08 = "01KNPS5MVETD74BD5NYCZVWY9Y" // deployment
+        const val TAG_ID_09 = "01KNPS5XQ6PS3KPZD4XJY730GE" // cloud
+        const val TAG_ID_10 = "01KNPS64WEQT15FSXJ0P0FD1DC" // architecture
 
-        const val PTAG_ID_01 = "01KNGC0BTCP30ZHBTEE6GAFG2M" // code -> testing, documentation
-        const val PTAG_ID_02 = "01KNPS404A77BAH4GSWER54JFQ" // database -> architecture
-        const val PTAG_ID_03 = "01KNPS49JEPNK6QK928EC1HXR8" // system -> security, performance
-        const val PTAG_ID_04 = "01KNPS5XQ6PS3KPZD4XJY730GE" // system -> cloud -> deployment
+        const val PTAG_ID_01 = TAG_ID_01 // code -> testing, documentation
+        const val PTAG_ID_02 = TAG_ID_02 // database -> architecture
+        const val PTAG_ID_03 = TAG_ID_03 // system -> security, performance, cloud
+        const val PTAG_ID_04 = TAG_ID_09 // system -> cloud -> deployment
 
-        val tagsWithParents = listOf(
-             Triple(TAG_ID_01.toULID(), null, TAG_01),
-             Triple(TAG_ID_02.toULID(), null, TAG_02),
-             Triple(TAG_ID_03.toULID(), null, TAG_03),
-             Triple(TAG_ID_04.toULID(), PTAG_ID_03.toULID(), TAG_04),
-             Triple(TAG_ID_05.toULID(), PTAG_ID_03.toULID(), TAG_05),
-             Triple(TAG_ID_06.toULID(), PTAG_ID_01.toULID(), TAG_06),
-             Triple(TAG_ID_07.toULID(), PTAG_ID_01.toULID(), TAG_07),
-             Triple(TAG_ID_08.toULID(), PTAG_ID_04.toULID(), TAG_08),
-             Triple(TAG_ID_09.toULID(), PTAG_ID_03.toULID(), TAG_09),
-             Triple(TAG_ID_10.toULID(), PTAG_ID_02.toULID(), TAG_10),
-        )
+        val tagsWithoutParents =
+            listOf(
+                Triple(TAG_ID_01.toULID(), null, TAG_01),
+                Triple(TAG_ID_02.toULID(), null, TAG_02),
+                Triple(TAG_ID_03.toULID(), null, TAG_03),
+            )
 
-        val tagIds = tagsWithParents.map { it.first }
+        val tagsWithParents =
+            listOf(
+                Triple(TAG_ID_06.toULID(), PTAG_ID_01.toULID(), TAG_06),
+                Triple(TAG_ID_07.toULID(), PTAG_ID_01.toULID(), TAG_07),
+                Triple(TAG_ID_10.toULID(), PTAG_ID_02.toULID(), TAG_10),
+                Triple(TAG_ID_04.toULID(), PTAG_ID_03.toULID(), TAG_04),
+                Triple(TAG_ID_05.toULID(), PTAG_ID_03.toULID(), TAG_05),
+                Triple(TAG_ID_09.toULID(), PTAG_ID_03.toULID(), TAG_09),
+                Triple(TAG_ID_08.toULID(), PTAG_ID_04.toULID(), TAG_08),
+            )
+
+        val tagIds = tagsWithoutParents.map { it.first } + tagsWithParents.map { it.first }
     }
 }
