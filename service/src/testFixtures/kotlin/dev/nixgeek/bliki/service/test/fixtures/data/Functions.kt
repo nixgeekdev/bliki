@@ -293,7 +293,7 @@ internal fun insertTag(
             .toTagModel()
     }
 
-    internal fun setupBlikiSimpleFixtures(db: Database): Identifiers =
+internal fun setupBlikiSimpleFixtures(db: Database): Identifiers =
     setupBlikiCustomFixtures(
         db = db,
         blikiId = ULID.StatefulMonotonic().nextULID(),
@@ -500,20 +500,32 @@ internal fun assignRolesToIdentity(
     }
 }
 
-internal fun setupTagMultipleFixtures(db: Database): Identifiers {
+internal fun setupTagMultipleFixtures(db: Database): Identifiers =
     transaction(db) {
-        TagTable
-            .batchInsert(LocalConstants.Tag.tagsWithParents) { (tagId, parentId, term) ->
-                this[TagTable.id] = tagId.toString()
-                this[TagTable.parentId] = parentId?.toString()
-                this[TagTable.term] = term
-                this[TagTable.slug] = term.slugify()
-                this[TagTable.createdAt] = Clock.System.now()
-                this[TagTable.updatedAt] = Clock.System.now()
-            }
-    }
+        val parentTagIds =
+            TagTable
+                .batchInsert(LocalConstants.Tag.tagsWithoutParents) { (tagId, _, term) ->
+                    this[TagTable.id] = tagId.toString()
+                    this[TagTable.term] = term
+                    this[TagTable.slug] = term.slugify()
+                    this[TagTable.label] = term
+                    this[TagTable.createdAt] = Clock.System.now()
+                    this[TagTable.updatedAt] = Clock.System.now()
+                }.map { it.toTagModel().id!! }
 
-    return Identifiers(
-        tags = LocalConstants.Tag.tagIds,
-    )
-}
+        val childrenTagIds =
+            TagTable
+                .batchInsert(LocalConstants.Tag.tagsWithParents) { (tagId, parentId, term) ->
+                    this[TagTable.id] = tagId.toString()
+                    this[TagTable.parentId] = parentId.toString()
+                    this[TagTable.term] = term
+                    this[TagTable.slug] = term.slugify()
+                    this[TagTable.label] = term
+                    this[TagTable.createdAt] = Clock.System.now()
+                    this[TagTable.updatedAt] = Clock.System.now()
+                }.map { it.toTagModel().id!! }
+
+        Identifiers(
+            tags = parentTagIds + childrenTagIds,
+        )
+    }
