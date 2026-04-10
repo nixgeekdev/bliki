@@ -85,8 +85,7 @@ class ExposedAdminTagRepository(
             TagTable
                 .updateReturning(where = { TagTable.id eq id.toString() }) {
                     it[TagTable.parentId] = parentId.toString()
-                }
-                .singleOrNull()
+                }.singleOrNull()
                 ?.toTagModel()
         }
 
@@ -104,8 +103,7 @@ class ExposedAdminTagRepository(
             TagTable
                 .updateReturning(where = { TagTable.id eq id.toString() }) {
                     it[TagTable.parentId] = null
-                }
-                .singleOrNull()
+                }.singleOrNull()
                 ?.toTagModel()
         }
 }

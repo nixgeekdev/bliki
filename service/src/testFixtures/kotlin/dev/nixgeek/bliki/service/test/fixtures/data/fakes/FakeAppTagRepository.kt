@@ -10,7 +10,7 @@ import reactor.core.publisher.Mono
 import ulid.ULID
 
 class FakeAppTagRepository(
-    override val dbProvider: DatabaseProvider
+    override val dbProvider: DatabaseProvider,
 ) : AppTagRepository, AbstractFakeTestRepository<ULID, Tag>() {
     override fun fetchAll(): Flux<Tag> {
         TODO("Not yet implemented")
@@ -24,7 +24,7 @@ class FakeAppTagRepository(
         TODO("Not yet implemented")
     }
 
-    override fun fetchParent(parentId: ULID): Mono<Tag> {
+    override fun fetchParent(id: ULID): Mono<Tag> {
         TODO("Not yet implemented")
     }
 
