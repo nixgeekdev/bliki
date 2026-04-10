@@ -24,10 +24,42 @@ class FakeAppTagRepository(
         blockingMono { cache.values.find { it.id == id }?.parentId?.let { cache[it] } }
 
     override fun fetchDescendants(rootId: ULID): Flux<Tag> =
-        blockingFlux { TODO("Not yet implemented") }
+        blockingFlux {
+            val descendants = mutableListOf<Tag>()
+            val visited = mutableSetOf<String>()
+            val queue = ArrayDeque<ULID>()
+
+            queue.add(rootId)
+
+            while (queue.isNotEmpty()) {
+                val currentId = queue.removeFirst()
+                if (!visited.add(currentId.toString())) continue
+
+                val children = cache.values.filter { it.parentId == currentId }
+
+                descendants.addAll(children)
+                queue.addAll(children.mapNotNull { it.id })
+            }
+
+            descendants
+        }
 
     override fun fetchDescendantTree(rootId: ULID): Mono<TagNode> =
-        blockingMono { TODO("Not yet implemented") }
+        blockingMono {
+            fun buildTree(tagId: ULID): TagNode? {
+                val tag = cache[tagId] ?: return null
+                val children = cache.values
+                    .filter { it.parentId == tagId }
+                    .mapNotNull { it.id?.let { childId -> buildTree(childId) } }
+
+                return TagNode(
+                    tag = tag,
+                    children = children
+                )
+            }
+
+            buildTree(rootId)
+        }
 
     override fun create(record: Tag): Tag {
         val key = record.id ?: ULID.randomULID().toULID()
