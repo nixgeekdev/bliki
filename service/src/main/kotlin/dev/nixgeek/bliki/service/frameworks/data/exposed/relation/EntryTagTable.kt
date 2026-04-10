@@ -27,7 +27,7 @@ object EntryTagTable : CompositeIdTable("entry_tag") {
             name = "entry_id",
             refColumn = EntryTable.id,
             onDelete = ReferenceOption.RESTRICT,
-        ).entityId()
+        )
 
     /**
      * Foreign key reference to the tag in the entry-tag relationship.
@@ -38,7 +38,7 @@ object EntryTagTable : CompositeIdTable("entry_tag") {
             name = "tag_id",
             refColumn = TagTable.id,
             onDelete = ReferenceOption.RESTRICT,
-        ).entityId()
+        )
 
     /**
      * Composite primary key constraint ensuring each entry-tag pairing is unique.

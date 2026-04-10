@@ -23,7 +23,7 @@ import org.jetbrains.exposed.v1.core.neq
  * - **Primary key uniqueness**: Each pair of entries can only have one relationship record
  *
  * ## Relationship Types
- * The [relation] column uses [EntryRelationType] enum values to classify relationships:
+ * The `relation` column uses [EntryRelationType] enum values to classify relationships:
  * - `RELATED`: General related content
  * - Other types as defined in [EntryRelationType]
  *
@@ -48,14 +48,14 @@ object EntryRelationTable : CompositeIdTable("entry_relation") {
             name = "from_entry_id",
             refColumn = EntryTable.id,
             onDelete = ReferenceOption.RESTRICT,
-        ).entityId()
+        )
 
     val toEntryId =
         reference(
             name = "to_entry_id",
             refColumn = EntryTable.id,
             onDelete = ReferenceOption.RESTRICT,
-        ).entityId()
+        )
 
     val relation =
         enumerationByName(
