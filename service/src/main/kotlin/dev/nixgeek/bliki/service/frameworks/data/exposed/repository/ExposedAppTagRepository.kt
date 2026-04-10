@@ -161,21 +161,6 @@ class ExposedAppTagRepository(
         }
 
     /**
-     * Fetches the complete descendant tree of a tag as a hierarchical structure.
-     *
-     * This method builds a tree structure with the root tag and all its descendants,
-     * preserving the parent-child relationships. Uses recursive database queries
-     * to build the tree (N+1 query pattern).
-     *
-     * @param rootId The ULID of the root tag
-     * @return A Mono emitting the tag tree structure, or empty if root not found
-     */
-    override fun fetchDescendantTree(rootId: ULID): Mono<TagNode> =
-        txMono(DatabaseTarget.APP) {
-            buildTagNode(rootId.toString())
-        }
-
-    /**
      * Fetches the complete descendant tree using a single database query.
      *
      * This method uses a recursive CTE to fetch all descendants in a single
@@ -185,46 +170,11 @@ class ExposedAppTagRepository(
      * @param rootId The ULID of the root tag
      * @return A Mono emitting the tag tree structure, or empty if root not found
      */
-    fun fetchDescendantTreeSingleTrip(rootId: ULID): Mono<TagNode> =
+    override fun fetchDescendantTree(rootId: ULID): Mono<TagNode> =
         txMono(DatabaseTarget.APP) {
             val tags = fetchDescendantsCte(rootId.toString())
             buildTagNodeFromFlatList(tags, rootId)
         }
-
-    /**
-     * Recursively builds a tag node tree structure using multiple database queries.
-     *
-     * This method fetches a tag and recursively builds nodes for all its children.
-     * Note: This creates an N+1 query pattern which may be inefficient for deep
-     * hierarchies. Consider using fetchDescendantTreeSingleTrip() for better performance.
-     *
-     * @param tagId The string ID of the tag to build a node for
-     * @return The tag node with all descendants, or null if tag not found
-     */
-    private fun buildTagNode(tagId: String): TagNode? {
-        val tag =
-            TagTable
-                .selectAll()
-                .where { TagTable.id eq tagId }
-                .singleOrNull()
-                ?.toTagModel()
-                ?: return null
-
-        val children =
-            TagTable
-                .selectAll()
-                .where { TagTable.parentId eq tagId }
-                .mapNotNull { row ->
-                    row.toTagModel().id?.toString()?.let { childId ->
-                        buildTagNode(childId)
-                    }
-                }
-
-        return TagNode(
-            tag = tag,
-            children = children,
-        )
-    }
 
     /**
      * Fetches all descendants of a tag using a recursive CTE query executed via a prepared
