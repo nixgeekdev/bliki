@@ -3,19 +3,23 @@ package dev.nixgeek.bliki.service.frameworks.data.exposed.repository
 import dev.nixgeek.bliki.lib.data.DatabaseProvider
 import dev.nixgeek.bliki.lib.data.DatabaseTarget
 import dev.nixgeek.bliki.lib.data.ulid.toULID
+import dev.nixgeek.bliki.lib.extensions.toKotlinInstant
 import dev.nixgeek.bliki.service.domain.model.Tag
 import dev.nixgeek.bliki.service.domain.model.TagNode
 import dev.nixgeek.bliki.service.domain.model.TagScheme
 import dev.nixgeek.bliki.service.domain.repository.AppTagRepository
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.TagTable
+import org.jetbrains.exposed.v1.core.JoinType
+import org.jetbrains.exposed.v1.core.alias
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import ulid.ULID
-import kotlin.time.Instant
+import java.time.OffsetDateTime
 
 /**
  * Repository implementation for managing tags in the application database using Exposed ORM.
@@ -46,7 +50,7 @@ class ExposedAppTagRepository(
                 with recursive tag_tree as (
                     select id, parent_id, term, slug, label, scheme, created_at, updated_at
                     from tag
-                    where id = ?
+                    where id = (?)::ulid
 
                     union all
 
@@ -82,7 +86,8 @@ class ExposedAppTagRepository(
                 .selectAll()
                 .where { TagTable.id eq id.toString() }
                 .singleOrNull()
-                ?.toTagModel() }
+                ?.toTagModel()
+        }
 
     /**
      * Fetches all direct children of a tag.
@@ -99,18 +104,25 @@ class ExposedAppTagRepository(
         }
 
     /**
-     * Fetches the parent tag of a given tag.
+     * Fetches the parent tag of a given tag. `toTagModel()` is not used here
+     * because the columns are coming from the aliased TagTable, which is not
+     * TagTable itself.
      *
-     * @param parentId The ULID of the parent tag to fetch
+     * @param id The ULID of the tag whose parent will be fetched
      * @return A Mono emitting the parent tag if found, or empty if not found
      */
-    override fun fetchParent(parentId: ULID): Mono<Tag> =
+    override fun fetchParent(id: ULID): Mono<Tag> =
         txMono(DatabaseTarget.APP) {
-            TagTable
-                .selectAll()
-                .where { TagTable.id eq parentId.toString() }
+            val childTable = TagTable.alias("child")
+            val parentTable = TagTable.alias("parent")
+
+            childTable
+                .join(parentTable, JoinType.INNER) {
+                    childTable[TagTable.parentId] eq parentTable[TagTable.id]
+                }.select(parentTable.columns)
+                .where { childTable[TagTable.id] eq id.toString() }
                 .singleOrNull()
-                ?.toTagModel()
+                ?.toTagModel(parentTable)
         }
 
     /**
@@ -215,10 +227,16 @@ class ExposedAppTagRepository(
     }
 
     /**
-     * Fetches all descendants of a tag using a recursive CTE query.
+     * Fetches all descendants of a tag using a recursive CTE query executed via a prepared
+     * statement.
      *
-     * This method executes a single database query using a recursive Common Table
-     * Expression to fetch all descendants at any depth level efficiently.
+     * This method executes a raw SQL query with a recursive Common Table Expression
+     * using JDBC PreparedStatement to fetch all descendants at any depth level efficiently.
+     * The results are manually mapped from the ResultSet to Tag domain models.
+     *
+     * @note Using the example in [ExposedAppTagRepositorySpec] in the `fetchDescendantTree`
+     *       context, this method makes 1 query to fetch all the data as opposed to 10 queries
+     *       executed via [fetchDescendantTree]
      *
      * @param rootId The string ID of the root tag
      * @return A list of all descendant tags, including the root tag
@@ -226,26 +244,33 @@ class ExposedAppTagRepository(
     private fun fetchDescendantsCte(rootId: String): List<Tag> {
         val sql = DESCENDANTS_SQL.trimIndent()
 
-        return TransactionManager.current().exec(sql) { resultSet ->
-            val results = mutableListOf<Tag>()
+        // The OriginalConnection is a JDBC connection
+        val conn = TransactionManager.current().connection.connection as java.sql.Connection
+        return conn.prepareStatement(sql).use { stmt ->
+            stmt.setString(1, rootId)
+            stmt.executeQuery().use { resultSet ->
+                val results = mutableListOf<Tag>()
 
-            while (resultSet.next()) {
-                results.add(
-                    Tag(
-                        id = resultSet.getString("id").toULID(),
-                        parentId = resultSet.getString("parentId")?.toULID(),
-                        term = resultSet.getString("term"),
-                        slug = resultSet.getString("slug"),
-                        label = resultSet.getString("label"),
-                        scheme = resultSet.getString("scheme")?.let { TagScheme.valueOf(it) },
-                        createdAt = resultSet.getObject("createdAt", Instant::class.java),
-                        updatedAt = resultSet.getObject("updatedAt", Instant::class.java),
+                while (resultSet.next()) {
+                    results.add(
+                        // column labels must match the column names in the CTE query
+                        Tag(
+                            id = resultSet.getString("id").toULID(),
+                            parentId = resultSet.getString("parent_id")?.toULID(),
+                            term = resultSet.getString("term"),
+                            slug = resultSet.getString("slug"),
+                            label = resultSet.getString("label"),
+                            scheme = resultSet.getString("scheme")?.let { TagScheme.valueOf(it) },
+                            // PG timestamp to java.time.OffsetDateTime converts w/o failure
+                            createdAt = resultSet.getObject("created_at", OffsetDateTime::class.java).toKotlinInstant(),
+                            updatedAt = resultSet.getObject("updated_at", OffsetDateTime::class.java).toKotlinInstant(),
+                        ),
                     )
-                )
-            }
+                }
 
-            results
-        } ?: emptyList()
+                results
+            }
+        }
     }
 
     /**
