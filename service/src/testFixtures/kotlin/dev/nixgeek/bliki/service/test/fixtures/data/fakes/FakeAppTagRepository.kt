@@ -21,7 +21,12 @@ class FakeAppTagRepository(
         blockingFlux { cache.values.filter { it.parentId == id } }
 
     override fun fetchParent(id: ULID): Mono<Tag> =
-        blockingMono { cache.values.find { it.id == id }?.parentId?.let { cache[it] } }
+        blockingMono {
+            cache.values
+                .find { it.id == id }
+                ?.parentId
+                ?.let { cache[it] }
+        }
 
     override fun fetchDescendants(rootId: ULID): Flux<Tag> =
         blockingFlux {
@@ -48,13 +53,14 @@ class FakeAppTagRepository(
         blockingMono {
             fun buildTree(tagId: ULID): TagNode? {
                 val tag = cache[tagId] ?: return null
-                val children = cache.values
-                    .filter { it.parentId == tagId }
-                    .mapNotNull { it.id?.let { childId -> buildTree(childId) } }
+                val children =
+                    cache.values
+                        .filter { it.parentId == tagId }
+                        .mapNotNull { it.id?.let { childId -> buildTree(childId) } }
 
                 return TagNode(
                     tag = tag,
-                    children = children
+                    children = children,
                 )
             }
 

@@ -42,10 +42,11 @@ class FakeAdminTagRepository(
         blockingMono {
             val tag = cache[id] ?: throw NoSuchElementException("Tag with id $id not found")
             val now = Clock.System.now()
-            val updated = tag.copy(
-                parentId = parentId,
-                updatedAt = now,
-            )
+            val updated =
+                tag.copy(
+                    parentId = parentId,
+                    updatedAt = now,
+                )
             cache[id] = updated
             updated
         }
@@ -54,10 +55,11 @@ class FakeAdminTagRepository(
         blockingMono {
             val tag = cache[id] ?: throw NoSuchElementException("Tag with id $id not found")
             val now = Clock.System.now()
-            val updated = tag.copy(
-                parentId = null,
-                updatedAt = now,
-            )
+            val updated =
+                tag.copy(
+                    parentId = null,
+                    updatedAt = now,
+                )
             cache[id] = updated
             updated
         }
