@@ -14,7 +14,7 @@ interface AppTagRepository : ReactorContextAwareRepository {
 
     fun fetchChildren(id: ULID): Flux<Tag>
 
-    fun fetchParent(parentId: ULID): Mono<Tag>
+    fun fetchParent(id: ULID): Mono<Tag>
 
     fun fetchDescendants(rootId: ULID): Flux<Tag>
 
