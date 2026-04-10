@@ -287,6 +287,7 @@ internal fun insertTag(
                 it[TagTable.parentId] = parentId?.toString()
                 it[TagTable.term] = term ?: LocalConstants.Tag.TAG_01
                 it[TagTable.slug] = slug ?: LocalConstants.Tag.TAG_01.slugify()
+                it[TagTable.label] = term ?: LocalConstants.Tag.TAG_01
                 it[TagTable.createdAt] = created ?: Clock.System.now()
                 it[TagTable.updatedAt] = created ?: Clock.System.now()
             }.single()

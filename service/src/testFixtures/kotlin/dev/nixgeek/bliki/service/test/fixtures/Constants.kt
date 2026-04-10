@@ -142,6 +142,7 @@ object Constants {
         const val TAG_08 = "deployment"
         const val TAG_09 = "cloud"
         const val TAG_10 = "architecture"
+        const val TAG_11 = "monitoring"
 
         const val TAG_ID_01 = "01KNGC0BTCP30ZHBTEE6GAFG2M" // code
         const val TAG_ID_02 = "01KNPS404A77BAH4GSWER54JFQ" // database
@@ -153,6 +154,7 @@ object Constants {
         const val TAG_ID_08 = "01KNPS5MVETD74BD5NYCZVWY9Y" // deployment
         const val TAG_ID_09 = "01KNPS5XQ6PS3KPZD4XJY730GE" // cloud
         const val TAG_ID_10 = "01KNPS64WEQT15FSXJ0P0FD1DC" // architecture
+        const val TAG_ID_11 = "01KNW7ZYE4A4SZNPJWGTF19ZC2" // monitoring
 
         const val PTAG_ID_01 = TAG_ID_01 // code -> testing, documentation
         const val PTAG_ID_02 = TAG_ID_02 // database -> architecture
@@ -176,7 +178,5 @@ object Constants {
                 Triple(TAG_ID_09.toULID(), PTAG_ID_03.toULID(), TAG_09),
                 Triple(TAG_ID_08.toULID(), PTAG_ID_04.toULID(), TAG_08),
             )
-
-        val tagIds = tagsWithoutParents.map { it.first } + tagsWithParents.map { it.first }
     }
 }
