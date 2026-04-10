@@ -2,6 +2,7 @@ package dev.nixgeek.bliki.service.frameworks.data.exposed.repository
 
 import dev.nixgeek.bliki.lib.data.DatabaseProvider
 import dev.nixgeek.bliki.lib.data.DatabaseTarget
+import dev.nixgeek.bliki.lib.slug.slugify
 import dev.nixgeek.bliki.service.domain.model.Tag
 import dev.nixgeek.bliki.service.domain.repository.AdminTagRepository
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.TagTable
@@ -12,6 +13,7 @@ import org.jetbrains.exposed.v1.jdbc.upsertReturning
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 import ulid.ULID
+import kotlin.time.Clock
 
 /**
  * Repository implementation for administrative tag operations using Exposed ORM.
@@ -37,6 +39,10 @@ class ExposedAdminTagRepository(
      */
     override fun save(tag: Tag): Mono<Tag> =
         txMono(DatabaseTarget.ADMIN) {
+            val now = Clock.System.now()
+            val slug = tag.slug ?: tag.term.slugify()
+            val label = tag.label ?: tag.term
+
             TagTable
                 .upsertReturning(TagTable.id) {
                     if (tag.id != null) {
@@ -44,11 +50,11 @@ class ExposedAdminTagRepository(
                     }
                     it[TagTable.parentId] = tag.parentId?.toString()
                     it[TagTable.term] = tag.term
-                    it[TagTable.slug] = tag.slug
-                    it[TagTable.label] = tag.label ?: tag.term
+                    it[TagTable.slug] = slug
+                    it[TagTable.label] = label
                     it[TagTable.scheme] = tag.scheme
-                    it[TagTable.createdAt] = tag.createdAt
-                    it[TagTable.updatedAt] = tag.updatedAt
+                    it[TagTable.createdAt] = tag.createdAt ?: now
+                    it[TagTable.updatedAt] = tag.updatedAt ?: now
                 }.single()
                 .toTagModel()
         }

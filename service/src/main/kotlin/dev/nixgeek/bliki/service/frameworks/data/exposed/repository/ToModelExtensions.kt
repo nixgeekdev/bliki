@@ -125,6 +125,8 @@ internal fun ResultRow.toTagModel(): Tag =
             parentId = row[TagTable.parentId]?.value?.toULID(),
             term = row[TagTable.term],
             slug = row[TagTable.slug],
+            label = row[TagTable.label],
+            scheme = row[TagTable.scheme],
             createdAt = row[TagTable.createdAt],
             updatedAt = row[TagTable.updatedAt],
         )
