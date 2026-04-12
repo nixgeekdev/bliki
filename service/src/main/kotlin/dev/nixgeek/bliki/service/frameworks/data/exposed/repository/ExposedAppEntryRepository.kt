@@ -5,10 +5,14 @@ import dev.nixgeek.bliki.lib.data.DatabaseTarget
 import dev.nixgeek.bliki.service.domain.model.Entry
 import dev.nixgeek.bliki.service.domain.model.EntryRelationType
 import dev.nixgeek.bliki.service.domain.model.EntryStatus
+import dev.nixgeek.bliki.service.domain.model.PublicIdentityProfile
 import dev.nixgeek.bliki.service.domain.repository.AppEntryRepository
+import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.EntryContributorTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.EntryRelationTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.EntryTable
 import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.EntryTagTable
+import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.IdentityTable
+import dev.nixgeek.bliki.service.frameworks.data.exposed.relation.ProfileTable
 import org.jetbrains.exposed.v1.core.JoinType
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.eq
@@ -182,6 +186,34 @@ class ExposedAppEntryRepository(
                 .selectAll()
                 .where { EntryTable.authorId eq authorId.toString() }
                 .map { it.toEntryModel() }
+        }
+
+    /**
+     * Retrieves all contributors associated with a specific entry.
+     *
+     * This method performs a series of joins across the `entry_contributor`, `profile`,
+     * and `identity` tables to fetch complete public profile information for all contributors
+     * who have contributed to the specified entry. The operation uses inner joins to ensure
+     * only valid contributor relationships with complete profile data are returned.
+     *
+     * Contributors are users who have made contributions to an entry beyond the original
+     * author, such as editors, co-authors, or reviewers. The returned data includes public
+     * profile information suitable for display in the application's public API.
+     *
+     * The operation is executed within a reactive transaction context using [DatabaseTarget.APP].
+     *
+     * @param entryId The unique identifier of the entry whose contributors should be retrieved
+     * @return A [Flux] emitting all [PublicIdentityProfile] objects for contributors to the
+     *         specified entry, or an empty Flux if the entry has no contributors
+     */
+    override fun fetchContributors(entryId: ULID): Flux<PublicIdentityProfile> =
+        txFlux(DatabaseTarget.APP) {
+            EntryContributorTable
+                .join(ProfileTable, JoinType.INNER, EntryContributorTable.profileId, ProfileTable.id)
+                .join(IdentityTable, JoinType.INNER, ProfileTable.identityId, IdentityTable.id)
+                .selectAll()
+                .where { EntryContributorTable.entryId eq entryId.toString() }
+                .map { it.toPublicIdentityProfileModel() }
         }
 
     /**
