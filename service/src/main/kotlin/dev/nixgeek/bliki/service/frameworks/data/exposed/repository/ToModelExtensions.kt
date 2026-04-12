@@ -8,6 +8,7 @@ import dev.nixgeek.bliki.service.domain.model.Generator
 import dev.nixgeek.bliki.service.domain.model.Identity
 import dev.nixgeek.bliki.service.domain.model.IdentityRole
 import dev.nixgeek.bliki.service.domain.model.Profile
+import dev.nixgeek.bliki.service.domain.model.PublicIdentityProfile
 import dev.nixgeek.bliki.service.domain.model.Revision
 import dev.nixgeek.bliki.service.domain.model.Role
 import dev.nixgeek.bliki.service.domain.model.Tag
@@ -141,5 +142,13 @@ internal fun ResultRow.toTagModel(alias: Alias<*>): Tag =
             slug = row[alias[TagTable.slug]],
             createdAt = row[alias[TagTable.createdAt]],
             updatedAt = row[alias[TagTable.updatedAt]],
+        )
+    }
+
+internal fun ResultRow.toPublicIdentityProfileModel(): PublicIdentityProfile =
+    let { row ->
+        PublicIdentityProfile(
+            identity = row.toIdentityModel().toPublicIdentity(),
+            profile = row.toProfileModel().toPublicProfile(),
         )
     }
